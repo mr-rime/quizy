@@ -9,28 +9,33 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { signupSchema } from "../utils/validations";
 import z from "zod";
-import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
+import { useTransition } from "react";
+import { Loader } from "lucide-react";
+
+
 export function SingupForm() {
+    const [isPending, startTransition] = useTransition();
     const { register, formState: { errors }, handleSubmit } = useForm({
         resolver: zodResolver(signupSchema)
     });
 
-    // TODO: Implement signup logic
     const onSubmit = async (data: z.output<typeof signupSchema>) => {
-        const { data: user } = await authClient.signUp.email({
-            name: data.username,
-            email: data.email,
-            password: data.password,
-        }, {
-            onRequest: (ctx) => {
+        startTransition(async () => {
+            const res = await fetch("/api/auth/signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+                credentials: "include"
+            });
 
-            },
-            onSuccess: (ctx) => {
+            const result = await res.json();
+            if (!result.success) {
+                toast.error(result.error);
+            }
 
-            },
-
-            onError: (ctx) => {
-
+            if (result.success) {
+                toast.success(result.message);
             }
         })
     };
@@ -71,7 +76,9 @@ export function SingupForm() {
                 </form>
             </CardContent>
             <CardFooter className="flex flex-col">
-                <Button form="signup" className="w-full">Create an account</Button>
+                {
+                    isPending ? <Button disabled className="w-full"><Loader className="animate-spin" /></Button> : <Button form="signup" className="w-full">Create an account</Button>
+                }
                 <div className="flex items-center justify-center mt-4 space-x-1">
                     <span className="text-muted-foreground">Already have an account? </span>  <Link href={"/login"}>Login</Link>
                 </div>

@@ -1,4 +1,4 @@
-import { ThemeToggle } from "../theme-toggle";
+import { ProfileMenu } from "../profile-menu";
 
 export function Header() {
     return (
@@ -7,7 +7,7 @@ export function Header() {
                 <span className="font-bold">Q</span>uizy
             </h1>
 
-            <ThemeToggle />
+            <ProfileMenu />
         </header>
     )
 }
