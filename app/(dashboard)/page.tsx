@@ -35,7 +35,7 @@ export default async function page() {
 
             {recentSets.length > 0 && (
                 <section>
-                    <Card className="p-8 bg-gradient-to-r from-zinc-900 to-zinc-800 text-white border-none overflow-hidden relative">
+                    <Card className="p-8 bg-linear-to-r from-zinc-900 to-zinc-800 text-white border-none overflow-hidden relative">
                         <div className="relative z-10 max-w-md space-y-4">
                             <h2 className="text-2xl font-bold">{recentSets[0].title}</h2>
                             <p className="text-zinc-300">Flip through terms and definitions</p>

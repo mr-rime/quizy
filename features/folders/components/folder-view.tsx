@@ -3,10 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Folder, MoreHorizontal, Plus, Trash2, Edit2, Share, PinOff } from "lucide-react";
+import { Folder, MoreHorizontal, Plus, Trash2, Edit2 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
-import { deleteFolder, removeSetFromFolder } from "../services/folders";
+import { deleteFolder } from "../services/folders";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AddStudyMaterialsModal } from "./add-study-materials-modal";
@@ -39,19 +39,21 @@ export function FolderView({ folder }: FolderViewProps) {
             await deleteFolder(folder.id);
             toast.success("Folder deleted");
             router.push("/folders");
-        } catch (error) {
+        } catch (err) {
+            console.error(err)
             toast.error("Failed to delete folder");
         }
     };
+    // const handleRemoveSet = async (setId: string) => {
+    //     try {
+    //         await removeSetFromFolder(folder.id, setId);
+    //         toast.success("Set removed from folder");
+    //     } catch (err) {
+    //         console.error(err)
+    //         toast.error("Failed to remove set");
+    //     }
+    // };
 
-    const handleRemoveSet = async (setId: string) => {
-        try {
-            await removeSetFromFolder(folder.id, setId);
-            toast.success("Set removed from folder");
-        } catch (error) {
-            toast.error("Failed to remove set");
-        }
-    };
 
     return (
         <div className="space-y-8">

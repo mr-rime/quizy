@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFolderSchema, CreateFolderSchema, updateFolderSchema, UpdateFolderSchema } from "../utils/validations";
+import { createFolderSchema, CreateFolderSchema } from "../utils/validations";
 import { createFolder, updateFolder } from "../services/folders";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";

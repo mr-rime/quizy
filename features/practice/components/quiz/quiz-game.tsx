@@ -4,7 +4,7 @@ import { useState, useEffect, useEffectEvent } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, Volume2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import { QuizFinish } from "./quiz-finish";
@@ -95,6 +95,11 @@ export function QuizGame({ cards, setId }: QuizGameProps) {
         setIsFinished(false);
     };
 
+    const handleSpeak = (text: string) => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        window.speechSynthesis.speak(utterance);
+    };
+
     if (questions.length === 0) return <div>Loading quiz...</div>;
 
     if (isFinished) {
@@ -123,7 +128,15 @@ export function QuizGame({ cards, setId }: QuizGameProps) {
                 </div>
             </div>
 
-            <Card className="p-12 min-h-[300px] flex flex-col items-center justify-center text-center gap-6">
+            <Card className="p-12 min-h-[300px] flex flex-col items-center justify-center text-center gap-6 relative">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-4 right-4"
+                    onClick={() => handleSpeak(currentQuestion.card.term)}
+                >
+                    <Volume2 className="h-6 w-6" />
+                </Button>
                 <div className="text-sm text-muted-foreground uppercase tracking-wider">Term</div>
                 <h2 className="text-4xl font-bold">{currentQuestion.card.term}</h2>
             </Card>

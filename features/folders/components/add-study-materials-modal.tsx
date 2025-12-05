@@ -57,7 +57,8 @@ export function AddStudyMaterialsModal({ open, onOpenChange, folderId, currentSe
                 toast.success("Added to folder");
             }
             setSelectedSets(newSelected);
-        } catch (error) {
+        } catch (err) {
+            console.error(err)
             toast.error("Failed to update folder");
         }
     };
