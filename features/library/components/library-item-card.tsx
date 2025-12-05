@@ -2,16 +2,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FolderIcon } from "lucide-react";
 import { LibraryItem } from "../types";
+import Link from "next/link";
 
 interface LibraryItemCardProps {
     item: LibraryItem;
 }
 
-import Link from "next/link";
 
 export function LibraryItemCard({ item }: LibraryItemCardProps) {
+    const href = item.type === 'folder' ? `/folders/${item.id}` : `/practice/${item.id}`;
+
     return (
-        <Link href={`/practice/${item.id}`}>
+        <Link href={href}>
             <Card className="hover:bg-accent/50 transition-colors cursor-pointer border-none bg-card/50">
                 <CardContent className="p-4 flex items-center justify-between">
                     <div className="space-y-1">

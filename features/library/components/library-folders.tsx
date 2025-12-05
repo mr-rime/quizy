@@ -1,57 +1,53 @@
 import { LibraryItem } from "../types";
 import { LibraryItemCard } from "./library-item-card";
+import { Folder } from "@/types";
+import { User } from "@/types/auth";
 
-const MOCK_ITEMS: LibraryItem[] = [
-    {
-        id: '1',
-        title: 'A1 Test',
-        termCount: 2,
-        author: { name: 'Mr_Rime' },
-        createdAt: new Date('2025-12-05T20:00:00'),
-        type: 'set'
-    },
-    {
-        id: '2',
-        title: 'UNIT TEST (5)',
-        termCount: 25,
-        author: { name: 'Ahahsienss', avatarUrl: 'https://github.com/shadcn.png' },
-        createdAt: new Date('2025-12-05T19:30:00'),
-        type: 'set',
-        progress: 96
-    },
-    {
-        id: '3',
-        title: 'Effective study strategies',
-        termCount: 12,
-        author: { name: 'Quizlet' },
-        createdAt: new Date('2025-12-01T10:00:00'),
-        type: 'set'
-    },
-    {
-        id: '4',
-        title: 'AI Jobs',
-        termCount: 9,
-        author: { name: 'Mr_Rime' },
-        createdAt: new Date('2025-12-02T15:00:00'),
-        type: 'folder'
-    }
-];
+interface LibraryFoldersProps {
+    folders: Folder[];
+    currentUser: User | null;
+}
 
-export function LibraryFolders() {
-    const sortedItems = [...MOCK_ITEMS]
-        .filter(item => item.type === 'folder')
+const date = Date.now()
+
+export function LibraryFolders({ folders, currentUser }: LibraryFoldersProps) {
+    const sortedItems: LibraryItem[] = folders
+    .map(folder => ({
+        id: folder.id,
+        title: folder.title,
+        termCount: folder.folderSets?.length || 0,
+        author: {
+            name: currentUser?.username || 'Unknown',
+            avatarUrl: currentUser?.image || undefined
+        },
+        createdAt: folder.createdAt ? new Date(folder.createdAt) : new Date(),
+        type: 'folder' as const
+    }))
         .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
     const recentItems = sortedItems.filter(item => {
-        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+        const oneHourAgo = new Date(date - 60 * 60 * 1000);
         return item.createdAt > oneHourAgo;
     });
 
     const thisWeekItems = sortedItems.filter(item => {
-        const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+        const oneWeekAgo = new Date(date - 7 * 24 * 60 * 60 * 1000);
+        const oneHourAgo = new Date(date - 60 * 60 * 1000);
         return item.createdAt > oneWeekAgo && item.createdAt <= oneHourAgo;
     });
+
+    const olderItems = sortedItems.filter(item => {
+        const oneWeekAgo = new Date(date - 7 * 24 * 60 * 60 * 1000);
+        return item.createdAt <= oneWeekAgo;
+    });
+
+    if (sortedItems.length === 0) {
+        return (
+            <div className="text-center text-muted-foreground py-10">
+                No folders found. Create one to get started!
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8">
@@ -69,6 +65,15 @@ export function LibraryFolders() {
                     <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">This Week</h3>
                     <div className="grid gap-4">
                         {thisWeekItems.map(item => <LibraryItemCard key={item.id} item={item} />)}
+                    </div>
+                </section>
+            )}
+
+            {olderItems.length > 0 && (
+                <section>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Older</h3>
+                    <div className="grid gap-4">
+                        {olderItems.map(item => <LibraryItemCard key={item.id} item={item} />)}
                     </div>
                 </section>
             )}

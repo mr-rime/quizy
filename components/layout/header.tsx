@@ -1,5 +1,6 @@
 import { CreateFlashcardMenu } from "@/features/flashcards/components/create-flashcard-menu";
 import { ProfileMenu } from "../../features/user/components/profile-menu";
+import { ThemeToggle } from "../theme-toggle";
 
 export function Header() {
     return (
@@ -10,6 +11,7 @@ export function Header() {
 
             <div className="flex gap-5">
                 <CreateFlashcardMenu />
+                <ThemeToggle />
                 <ProfileMenu />
             </div>
         </header>

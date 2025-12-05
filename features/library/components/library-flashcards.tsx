@@ -5,6 +5,8 @@ interface LibraryFlashcardsProps {
     sets: FlashcardSet[];
 }
 
+const date = Date.now()
+
 export function LibraryFlashcards({ sets }: LibraryFlashcardsProps) {
     const sortedItems = [...sets]
         .filter(item => item.createdAt)
@@ -12,20 +14,20 @@ export function LibraryFlashcards({ sets }: LibraryFlashcardsProps) {
 
     const recentItems = sortedItems.filter(item => {
         if (!item.createdAt) return false;
-        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+        const oneHourAgo = new Date(date - 60 * 60 * 1000);
         return item.createdAt > oneHourAgo;
     });
 
     const thisWeekItems = sortedItems.filter(item => {
         if (!item.createdAt) return false;
-        const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+        const oneWeekAgo = new Date(date - 7 * 24 * 60 * 60 * 1000);
+        const oneHourAgo = new Date(date - 60 * 60 * 1000);
         return item.createdAt > oneWeekAgo && item.createdAt <= oneHourAgo;
     });
 
     const olderItems = sortedItems.filter(item => {
         if (!item.createdAt) return false;
-        const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const oneWeekAgo = new Date(date - 7 * 24 * 60 * 60 * 1000);
         return item.createdAt <= oneWeekAgo;
     });
 

@@ -1,5 +1,5 @@
 "use client"
-import { House, Library, Folder, Plus } from "lucide-react";
+import { House, Library, Folder, Plus, Star } from "lucide-react";
 import Link from "next/link";
 import { JSX, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -17,6 +17,7 @@ type LinkType = {
 const links: LinkType[] = [
     { name: "Home", href: "/", icon: <House size={20} /> },
     { name: "Your Library", href: "/library", icon: <Library size={20} /> },
+    { name: "Favorites", href: "/favorites", icon: <Star size={20} /> },
 ];
 
 interface SidebarProps {

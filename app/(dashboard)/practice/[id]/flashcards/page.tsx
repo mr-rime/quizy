@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFlashcardSet } from "@/features/practice/services/flashcards";
+import { getFavorites } from "@/features/flashcards/services/favorites";
 
 interface PageProps {
     params: Promise<{
@@ -14,6 +15,8 @@ interface PageProps {
 export default async function FlashcardsPage({ params }: PageProps) {
     const { id } = await params;
     const set = await getFlashcardSet(id);
+    const favorites = await getFavorites();
+    const favoriteIds = favorites.map(f => f.id);
 
     if (!set) {
         notFound();
@@ -33,7 +36,7 @@ export default async function FlashcardsPage({ params }: PageProps) {
                 </div>
             </div>
 
-            <FlashcardViewer cards={set.cards} setId={set.id} />
+            <FlashcardViewer cards={set.cards} setId={set.id} initialFavoriteIds={favoriteIds} />
         </div>
     );
 }

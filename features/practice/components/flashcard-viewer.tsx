@@ -24,6 +24,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { editFlashcardSchema, EditFlashcardSchema } from "../utils/validations";
 import { toast } from "sonner";
 import { updateFlashcard } from "@/features/flashcards/services/cards";
+import { toggleFavorite } from "@/features/flashcards/services/favorites";
 
 interface Flashcard {
     id: string;
@@ -35,12 +36,14 @@ interface Flashcard {
 interface FlashcardViewerProps {
     cards: Flashcard[];
     setId: string;
+    initialFavoriteIds: string[];
 }
 
-export function FlashcardViewer({ cards, setId }: FlashcardViewerProps) {
+export function FlashcardViewer({ cards, setId, initialFavoriteIds }: FlashcardViewerProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
+    const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set(initialFavoriteIds));
 
     const currentCard = cards[currentIndex];
 
@@ -98,6 +101,41 @@ export function FlashcardViewer({ cards, setId }: FlashcardViewerProps) {
         }
     };
 
+    const handleToggleFavorite = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        const cardId = currentCard.id;
+        const isFavorite = favoriteIds.has(cardId);
+
+        // Optimistic update
+        setFavoriteIds(prev => {
+            const next = new Set(prev);
+            if (isFavorite) {
+                next.delete(cardId);
+            } else {
+                next.add(cardId);
+            }
+            return next;
+        });
+
+        try {
+            await toggleFavorite(cardId);
+            toast.success(isFavorite ? "Removed from favorites" : "Added to favorites");
+        } catch (error) {
+            console.error("Failed to toggle favorite:", error);
+            toast.error("Failed to toggle favorite");
+            // Revert on error
+            setFavoriteIds(prev => {
+                const next = new Set(prev);
+                if (isFavorite) {
+                    next.add(cardId);
+                } else {
+                    next.delete(cardId);
+                }
+                return next;
+            });
+        }
+    };
+
     const handleNextEvent = useEffectEvent(handleNext)
     const handlePrevEvent = useEffectEvent(handlePrev)
     const handleFlipEvent = useEffectEvent(handleFlip)
@@ -115,6 +153,8 @@ export function FlashcardViewer({ cards, setId }: FlashcardViewerProps) {
 
     if (!currentCard) return <div>No cards found.</div>;
 
+    const isFavorite = favoriteIds.has(currentCard.id);
+
     return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8">
             <div className="w-full max-w-3xl perspective-1000 h-[400px] cursor-pointer group" onClick={handleFlip}>
@@ -130,8 +170,8 @@ export function FlashcardViewer({ cards, setId }: FlashcardViewerProps) {
                             <Button variant="ghost" size="icon" onClick={() => handleSpeak(currentCard.term)}>
                                 <Volume2 className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon">
-                                <Star className="h-4 w-4" />
+                            <Button variant="ghost" size="icon" onClick={handleToggleFavorite}>
+                                <Star className={cn("h-4 w-4", isFavorite && "fill-yellow-400 text-yellow-400")} />
                             </Button>
                         </div>
                         <div className="absolute top-4 left-4 text-sm text-muted-foreground">
@@ -148,8 +188,8 @@ export function FlashcardViewer({ cards, setId }: FlashcardViewerProps) {
                             <Button variant="ghost" size="icon" onClick={() => handleSpeak(currentCard.definition || "")}>
                                 <Volume2 className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon">
-                                <Star className="h-4 w-4" />
+                            <Button variant="ghost" size="icon" onClick={handleToggleFavorite}>
+                                <Star className={cn("h-4 w-4", isFavorite && "fill-yellow-400 text-yellow-400")} />
                             </Button>
                         </div>
                         <div className="absolute top-4 left-4 text-sm text-muted-foreground">
