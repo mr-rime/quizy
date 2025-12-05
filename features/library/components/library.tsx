@@ -1,9 +1,10 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LibraryFlashcards } from "./library-flashcards";
 import { LibraryFolders } from "./library-folders";
+import { FlashcardSet } from "@/types";
 
 interface LibraryProps {
-    sets: any[];
+    sets: FlashcardSet[];
 }
 
 export function Library({ sets }: LibraryProps) {

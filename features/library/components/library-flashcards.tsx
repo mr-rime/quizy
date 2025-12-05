@@ -1,25 +1,30 @@
 import { LibraryItemCard } from "./library-item-card";
+import { FlashcardSet } from "@/types";
 
 interface LibraryFlashcardsProps {
-    sets: any[]; // TODO: Type properly with inferred type from Drizzle
+    sets: FlashcardSet[];
 }
 
 export function LibraryFlashcards({ sets }: LibraryFlashcardsProps) {
     const sortedItems = [...sets]
-        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        .filter(item => item.createdAt)
+        .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
 
     const recentItems = sortedItems.filter(item => {
+        if (!item.createdAt) return false;
         const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
         return item.createdAt > oneHourAgo;
     });
 
     const thisWeekItems = sortedItems.filter(item => {
+        if (!item.createdAt) return false;
         const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
         const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
         return item.createdAt > oneWeekAgo && item.createdAt <= oneHourAgo;
     });
 
     const olderItems = sortedItems.filter(item => {
+        if (!item.createdAt) return false;
         const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
         return item.createdAt <= oneWeekAgo;
     });
@@ -36,9 +41,12 @@ export function LibraryFlashcards({ sets }: LibraryFlashcardsProps) {
                                 item={{
                                     id: item.id,
                                     title: item.title,
-                                    termCount: item.cards.length,
-                                    author: { name: item.user.username, avatarUrl: item.user.image },
-                                    createdAt: item.createdAt,
+                                    termCount: item.cards?.length || 0,
+                                    author: {
+                                        name: item.user?.username || 'Unknown',
+                                        avatarUrl: item.user?.image || undefined
+                                    },
+                                    createdAt: item.createdAt!,
                                     type: 'set'
                                 }}
                             />
@@ -57,9 +65,12 @@ export function LibraryFlashcards({ sets }: LibraryFlashcardsProps) {
                                 item={{
                                     id: item.id,
                                     title: item.title,
-                                    termCount: item.cards.length,
-                                    author: { name: item.user.username, avatarUrl: item.user.image },
-                                    createdAt: item.createdAt,
+                                    termCount: item.cards?.length || 0,
+                                    author: {
+                                        name: item.user?.username || 'Unknown',
+                                        avatarUrl: item.user?.image || undefined
+                                    },
+                                    createdAt: item.createdAt!,
                                     type: 'set'
                                 }}
                             />
@@ -78,9 +89,12 @@ export function LibraryFlashcards({ sets }: LibraryFlashcardsProps) {
                                 item={{
                                     id: item.id,
                                     title: item.title,
-                                    termCount: item.cards.length,
-                                    author: { name: item.user.username, avatarUrl: item.user.image },
-                                    createdAt: item.createdAt,
+                                    termCount: item.cards?.length || 0,
+                                    author: {
+                                        name: item.user?.username || 'Unknown',
+                                        avatarUrl: item.user?.image || undefined
+                                    },
+                                    createdAt: item.createdAt!,
                                     type: 'set'
                                 }}
                             />

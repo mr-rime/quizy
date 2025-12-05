@@ -98,7 +98,6 @@ export async function addSetToFolder(folderId: string, setId: string) {
 
 export async function removeSetFromFolder(folderId: string, setId: string) {
     const userId = await getUserId();
-    // Verify ownership
     const folder = await db.query.folders.findFirst({
         where: and(eq(folders.id, folderId), eq(folders.userId, userId)),
     });
