@@ -1,0 +1,57 @@
+
+> quizy@0.1.0 build
+> next build
+
+   Γû▓ Next.js 16.0.7 (Turbopack)
+   - Environments: .env.local, .env
+
+   Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 2 errors:
+./features/folders/components/folder-view.tsx:8:10
+Ecmascript file had an error
+   6 | import Link from "next/link";
+   7 | import { deleteFolder, removeSetFromFolder } from "../services/folders";
+>  8 | import { useRouter } from "next/navigation";
+     |          ^^^^^^^^^
+   9 | import { toast } from "sonner";
+  10 | import { AddStudyMaterialsModal } from "./add-study-materials-modal";
+  11 | import Image from "next/image";
+
+You're importing a component that needs `useRouter`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+
+
+Import trace:
+  Server Component:
+    ./features/folders/components/folder-view.tsx
+    ./app/(dashboard)/folders/[id]/page.tsx
+
+
+./features/folders/components/folder-view.tsx:5:10
+Ecmascript file had an error
+  3 | import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+  4 | import { Folder, MoreHorizontal, Plus, Trash2, Edit2, Share, PinOff } from "lucide-react";
+> 5 | import { useState } from "react";
+    |          ^^^^^^^^
+  6 | import Link from "next/link";
+  7 | import { deleteFolder, removeSetFromFolder } from "../services/folders";
+  8 | import { useRouter } from "next/navigation";
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+
+
+Import trace:
+  Server Component:
+    ./features/folders/components/folder-view.tsx
+    ./app/(dashboard)/folders/[id]/page.tsx
+
+
+    at <unknown> (./features/folders/components/folder-view.tsx:8:10)
+    at <unknown> (./features/folders/components/folder-view.tsx:5:10)

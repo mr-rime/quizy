@@ -23,5 +23,6 @@ export const config = {
         "/login",
         "/signup",
         "/latest/:path*",
+        "/create-set/:path*",
     ],
 };

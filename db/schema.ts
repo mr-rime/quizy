@@ -1,10 +1,10 @@
 import {
-    boolean,
     pgTable,
     text,
     timestamp,
     uuid,
-    varchar
+    varchar,
+    primaryKey
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -64,9 +64,34 @@ export const cards = pgTable("card", {
         .$onUpdate(() => new Date()),
 });
 
+export const folders = pgTable("folder", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    title: varchar("title", { length: 100 }).notNull(),
+    description: varchar("description", { length: 500 }),
+    userId: uuid("user_id")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date()),
+});
+
+export const folderSets = pgTable("folder_set", {
+    folderId: uuid("folder_id")
+        .notNull()
+        .references(() => folders.id, { onDelete: "cascade" }),
+    setId: uuid("set_id")
+        .notNull()
+        .references(() => flashcardSets.id, { onDelete: "cascade" }),
+}, (t) => ({
+    pk: primaryKey({ columns: [t.folderId, t.setId] }),
+}));
+
 export const userRelations = relations(users, ({ many }) => ({
     sessions: many(sessions),
     flashcardSets: many(flashcardSets),
+    folders: many(folders),
 }));
 
 export const sessionRelations = relations(sessions, ({ one }) => ({
@@ -83,12 +108,32 @@ export const flashcardSetRelations = relations(flashcardSets, ({ one, many }) =>
         references: [users.id],
     }),
     cards: many(cards),
+    folderSets: many(folderSets),
 }));
 
 
 export const cardRelations = relations(cards, ({ one }) => ({
     set: one(flashcardSets, {
         fields: [cards.setId],
+        references: [flashcardSets.id],
+    }),
+}));
+
+export const folderRelations = relations(folders, ({ one, many }) => ({
+    user: one(users, {
+        fields: [folders.userId],
+        references: [users.id],
+    }),
+    folderSets: many(folderSets),
+}));
+
+export const folderSetRelations = relations(folderSets, ({ one }) => ({
+    folder: one(folders, {
+        fields: [folderSets.folderId],
+        references: [folders.id],
+    }),
+    set: one(flashcardSets, {
+        fields: [folderSets.setId],
         references: [flashcardSets.id],
     }),
 }));

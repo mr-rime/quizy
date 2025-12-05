@@ -1,7 +1,7 @@
 import { setSessionCookie } from "@/features/auth/services/cookie";
 import { createSession } from "@/features/auth/services/session";
 import { signUp } from "@/features/auth/services/sign-up";
-import { getUserByEmail } from "@/features/auth/services/user";
+import { getUserByEmail } from "@/features/user/services/user";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { NextRequest, NextResponse } from "next/server";
 import { RateLimiterRes } from "rate-limiter-flexible";
