@@ -64,27 +64,29 @@ export function FlashCardItem({ id, index, remove, itemsCount }: FlashCardItemPr
                     </div>
                 </CardHeader>
                 <CardContent className="flex gap-3 pt-4">
-                    <div className='w-full space-y-2'>
+                    <div className="w-2/4 space-y-2">
                         <Input placeholder="Enter term" {...register(`flashcards.${index}.term`)} />
-                        <p className={`transition-all ${errors.flashcards?.[index]?.term ? "h-4" : "h-0  overflow-hidden"}`}>
+                        <p className={`transition-all ${errors.flashcards?.[index]?.term ? "h-4" : "h-0 overflow-hidden"}`}>
                             {errors.flashcards?.[index]?.term && <span className="text-sm text-red-500">{errors.flashcards[index]?.term?.message}</span>}
                         </p>
                     </div>
-                    <div className='w-full space-y-2'>
+
+                    <div className="w-2/4 space-y-2">
                         <Input placeholder="Enter definition" {...register(`flashcards.${index}.definition`)} />
-                        <p className={`transition-all ${errors.flashcards?.[index]?.definition ? "h-4" : "h-0  overflow-hidden"}`}>
+                        <p className={`transition-all ${errors.flashcards?.[index]?.definition ? "h-4" : "h-0 overflow-hidden"}`}>
                             {errors.flashcards?.[index]?.definition && <span className="text-sm text-red-500">{errors.flashcards[index]?.definition?.message}</span>}
                         </p>
                     </div>
-                    <div className="flex items-start pt-1">
+
+                    <div className="w-1/9 flex items-start pt-1">
                         {imageUrl ? (
-                            <div className="relative group">
+                            <div className="relative group w-full">
                                 <Image
                                     src={imageUrl}
                                     alt="Selected"
                                     width={128}
                                     height={128}
-                                    className="w-28 h-28 sm:w-32 sm:h-32 object-cover rounded-lg cursor-pointer shadow-lg hover:shadow-xl transition-all border-2 border-border hover:border-primary"
+                                    className="w-full h-auto object-cover rounded-lg cursor-pointer shadow-lg hover:shadow-xl transition-all border-2 border-border hover:border-primary"
                                     onClick={() => setIsImageModalOpen(true)}
                                 />
                                 <button
@@ -97,7 +99,7 @@ export function FlashCardItem({ id, index, remove, itemsCount }: FlashCardItemPr
                             </div>
                         ) : (
                             <div
-                                className="w-28 h-28 sm:w-32 sm:h-32 border-2 border-dashed border-muted-foreground/30 rounded-lg flex items-center justify-center cursor-pointer hover:border-primary hover:bg-accent/50 transition-all group"
+                                className="w-full h-32 border-2 border-dashed border-muted-foreground/30 rounded-lg flex items-center justify-center cursor-pointer hover:border-primary hover:bg-accent/50 transition-all group"
                                 onClick={() => setIsImageModalOpen(true)}
                             >
                                 <ImageIcon className="text-muted-foreground group-hover:text-primary transition-colors" size={32} />
