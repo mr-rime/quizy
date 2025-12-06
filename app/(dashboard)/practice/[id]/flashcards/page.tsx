@@ -5,6 +5,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFlashcardSet } from "@/features/practice/services/flashcards";
 import { getFavorites } from "@/features/flashcards/services/favorites";
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
+import { getUserId } from "@/features/user/services/user";
 
 interface PageProps {
     params: Promise<{
@@ -12,10 +15,19 @@ interface PageProps {
     }>;
 }
 
+const getCachedFavorites = cache(unstable_cache(
+    async (userId: string) => {
+        return getFavorites(userId);
+    },
+    ["favorites"],
+    { revalidate: 3600, tags: ["favorites"] }
+))
+
 export default async function FlashcardsPage({ params }: PageProps) {
     const { id } = await params;
     const set = await getFlashcardSet(id);
-    const favorites = await getFavorites();
+    const userId = await getUserId();
+    const favorites = await getCachedFavorites(userId);
     const favoriteIds = favorites.map(f => f.id);
 
     if (!set) {

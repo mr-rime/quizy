@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 import { getSessionCookie } from "@/features/auth/services/session";
 import { cookies } from "next/headers";
 import { and } from "drizzle-orm";
-import { getCurrentUser } from "@/features/user/services/user";
+import { getCurrentUser, getUserId } from "@/features/user/services/user";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -36,15 +36,26 @@ export async function getFlashcardSet(id: string) {
     return set;
 }
 
-export async function getFlashcardSets() {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("session_token")?.value;
-    const session = await getSessionCookie(token);
-
-    if (!session) return [];
+export async function getFlashcardSets(userId: string) {
+    if (!userId) return [];
 
     const sets = await db.query.flashcardSets.findMany({
-        where: eq(flashcardSets.userId, session.userId),
+        where: eq(flashcardSets.userId, userId),
+        with: {
+            cards: true,
+            user: true,
+        },
+        orderBy: (sets, { desc }) => [desc(sets.createdAt)],
+    });
+    return sets;
+}
+
+export async function getFlashcardSetsClient() {
+    const userId = await getUserId();
+    if (!userId) return [];
+
+    const sets = await db.query.flashcardSets.findMany({
+        where: eq(flashcardSets.userId, userId),
         with: {
             cards: true,
             user: true,

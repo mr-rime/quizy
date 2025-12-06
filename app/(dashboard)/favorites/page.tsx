@@ -1,10 +1,22 @@
 import { FlashcardViewer } from "@/features/practice/components/flashcard-viewer";
 import { getFavorites } from "@/features/flashcards/services/favorites";
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
+import { getUserId } from "@/features/user/services/user";
+
+
+const getCachedFavorites = cache(unstable_cache(
+    async (userId: string) => {
+        return getFavorites(userId);
+    },
+    ["favorites"],
+    { revalidate: 3600, tags: ["favorites"] }
+))
 
 export default async function FavoritesPage() {
-    const favorites = await getFavorites();
+    const useId = await getUserId();
+    const favorites = await getCachedFavorites(useId);
     const favoriteIds = favorites.map(f => f.id);
-
     return (
         <div className="container mx-auto p-6 max-w-5xl space-y-8">
             <div className="flex items-center gap-4">

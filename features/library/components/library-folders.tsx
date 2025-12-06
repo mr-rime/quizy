@@ -1,28 +1,22 @@
 import { LibraryItem } from "../types";
 import { LibraryItemCard } from "./library-item-card";
 import { Folder } from "@/types";
-import { User } from "@/types/auth";
 
 interface LibraryFoldersProps {
     folders: Folder[];
-    currentUser: User | null;
 }
 
 const date = Date.now()
 
-export function LibraryFolders({ folders, currentUser }: LibraryFoldersProps) {
+export function LibraryFolders({ folders }: LibraryFoldersProps) {
     const sortedItems: LibraryItem[] = folders
-    .map(folder => ({
-        id: folder.id,
-        title: folder.title,
-        termCount: folder.folderSets?.length || 0,
-        author: {
-            name: currentUser?.username || 'Unknown',
-            avatarUrl: currentUser?.image || undefined
-        },
-        createdAt: folder.createdAt ? new Date(folder.createdAt) : new Date(),
-        type: 'folder' as const
-    }))
+        .map(folder => ({
+            id: folder.id,
+            title: folder.title,
+            termCount: folder.folderSets?.length || 0,
+            createdAt: folder.createdAt ? new Date(folder.createdAt) : new Date(),
+            type: 'folder' as const
+        }))
         .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
     const recentItems = sortedItems.filter(item => {

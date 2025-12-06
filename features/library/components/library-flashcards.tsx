@@ -9,26 +9,26 @@ const date = Date.now()
 
 export function LibraryFlashcards({ sets }: LibraryFlashcardsProps) {
     const sortedItems = [...sets]
-        .filter(item => item.createdAt)
-        .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
+        .filter((item): item is FlashcardSet & { createdAt: string } => !!item.createdAt)
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     const recentItems = sortedItems.filter(item => {
-        if (!item.createdAt) return false;
+        const itemDate = new Date(item.createdAt || '');
         const oneHourAgo = new Date(date - 60 * 60 * 1000);
-        return item.createdAt > oneHourAgo;
+        return itemDate > oneHourAgo;
     });
 
     const thisWeekItems = sortedItems.filter(item => {
-        if (!item.createdAt) return false;
-        const oneWeekAgo = new Date(date - 7 * 24 * 60 * 60 * 1000);
+        const itemDate = new Date(item.createdAt || '');
         const oneHourAgo = new Date(date - 60 * 60 * 1000);
-        return item.createdAt > oneWeekAgo && item.createdAt <= oneHourAgo;
+        const oneWeekAgo = new Date(date - 7 * 24 * 60 * 60 * 1000);
+        return itemDate > oneWeekAgo && itemDate <= oneHourAgo;
     });
 
     const olderItems = sortedItems.filter(item => {
-        if (!item.createdAt) return false;
+        const itemDate = new Date(item.createdAt || '');
         const oneWeekAgo = new Date(date - 7 * 24 * 60 * 60 * 1000);
-        return item.createdAt <= oneWeekAgo;
+        return itemDate <= oneWeekAgo;
     });
 
     return (
@@ -44,10 +44,6 @@ export function LibraryFlashcards({ sets }: LibraryFlashcardsProps) {
                                     id: item.id,
                                     title: item.title,
                                     termCount: item.cards?.length || 0,
-                                    author: {
-                                        name: item.user?.username || 'Unknown',
-                                        avatarUrl: item.user?.image || undefined
-                                    },
                                     createdAt: item.createdAt!,
                                     type: 'set'
                                 }}
@@ -68,10 +64,6 @@ export function LibraryFlashcards({ sets }: LibraryFlashcardsProps) {
                                     id: item.id,
                                     title: item.title,
                                     termCount: item.cards?.length || 0,
-                                    author: {
-                                        name: item.user?.username || 'Unknown',
-                                        avatarUrl: item.user?.image || undefined
-                                    },
                                     createdAt: item.createdAt!,
                                     type: 'set'
                                 }}
@@ -92,10 +84,6 @@ export function LibraryFlashcards({ sets }: LibraryFlashcardsProps) {
                                     id: item.id,
                                     title: item.title,
                                     termCount: item.cards?.length || 0,
-                                    author: {
-                                        name: item.user?.username || 'Unknown',
-                                        avatarUrl: item.user?.image || undefined
-                                    },
                                     createdAt: item.createdAt!,
                                     type: 'set'
                                 }}

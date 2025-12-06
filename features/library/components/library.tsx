@@ -2,15 +2,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LibraryFlashcards } from "./library-flashcards";
 import { LibraryFolders } from "./library-folders";
 import { FlashcardSet, Folder } from "@/types";
-import { User } from "@/types/auth";
 
 interface LibraryProps {
     sets: FlashcardSet[];
     folders: Folder[];
-    currentUser: User | null;
 }
 
-export function Library({ sets, folders, currentUser }: LibraryProps) {
+export function Library({ sets, folders }: LibraryProps) {
     return (
         <div className="mt-10">
             <Tabs defaultValue="flashcards">
@@ -22,7 +20,7 @@ export function Library({ sets, folders, currentUser }: LibraryProps) {
                     <LibraryFlashcards sets={sets} />
                 </TabsContent>
                 <TabsContent value="folders">
-                    <LibraryFolders folders={folders} currentUser={currentUser} />
+                    <LibraryFolders folders={folders} />
                 </TabsContent>
             </Tabs>
         </div>

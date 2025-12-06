@@ -1,7 +1,7 @@
 "use server"
 
 import { db } from "@/db/drizzle";
-import { favorites, cards } from "@/db/schema";
+import { favorites } from "@/db/schema";
 import { getSessionCookie } from "@/features/auth/services/session";
 import { cookies } from "next/headers";
 import { and, eq } from "drizzle-orm";
@@ -40,17 +40,11 @@ export async function toggleFavorite(cardId: string) {
     // However, the client component will likely update its local state optimistically or re-fetch.
 }
 
-export async function getFavorites() {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("session_token")?.value;
-    const session = await getSessionCookie(token);
+export async function getFavorites(userId: string) {
 
-    if (!session) {
-        return [];
-    }
 
     const userFavorites = await db.query.favorites.findMany({
-        where: eq(favorites.userId, session.userId),
+        where: eq(favorites.userId, userId),
         with: {
             card: true,
         },

@@ -1,7 +1,7 @@
 "use client"
 import { House, Library, Folder, Plus, Star } from "lucide-react";
 import Link from "next/link";
-import { JSX, useState } from "react";
+import { JSX, use, useState } from "react";
 import { usePathname } from "next/navigation";
 import { FolderDialog } from "@/features/folders/components/create-folder-button";
 import { Folder as FolderType } from "@/types";
@@ -21,10 +21,11 @@ const links: LinkType[] = [
 ];
 
 interface SidebarProps {
-    folders: FolderType[];
+    foldersPromise: Promise<FolderType[]>;
 }
 
-export function Sidebar({ folders }: SidebarProps) {
+export function Sidebar({ foldersPromise }: SidebarProps) {
+    const folders = use(foldersPromise);
     const pathname = usePathname();
     const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
 

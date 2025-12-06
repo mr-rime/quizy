@@ -3,12 +3,13 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { getFlashcardSets } from "@/features/practice/services/flashcards";
+import { getFlashcardSetsClient } from "@/features/practice/services/flashcards";
 import { addSetToFolder, removeSetFromFolder } from "../services/folders";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { FlashcardSet } from "@/types";
 import { StudyMaterialList } from "./study-material-list";
+import Link from "next/link";
 
 interface AddStudyMaterialsModalProps {
     open: boolean;
@@ -32,7 +33,7 @@ export function AddStudyMaterialsModal({ open, onOpenChange, folderId, currentSe
     const loadSets = async () => {
         setLoading(true);
         try {
-            const data = await getFlashcardSets();
+            const data = await getFlashcardSetsClient();
             setSets(data);
         } catch (error) {
             console.error(error);
@@ -77,9 +78,11 @@ export function AddStudyMaterialsModal({ open, onOpenChange, folderId, currentSe
                 <div className="flex-1 overflow-y-auto p-6">
                     <div className="flex justify-between items-center mb-4">
                         <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Flashcard sets</h3>
-                        <Button variant="ghost" className="text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Create new
+                        <Button variant="ghost" asChild className="text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                            <Link href={"/create-set"}>
+                                <Plus className="h-4 w-4" />
+                                Create new
+                            </Link>
                         </Button>
                     </div>
 

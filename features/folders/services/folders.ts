@@ -1,20 +1,12 @@
 "use server"
 
 import { db } from "@/db/drizzle";
-import { folders, folderSets, flashcardSets } from "@/db/schema";
-import { getSessionCookie } from "@/features/auth/services/session";
-import { cookies } from "next/headers";
-import { eq, and, desc } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { folders, folderSets } from "@/db/schema";
+import { eq, and, desc, inArray } from "drizzle-orm";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { createFolderSchema, CreateFolderSchema, UpdateFolderSchema } from "../utils/validations";
+import { getUserId } from "@/features/user/services/user";
 
-async function getUserId() {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("session_token")?.value;
-    const session = await getSessionCookie(token);
-    if (!session) throw new Error("Unauthorized");
-    return session.userId;
-}
 
 export async function createFolder(data: CreateFolderSchema) {
     const userId = await getUserId();
@@ -27,26 +19,32 @@ export async function createFolder(data: CreateFolderSchema) {
     }).returning();
 
     revalidatePath("/folders");
+    revalidateTag("folders", "max");
+    revalidateTag("folder", "max");
     return newFolder;
 }
 
-export async function getFolders() {
-    const userId = await getUserId();
-    return db.query.folders.findMany({
+export async function getFolders(userId: string) {
+    if (!userId) return [];
+
+    const userFolders = await db.query.folders.findMany({
         where: eq(folders.userId, userId),
         orderBy: [desc(folders.createdAt)],
-        with: {
-            folderSets: {
-                with: {
-                    set: true
-                }
-            }
-        }
     });
+
+    const folderIds = userFolders.map(f => f.id);
+    const setsInFolders = await db.query.folderSets.findMany({
+        where: inArray(folderSets.folderId, folderIds),
+        with: { set: true },
+    });
+
+    return userFolders.map(folder => ({
+        ...folder,
+        folderSets: setsInFolders.filter(fs => fs.folderId === folder.id),
+    }));
 }
 
-export async function getFolder(id: string) {
-    const userId = await getUserId();
+export async function getFolder(id: string, userId: string) {
     const folder = await db.query.folders.findFirst({
         where: and(eq(folders.id, id), eq(folders.userId, userId)),
         with: {
