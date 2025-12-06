@@ -1,9 +1,11 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Image as ImageIcon, Trash, GripVertical } from 'lucide-react'
+import { Image as ImageIcon, Trash, GripVertical, X } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { useState } from 'react'
+import { ImageSearchModal } from './image-search-modal'
 
 type FlashCardItemProps = {
     id: string,
@@ -15,7 +17,10 @@ type FlashCardItemProps = {
 import { FlashcardFormData } from './flashcard-form'
 
 export function FlashCardItem({ id, index, remove, itemsCount }: FlashCardItemProps) {
-    const { register, formState: { errors } } = useFormContext<FlashcardFormData>();
+    const { register, formState: { errors }, setValue, watch } = useFormContext<FlashcardFormData>();
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+    const imageUrl = watch(`flashcards.${index}.image`);
+
     const {
         attributes,
         listeners,
@@ -30,6 +35,14 @@ export function FlashCardItem({ id, index, remove, itemsCount }: FlashCardItemPr
         transition,
         zIndex: isDragging ? 1 : 0,
         opacity: isDragging ? 0.5 : 1
+    };
+
+    const handleSelectImage = (url: string) => {
+        setValue(`flashcards.${index}.image`, url, { shouldValidate: true });
+    };
+
+    const handleRemoveImage = () => {
+        setValue(`flashcards.${index}.image`, '', { shouldValidate: true });
     };
 
     return (
@@ -64,10 +77,39 @@ export function FlashCardItem({ id, index, remove, itemsCount }: FlashCardItemPr
                         </p>
                     </div>
                     <div className="flex items-start pt-1">
-                        <ImageIcon className="text-muted-foreground cursor-pointer hover:text-primary" />
+                        {imageUrl ? (
+                            <div className="relative group">
+                                <img
+                                    src={imageUrl}
+                                    alt="Selected"
+                                    className="w-28 h-28 sm:w-32 sm:h-32 object-cover rounded-lg cursor-pointer shadow-lg hover:shadow-xl transition-all border-2 border-border hover:border-primary"
+                                    onClick={() => setIsImageModalOpen(true)}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleRemoveImage}
+                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-red-600"
+                                >
+                                    <X size={14} />
+                                </button>
+                            </div>
+                        ) : (
+                            <div
+                                className="w-28 h-28 sm:w-32 sm:h-32 border-2 border-dashed border-muted-foreground/30 rounded-lg flex items-center justify-center cursor-pointer hover:border-primary hover:bg-accent/50 transition-all group"
+                                onClick={() => setIsImageModalOpen(true)}
+                            >
+                                <ImageIcon className="text-muted-foreground group-hover:text-primary transition-colors" size={32} />
+                            </div>
+                        )}
                     </div>
                 </CardContent>
             </Card>
+
+            <ImageSearchModal
+                open={isImageModalOpen}
+                onOpenChange={setIsImageModalOpen}
+                onSelectImage={handleSelectImage}
+            />
         </div>
     )
 }

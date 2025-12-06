@@ -100,7 +100,7 @@ export const sessionRelations = relations(sessions, ({ one }) => ({
         fields: [sessions.userId],
         references: [users.id],
     }),
-    
+
 }));
 
 

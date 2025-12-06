@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import { QuizFinish } from "./quiz-finish";
 import { QuizSkeleton } from "./quiz-skeleton";
+import { ImageZoomModal } from "@/components/image-zoom-modal";
 
 interface Flashcard {
     id: string;
@@ -35,6 +36,7 @@ export function QuizGame({ cards, setId }: QuizGameProps) {
     const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
     const [score, setScore] = useState(0);
     const [isFinished, setIsFinished] = useState(false);
+    const [isZoomOpen, setIsZoomOpen] = useState(false);
 
     const setGeneratedQuestions = useEffectEvent(setQuestions)
 
@@ -101,6 +103,11 @@ export function QuizGame({ cards, setId }: QuizGameProps) {
         window.speechSynthesis.speak(utterance);
     };
 
+    const handleImageClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setIsZoomOpen(true);
+    };
+
     if (questions.length === 0) return <QuizSkeleton />;
 
     if (isFinished) {
@@ -118,60 +125,77 @@ export function QuizGame({ cards, setId }: QuizGameProps) {
     const progress = ((currentIndex) / questions.length) * 100;
 
     return (
-        <div className="flex flex-col gap-8 max-w-3xl mx-auto">
-            <div className="flex items-center gap-4">
-                <div className="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
-                    {score}
+        <>
+            <div className="flex flex-col gap-8 max-w-3xl mx-auto">
+                <div className="flex items-center gap-4">
+                    <div className="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
+                        {score}
+                    </div>
+                    <Progress value={progress} className="h-3" />
+                    <div className="bg-muted text-muted-foreground rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
+                        {questions.length - currentIndex}
+                    </div>
                 </div>
-                <Progress value={progress} className="h-3" />
-                <div className="bg-muted text-muted-foreground rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
-                    {questions.length - currentIndex}
+
+                <Card className="p-12 min-h-[300px] flex flex-col items-center justify-center text-center gap-6 relative">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-4 right-4"
+                        onClick={() => handleSpeak(currentQuestion.card.term)}
+                    >
+                        <Volume2 className="h-6 w-6" />
+                    </Button>
+                    <div className="text-sm text-muted-foreground uppercase tracking-wider">Term</div>
+                    <h2 className="text-4xl font-bold">{currentQuestion.card.term}</h2>
+                    {currentQuestion.card.imageUrl && (
+                        <img
+                            src={currentQuestion.card.imageUrl}
+                            alt={currentQuestion.card.term}
+                            className="max-w-full max-h-48 object-contain rounded-lg cursor-zoom-in hover:opacity-90 transition-opacity shadow-md mt-4"
+                            onClick={handleImageClick}
+                        />
+                    )}
+                </Card>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {currentQuestion.options.map((option, index) => {
+                        const isSelected = selectedOptionId === option.id;
+                        const isCorrectOption = option.id === currentQuestion.correctOptionId;
+                        return (
+                            <Button
+                                key={option.id}
+                                variant="outline"
+                                className={cn(
+                                    "h-auto py-6 text-lg justify-start px-6 relative overflow-hidden transition-all",
+                                    selectedOptionId && isCorrectOption && "border-green-500 bg-green-50 text-green-700 hover:bg-green-50 hover:text-green-700",
+                                    selectedOptionId && isSelected && !isCorrect && "border-red-500 bg-red-50 text-red-700 hover:bg-red-50 hover:text-red-700",
+                                    !selectedOptionId && "hover:border-primary/50"
+                                )}
+                                onClick={() => handleAnswer(option.id)}
+                                disabled={!!selectedOptionId}
+                            >
+                                <span className="mr-4 opacity-50 font-mono">{index + 1}</span>
+                                <span className="truncate">{option.definition || "No definition"}</span>
+
+                                {selectedOptionId && isCorrectOption && (
+                                    <CheckCircle className="absolute right-4 h-5 w-5 text-green-600" />
+                                )}
+                                {selectedOptionId && isSelected && !isCorrect && (
+                                    <XCircle className="absolute right-4 h-5 w-5 text-red-600" />
+                                )}
+                            </Button>
+                        );
+                    })}
                 </div>
             </div>
 
-            <Card className="p-12 min-h-[300px] flex flex-col items-center justify-center text-center gap-6 relative">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-4 right-4"
-                    onClick={() => handleSpeak(currentQuestion.card.term)}
-                >
-                    <Volume2 className="h-6 w-6" />
-                </Button>
-                <div className="text-sm text-muted-foreground uppercase tracking-wider">Term</div>
-                <h2 className="text-4xl font-bold">{currentQuestion.card.term}</h2>
-            </Card>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {currentQuestion.options.map((option, index) => {
-                    const isSelected = selectedOptionId === option.id;
-                    const isCorrectOption = option.id === currentQuestion.correctOptionId;
-                    return (
-                        <Button
-                            key={option.id}
-                            variant="outline"
-                            className={cn(
-                                "h-auto py-6 text-lg justify-start px-6 relative overflow-hidden transition-all",
-                                selectedOptionId && isCorrectOption && "border-green-500 bg-green-50 text-green-700 hover:bg-green-50 hover:text-green-700",
-                                selectedOptionId && isSelected && !isCorrect && "border-red-500 bg-red-50 text-red-700 hover:bg-red-50 hover:text-red-700",
-                                !selectedOptionId && "hover:border-primary/50"
-                            )}
-                            onClick={() => handleAnswer(option.id)}
-                            disabled={!!selectedOptionId}
-                        >
-                            <span className="mr-4 opacity-50 font-mono">{index + 1}</span>
-                            <span className="truncate">{option.definition || "No definition"}</span>
-
-                            {selectedOptionId && isCorrectOption && (
-                                <CheckCircle className="absolute right-4 h-5 w-5 text-green-600" />
-                            )}
-                            {selectedOptionId && isSelected && !isCorrect && (
-                                <XCircle className="absolute right-4 h-5 w-5 text-red-600" />
-                            )}
-                        </Button>
-                    );
-                })}
-            </div>
-        </div>
+            <ImageZoomModal
+                imageUrl={currentQuestion.card.imageUrl}
+                alt={currentQuestion.card.term}
+                open={isZoomOpen}
+                onOpenChange={setIsZoomOpen}
+            />
+        </>
     );
 }
