@@ -7,6 +7,7 @@ import { cookies } from "next/headers";
 import { createFlashcardSetSchema } from "../utils/validations";
 import { redirect } from "next/navigation";
 import z from "zod";
+import { updateTag } from "next/cache";
 
 export type CreateFlashcardSetInput = z.infer<typeof createFlashcardSetSchema>;
 
@@ -41,6 +42,7 @@ export async function createFlashcardSet(data: CreateFlashcardSetInput) {
             }
         });
 
+        updateTag("recent-sets");
         redirect("/")
     } catch (err) {
         console.log(err)

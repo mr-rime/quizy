@@ -67,6 +67,7 @@ export function Sidebar({ folders }: SidebarProps) {
                                     className={`flex items-center gap-3 p-3 rounded-lg text-zinc-700 dark:text-zinc-300 transition-all duration-200
                                         ${isActive ? "bg-zinc-200 dark:bg-zinc-700 font-semibold" : "hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white"}
                                     `}
+                                    prefetch
                                 >
                                     <Folder size={20} />
                                     <span className="truncate">{folder.title}</span>

@@ -4,9 +4,25 @@ import Link from "next/link";
 import { Layers } from "lucide-react";
 import Image from "next/image";
 import { getRecentSets } from "@/features/practice/services/recent";
+import { cookies } from "next/headers";
+import { getSessionCookie } from "@/features/auth/services/session";
+import { unstable_cache } from "next/cache";
+import { cache } from "react";
+
+
+export const getCachedRecentSets = cache(unstable_cache(
+    async (userId: string, limit = 4) => {
+        return getRecentSets(userId, limit);
+    },
+    ["recent-sets"]
+));
 
 export default async function LatestPage() {
-    const recentSets = await getRecentSets(4);
+    const cookieStore = await cookies();
+    const token = cookieStore.get("session_token")?.value;
+    const session = await getSessionCookie(token);
+
+    const recentSets = await getCachedRecentSets(session?.userId || "", 4);
 
     return (
         <div className="flex items-center p-[1.5rem_3rem]">
