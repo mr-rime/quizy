@@ -41,7 +41,7 @@ export async function getActiveProgress(userId: string): Promise<ProgressWithSet
         },
     });
 
-    return progress.map((p: any) => ({
+    return progress.map((p) => ({
         id: p.id,
         userId: p.userId,
         setId: p.setId,

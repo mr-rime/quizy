@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { CheckCircle, RotateCcw } from "lucide-react";
-import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { addXP, updateStreak, incrementFlashcardCompleted } from "@/features/gamification/services/stats";
 import { checkAndAwardAchievements } from "@/features/gamification/services/achievements";
@@ -16,7 +15,7 @@ type FlashcardFinishProps = {
     restartPractice: () => void;
 }
 
-export function FlashcardFinish({ cardsLength, setId, userId, restartPractice }: FlashcardFinishProps) {
+export function FlashcardFinish({ cardsLength, userId, restartPractice }: FlashcardFinishProps) {
     const hasRun = useRef(false);
 
     useEffect(() => {

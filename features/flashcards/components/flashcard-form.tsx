@@ -13,6 +13,7 @@ import { createFlashcardSet } from "../services/create-set";
 export type FlashcardFormData = {
     title: string;
     description?: string;
+    isPublic?: boolean;
     flashcards: {
         id?: string;
         term: string;
@@ -38,6 +39,7 @@ export function FlashcardForm({ setId, initialData }: FlashcardFormProps = {}) {
         defaultValues: initialData || {
             title: "",
             description: "",
+            isPublic: false,
             flashcards: [{
                 id: "1",
                 term: "",
@@ -50,9 +52,14 @@ export function FlashcardForm({ setId, initialData }: FlashcardFormProps = {}) {
     const onSubmit = (data: FlashcardFormData) => {
         startTransition(async () => {
             try {
+                const formData = {
+                    ...data,
+                    isPublic: data.isPublic ?? false,
+                };
+
                 const result = setId
-                    ? await updateFlashcardSet({ ...data, setId })
-                    : await createFlashcardSet(data);
+                    ? await updateFlashcardSet({ ...formData, setId })
+                    : await createFlashcardSet(formData);
 
                 if (result?.success && result.id) {
                     toast.success(setId ? "Flashcard set updated successfully" : "Flashcard set created successfully");

@@ -103,7 +103,7 @@ export function LibraryFlashcards({ sets }: LibraryFlashcardsProps) {
                     </div>
                     <h3 className="text-xl font-semibold mb-2">No Flashcard Sets Found</h3>
                     <p className="text-muted-foreground mb-6 max-w-sm">
-                        You haven't created any flashcard sets yet. Start building your collection now!
+                        You haven&apos;t created any flashcard sets yet. Start building your collection now!
                     </p>
                     <Link href="/create-set">
                         <Button size="lg" className="rounded-full px-8">

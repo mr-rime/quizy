@@ -9,8 +9,6 @@ import { FlashcardDisplay } from "./flashcard-display";
 import { FlashcardControls } from "./flashcard-controls";
 import { EditCardDialog } from "./edit-card-dialog";
 import { saveProgress, getProgressForSet, deleteProgressBySet } from "../services/progress";
-import { addXP, updateStreak, incrementFlashcardCompleted } from "@/features/gamification/services/stats";
-import { checkAndAwardAchievements } from "@/features/gamification/services/achievements";
 import { FlashcardFinish } from "./flashcard-finish";
 import { Skeleton } from "@/components/skeleton";
 
@@ -36,9 +34,14 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [] 
     const [isLoadingProgress, setIsLoadingProgress] = useState(true);
     const [isFinished, setIsFinished] = useState(false);
 
-    const currentCard = cards[currentIndex];
+
 
     useEffect(() => {
+        if (setId === "favorites") {
+            setIsLoadingProgress(false);
+            return;
+        }
+
         async function loadProgress() {
             try {
                 const progress = await getProgressForSet(userId, setId, "flashcard");
@@ -55,7 +58,7 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [] 
     }, [userId, setId]);
 
     useEffect(() => {
-        if (isLoadingProgress || isFinished) return;
+        if (isLoadingProgress || isFinished || setId === "favorites") return;
 
         async function saveCurrentProgress() {
             try {
@@ -80,10 +83,12 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [] 
             setIsFlipped(false);
         } else {
             setIsFinished(true);
-            try {
-                await deleteProgressBySet(userId, setId, "flashcard");
-            } catch (error) {
-                console.error("Error deleting progress:", error);
+            if (setId !== "favorites") {
+                try {
+                    await deleteProgressBySet(userId, setId, "flashcard");
+                } catch (error) {
+                    console.error("Error deleting progress:", error);
+                }
             }
         }
     }, [currentIndex, cards.length, userId, setId]);
@@ -172,6 +177,16 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [] 
     }, []);
 
 
+    if (!cards || cards.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+                <p className="text-muted-foreground text-lg">No cards available in this set.</p>
+            </div>
+        );
+    }
+
+    const currentCard = cards[currentIndex];
+
     const restartPractice = () => {
         setIsFinished(false);
         setCurrentIndex(0);
@@ -189,10 +204,10 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [] 
         );
     }
 
-    if (!currentCard || isLoadingProgress) {
+    if (isLoadingProgress) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8">
-                <div className="w-full max-w-2xl aspect-[3/2] relative perspective-1000">
+                <div className="w-full max-w-2xl aspect-3/2 relative perspective-1000">
                     <Skeleton className="w-full h-full rounded-xl" />
                 </div>
                 <div className="flex items-center gap-4 w-full max-w-md justify-center">

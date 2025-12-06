@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { CheckCircle, RotateCcw, XCircle } from "lucide-react";
-import Link from "next/link";
 import { useEffect } from "react";
 import { addXP, updateStreak, incrementQuizCompleted } from "@/features/gamification/services/stats";
 import { checkAndAwardAchievements } from "@/features/gamification/services/achievements";
@@ -16,7 +15,7 @@ type QuizFinishProps = {
     restartQuiz: () => void;
 }
 
-export function QuizFinish({ score, questions, setId, userId, restartQuiz }: QuizFinishProps) {
+export function QuizFinish({ score, questions, userId, restartQuiz }: QuizFinishProps) {
     useEffect(() => {
         async function rewardCompletion() {
             const isPerfect = score === questions.length;

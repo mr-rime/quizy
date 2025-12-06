@@ -5,7 +5,6 @@ import { flashcardSets, cards } from "@/db/schema";
 import { getSessionCookie } from "@/features/auth/services/session";
 import { cookies } from "next/headers";
 import { createFlashcardSetSchema } from "../utils/validations";
-import { redirect } from "next/navigation";
 import z from "zod";
 import { revalidatePath, revalidateTag } from "next/cache";
 
@@ -27,6 +26,7 @@ export async function createFlashcardSet(data: CreateFlashcardSetInput) {
             const [newSet] = await tx.insert(flashcardSets).values({
                 title: validatedData.title,
                 description: validatedData.description,
+                isPublic: validatedData.isPublic ?? false,
                 userId: session.userId,
             }).returning({ id: flashcardSets.id });
 

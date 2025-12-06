@@ -5,7 +5,8 @@ import {
     uuid,
     varchar,
     primaryKey,
-    integer
+    integer,
+    boolean
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -41,6 +42,7 @@ export const flashcardSets = pgTable("flashcard_set", {
     id: uuid("id").defaultRandom().primaryKey(),
     title: varchar("title", { length: 100 }).notNull(),
     description: varchar("description", { length: 500 }),
+    isPublic: boolean("is_public").notNull().default(false),
     userId: uuid("user_id")
         .notNull()
         .references(() => users.id, { onDelete: "cascade" }),

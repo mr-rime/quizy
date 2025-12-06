@@ -59,7 +59,7 @@ export default async function LatestPage() {
                             </div>
                             <h3 className="text-xl font-semibold mb-2">No Recent Sets Found</h3>
                             <p className="text-muted-foreground mb-6 max-w-sm">
-                                You haven't created or practiced any sets yet. Start by creating your first flashcard set!
+                                You haven&apos;t created or practiced any sets yet. Start by creating your first flashcard set!
                             </p>
                             <Link href="/create-set">
                                 <Button size="lg" className="rounded-full px-8">

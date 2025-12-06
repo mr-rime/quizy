@@ -40,6 +40,7 @@ export async function updateFlashcardSet(data: UpdateFlashcardSetInput) {
                 .set({
                     title: validatedData.title,
                     description: validatedData.description,
+                    isPublic: validatedData.isPublic ?? false,
                 })
                 .where(eq(flashcardSets.id, data.setId));
 

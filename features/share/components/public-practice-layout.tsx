@@ -2,49 +2,34 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Share, Layers, BrainCircuit } from "lucide-react";
+import { ArrowLeft, Layers, BrainCircuit, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PracticeDropdown } from "./practice-dropdown";
-import { use, useState, useEffect } from "react";
-import { getFlashcardSet } from "../services/flashcards";
-import { ShareModal } from "@/features/share/components/share-modal";
-import { generateShareUrl } from "@/features/share/services/share";
+import { use } from "react";
+import { getPublicSet } from "../services/share";
 
-
-interface PracticeLayoutProps<T> {
+interface PublicPracticeLayoutProps<T> {
     flashcardSetPromise: Promise<T>;
     children?: React.ReactNode;
 }
 
-export function PracticeLayout<T>({ flashcardSetPromise, children }: PracticeLayoutProps<T>) {
+export function PublicPracticeLayout<T>({ flashcardSetPromise, children }: PublicPracticeLayoutProps<T>) {
     const router = useRouter();
-    const [shareModalOpen, setShareModalOpen] = useState(false);
-    const [shareUrl, setShareUrl] = useState("");
 
-    const set = use(flashcardSetPromise) as Awaited<ReturnType<typeof getFlashcardSet>>;
-
-    useEffect(() => {
-        if (set?.id) {
-            generateShareUrl(set.id).then(setShareUrl);
-        }
-    }, [set?.id]);
+    const set = use(flashcardSetPromise) as Awaited<ReturnType<typeof getPublicSet>>;
 
     if (!set) {
-        return <p className="text-center py-8 text-muted-foreground">Flashcard set not found.</p>;
+        return <p className="text-center py-8 text-muted-foreground">This set is not publicly available.</p>;
     }
 
-    const { id: setId, title, cards, isPublic } = set;
-
-
-
+    const { id: setId, title, cards, user } = set;
     const cardCount = cards.length;
 
     return (
         <div className="container mx-auto p-6 max-w-5xl space-y-8">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={() => router.push("/latest")}>
+                    <Button variant="ghost" size="icon" onClick={() => router.back()}>
                         <ArrowLeft className="h-6 w-6" />
                     </Button>
                     <div>
@@ -52,17 +37,27 @@ export function PracticeLayout<T>({ flashcardSetPromise, children }: PracticeLay
                         <p className="text-muted-foreground">{cardCount} terms</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Button variant="outline" className="gap-2" onClick={() => setShareModalOpen(true)}>
-                        <Share className="h-4 w-4" />
-                        Share
-                    </Button>
-                    <PracticeDropdown setId={setId} />
-                </div>
             </div>
 
+            {user && (
+                <Card className="p-4">
+                    <Link
+                        href={`/profile/${user.id}`}
+                        className="flex items-center gap-3 hover:bg-accent transition-colors rounded-lg p-2 -m-2"
+                    >
+                        <div className="p-2 rounded-full bg-primary/10">
+                            <User className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                            <p className="text-sm text-muted-foreground">Created by</p>
+                            <p className="font-semibold">{user.username}</p>
+                        </div>
+                    </Link>
+                </Card>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Link href={`/practice/${setId}/flashcards`}>
+                <Link href={`/share/${setId}/flashcards`}>
                     <Card className="p-6 hover:bg-accent transition-colors cursor-pointer flex items-center justify-between group">
                         <div className="flex items-center gap-4">
                             <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
@@ -75,7 +70,7 @@ export function PracticeLayout<T>({ flashcardSetPromise, children }: PracticeLay
                         </div>
                     </Card>
                 </Link>
-                <Link href={`/practice/${setId}/quizes`}>
+                <Link href={`/share/${setId}/quizes`}>
                     <Card className="p-6 hover:bg-accent transition-colors cursor-pointer flex items-center justify-between group">
                         <div className="flex items-center gap-4">
                             <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
@@ -91,14 +86,6 @@ export function PracticeLayout<T>({ flashcardSetPromise, children }: PracticeLay
             </div>
 
             {children}
-
-            <ShareModal
-                open={shareModalOpen}
-                onOpenChange={setShareModalOpen}
-                setId={setId}
-                isPublic={isPublic ?? false}
-                shareUrl={shareUrl}
-            />
         </div>
     );
 }

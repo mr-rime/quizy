@@ -4,12 +4,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { useFormContext } from "react-hook-form";
 
 import { FlashcardFormData } from "./flashcard-form";
 
 export function CardInformationForm() {
-    const { register, formState: { errors } } = useFormContext<FlashcardFormData>();
+    const { register, formState: { errors }, watch, setValue } = useFormContext<FlashcardFormData>();
+    const isPublic = watch("isPublic") ?? false;
 
     return (
         <Card>
@@ -29,6 +31,22 @@ export function CardInformationForm() {
                         <p className={`transition-all ${errors.description ? "h-4" : "h-0  overflow-hidden"}`}>
                             {errors.description && <span className="text-sm text-red-500">{errors.description.message}</span>}
                         </p>
+                    </div>
+
+                    <div className="space-y-2 pt-4 border-t">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <Label htmlFor="isPublic" className="text-base">Make this set public</Label>
+                                <p className="text-sm text-muted-foreground">
+                                    Public sets can be shared with others and viewed by anyone
+                                </p>
+                            </div>
+                            <Switch
+                                id="isPublic"
+                                checked={isPublic}
+                                onCheckedChange={(checked) => setValue("isPublic", checked)}
+                            />
+                        </div>
                     </div>
                 </div>
             </CardContent>

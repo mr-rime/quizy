@@ -57,7 +57,8 @@ export function ProfileForm({ user }: ProfileFormProps) {
             } else {
                 toast.error(result.error || "Failed to update email");
             }
-        } catch (error) {
+        } catch (err) {
+            console.error(err)
             toast.error("An error occurred");
         } finally {
             setIsLoadingEmail(false);
@@ -73,7 +74,8 @@ export function ProfileForm({ user }: ProfileFormProps) {
             } else {
                 toast.error(result.error || "Failed to update username");
             }
-        } catch (error) {
+        } catch (err) {
+            console.error(err)
             toast.error("An error occurred");
         } finally {
             setIsLoadingUsername(false);
@@ -90,7 +92,8 @@ export function ProfileForm({ user }: ProfileFormProps) {
             } else {
                 toast.error(result.error || "Failed to update password");
             }
-        } catch (error) {
+        } catch (err) {
+            console.error(err)
             toast.error("An error occurred");
         } finally {
             setIsLoadingPassword(false);
@@ -106,7 +109,6 @@ export function ProfileForm({ user }: ProfileFormProps) {
                 </TabsList>
 
                 <TabsContent value="profile" className="space-y-6 mt-6">
-                    {/* Email Form */}
                     <Card className="p-6">
                         <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-4">
                             <div className="flex items-center gap-2 mb-4">
@@ -133,7 +135,6 @@ export function ProfileForm({ user }: ProfileFormProps) {
                         </form>
                     </Card>
 
-                    {/* Username Form */}
                     <Card className="p-6">
                         <form onSubmit={usernameForm.handleSubmit(onUsernameSubmit)} className="space-y-4">
                             <div className="flex items-center gap-2 mb-4">

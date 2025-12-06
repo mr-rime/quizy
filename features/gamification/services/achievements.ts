@@ -2,7 +2,7 @@
 
 import { db } from "@/db/drizzle";
 import { achievements, userAchievements } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { getUserStats } from "./stats";
 
 export interface Achievement {

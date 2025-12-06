@@ -52,7 +52,7 @@ export function LibraryFolders({ folders }: LibraryFoldersProps) {
                     </div>
                     <h3 className="text-xl font-semibold mb-2">No Folders Found</h3>
                     <p className="text-muted-foreground mb-6 max-w-sm">
-                        You haven't created any folders yet. Organize your flashcard sets by creating folders!
+                        You haven&apos;t created any folders yet. Organize your flashcard sets by creating folders!
                     </p>
                     <Button size="lg" className="rounded-full px-8" onClick={() => setIsModalOpen(true)}>
                         Create Folder
