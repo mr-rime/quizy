@@ -41,6 +41,9 @@ export function QuizGame({ cards, setId }: QuizGameProps) {
 
     const setGeneratedQuestions = useEffectEvent(setQuestions)
 
+    const correctAudio = typeof window !== 'undefined' ? new Audio('/audio/correct-choice.mp3') : null;
+    const incorrectAudio = typeof window !== 'undefined' ? new Audio('/audio/incorrect-choice.mp3') : null;
+
     useEffect(() => {
         // if (cards.length < 4) {
         //     // Not enough cards for a quiz with 4 options
@@ -71,8 +74,12 @@ export function QuizGame({ cards, setId }: QuizGameProps) {
         const correct = optionId === currentQuestion.correctOptionId;
 
         setIsCorrect(correct);
+
         if (correct) {
             setScore(prev => prev + 1);
+            correctAudio?.play().catch(err => console.error('Error playing correct sound:', err));
+        } else {
+            incorrectAudio?.play().catch(err => console.error('Error playing incorrect sound:', err));
         }
 
         setTimeout(() => {
