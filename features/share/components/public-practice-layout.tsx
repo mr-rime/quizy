@@ -5,9 +5,10 @@ import { Card } from "@/components/ui/card";
 import { ArrowLeft, Layers, BrainCircuit, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { use } from "react";
+import { use, useState, useEffect } from "react";
 import { getPublicSet } from "../services/share";
 import { SaveButton } from "@/features/saved-sets/components/save-button";
+import { isSetSaved } from "@/features/saved-sets/services/saved-sets";
 
 interface PublicPracticeLayoutProps<T> {
     flashcardSetPromise: Promise<T>;
@@ -16,6 +17,8 @@ interface PublicPracticeLayoutProps<T> {
 
 export function PublicPracticeLayout<T>({ flashcardSetPromise, children }: PublicPracticeLayoutProps<T>) {
     const router = useRouter();
+    const [isSaved, setIsSaved] = useState(false);
+    const [isCheckingStatus, setIsCheckingStatus] = useState(true);
 
     const set = use(flashcardSetPromise) as Awaited<ReturnType<typeof getPublicSet>>;
 
@@ -25,6 +28,15 @@ export function PublicPracticeLayout<T>({ flashcardSetPromise, children }: Publi
 
     const { id: setId, title, cards, user } = set;
     const cardCount = cards.length;
+
+    useEffect(() => {
+        isSetSaved(setId).then(saved => {
+            setIsSaved(saved);
+            setIsCheckingStatus(false);
+        }).catch(() => {
+            setIsCheckingStatus(false);
+        });
+    }, [setId]);
 
     return (
         <div className="container mx-auto p-6 max-w-5xl space-y-8">
@@ -38,7 +50,7 @@ export function PublicPracticeLayout<T>({ flashcardSetPromise, children }: Publi
                         <p className="text-muted-foreground">{cardCount} terms</p>
                     </div>
                 </div>
-                <SaveButton setId={setId} initialSaved={false} />
+                {!isCheckingStatus && <SaveButton setId={setId} initialSaved={isSaved} />}
             </div>
 
             {user && (
