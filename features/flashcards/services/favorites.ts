@@ -36,13 +36,9 @@ export async function toggleFavorite(cardId: string) {
     }
 
     revalidatePath("/favorites");
-    // We might want to revalidate the practice page too, but we don't know the set ID here easily without another query.
-    // However, the client component will likely update its local state optimistically or re-fetch.
 }
 
 export async function getFavorites(userId: string) {
-
-
     const userFavorites = await db.query.favorites.findMany({
         where: eq(favorites.userId, userId),
         with: {

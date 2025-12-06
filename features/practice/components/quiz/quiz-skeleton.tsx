@@ -22,8 +22,6 @@ export function QuizSkeleton() {
 
             <Card className="p-12 min-h-[300px] flex flex-col items-center justify-center text-center gap-6 relative">
                 <Skeleton className="h-6 w-6 rounded-full absolute top-4 right-4" />
-                <Skeleton className="h-4 w-24 rounded" />
-                <Skeleton className="h-12 w-64 rounded" />
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

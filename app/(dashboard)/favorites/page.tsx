@@ -4,7 +4,6 @@ import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { getUserId } from "@/features/user/services/user";
 
-
 const getCachedFavorites = cache(unstable_cache(
     async (userId: string) => {
         return getFavorites(userId);
@@ -15,8 +14,8 @@ const getCachedFavorites = cache(unstable_cache(
 
 export default async function FavoritesPage() {
     const useId = await getUserId();
-    const favorites = await getCachedFavorites(useId);
-    const favoriteIds = favorites.map(f => f.id);
+    const favoritesPromise = getCachedFavorites(useId);
+
     return (
         <div className="container mx-auto p-6 max-w-5xl space-y-8">
             <div className="flex items-center gap-4">
@@ -26,13 +25,7 @@ export default async function FavoritesPage() {
                 </div>
             </div>
 
-            {favorites.length > 0 ? (
-                <FlashcardViewer cards={favorites} setId="favorites" initialFavoriteIds={favoriteIds} />
-            ) : (
-                <div className="text-center py-20 text-muted-foreground">
-                    You haven&apos;t favorited any cards yet.
-                </div>
-            )}
+            <FlashcardViewer favoritesPromise={favoritesPromise} setId="favorites" />
         </div>
     );
 }

@@ -1,4 +1,4 @@
-'use server'
+"use server"
 
 import { db } from "@/db/drizzle";
 import { flashcardSets } from "@/db/schema";
@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 
 import { and } from "drizzle-orm";
 import { getCurrentUser, getUserId } from "@/features/user/services/user";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function getFlashcardSet(id: string, userId: string) {
@@ -73,10 +73,7 @@ export async function deleteFlashcardSet(id: string) {
             )
         );
 
-    revalidatePath("/sets");
+    revalidateTag("sets", "max");
+    revalidatePath("/latest");
     redirect("/latest");
-    return {
-        success: true,
-        message: "Set deleted successfully"
-    };
 }

@@ -1,6 +1,6 @@
-'use client'
+"use client"
 
-import { useState, useEffect, useCallback, useEffectEvent } from "react";
+import { useState, useEffect, useCallback, useEffectEvent, use } from "react";
 import { toast } from "sonner";
 import { updateFlashcard } from "@/features/flashcards/services/cards";
 import { toggleFavorite } from "@/features/flashcards/services/favorites";
@@ -17,12 +17,16 @@ interface Flashcard {
 }
 
 interface FlashcardViewerProps {
-    cards: Flashcard[];
+    favoritesPromise?: Promise<Flashcard[]>;
+    cards?: Flashcard[];
     setId: string;
-    initialFavoriteIds: string[];
+    initialFavoriteIds?: string[];
 }
 
-export function FlashcardViewer({ cards, initialFavoriteIds }: FlashcardViewerProps) {
+export function FlashcardViewer({ favoritesPromise, cards: cardsProp, initialFavoriteIds: initialFavoriteIdsProp }: FlashcardViewerProps) {
+    const favorites = favoritesPromise ? use(favoritesPromise) : null;
+    const cards = favorites || cardsProp || [];
+    const initialFavoriteIds = favorites ? favorites.map(f => f.id) : (initialFavoriteIdsProp || []);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
@@ -35,14 +39,14 @@ export function FlashcardViewer({ cards, initialFavoriteIds }: FlashcardViewerPr
             setCurrentIndex(prev => prev + 1);
             setIsFlipped(false);
         }
-    }, [currentIndex, cards.length]);
+    }, [currentIndex, cards.length, setCurrentIndex, setIsFlipped]);
 
     const handlePrev = useCallback(() => {
         if (currentIndex > 0) {
             setCurrentIndex(prev => prev - 1);
             setIsFlipped(false);
         }
-    }, [currentIndex]);
+    }, [currentIndex, setCurrentIndex, setIsFlipped]);
 
     const handleFlip = () => {
         setIsFlipped(!isFlipped);
