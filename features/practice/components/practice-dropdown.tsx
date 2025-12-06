@@ -5,6 +5,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Edit, MoreHorizontal, Trash } from "lucide-react";
 import { DeleteFlashcardDialog } from "./delete-flashcard-dialog";
 import { useState } from "react";
+import Link from "next/link";
 
 
 
@@ -19,10 +20,12 @@ export function PracticeDropdown({ setId }: { setId: string }) {
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit
-                    </DropdownMenuItem>
+                    <Link href={`/edit-set/${setId}`}>
+                        <DropdownMenuItem>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                        </DropdownMenuItem>
+                    </Link>
                     <DropdownMenuItem onClick={() => setOpenDelete(true)} className="text-destructive">
                         <Trash className="mr-2 h-4 w-4" />
                         Delete

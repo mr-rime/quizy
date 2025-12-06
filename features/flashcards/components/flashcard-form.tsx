@@ -23,13 +23,19 @@ export type FlashcardFormData = {
 
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { updateFlashcardSet } from "../services/update-set";
 
-export function FlashcardForm() {
+interface FlashcardFormProps {
+    setId?: string;
+    initialData?: FlashcardFormData;
+}
+
+export function FlashcardForm({ setId, initialData }: FlashcardFormProps = {}) {
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
     const methods = useForm<FlashcardFormData>({
         resolver: zodResolver(createFlashcardSetSchema),
-        defaultValues: {
+        defaultValues: initialData || {
             title: "",
             description: "",
             flashcards: [{
@@ -44,15 +50,18 @@ export function FlashcardForm() {
     const onSubmit = (data: FlashcardFormData) => {
         startTransition(async () => {
             try {
-                const result = await createFlashcardSet(data);
+                const result = setId
+                    ? await updateFlashcardSet({ ...data, setId })
+                    : await createFlashcardSet(data);
+
                 if (result?.success && result.id) {
-                    toast.success("Flashcard set created successfully");
+                    toast.success(setId ? "Flashcard set updated successfully" : "Flashcard set created successfully");
                     router.push(`/practice/${result.id}`);
                 } else {
-                    toast.error(result?.error || "Failed to create flashcard set");
+                    toast.error(result?.error || (setId ? "Failed to update flashcard set" : "Failed to create flashcard set"));
                 }
             } catch (error) {
-                toast.error("Failed to create flashcard set");
+                toast.error(setId ? "Failed to update flashcard set" : "Failed to create flashcard set");
                 console.error(error);
             }
         });
@@ -62,9 +71,9 @@ export function FlashcardForm() {
         <FormProvider {...methods}>
             <form id="create-set-form" onSubmit={methods.handleSubmit(onSubmit)}>
                 <div className="flex justify-between items-center mb-10">
-                    <h2 className="text-[1.5rem] font-medium">Create a new flashcard set</h2>
+                    <h2 className="text-[1.5rem] font-medium">{setId ? "Edit flashcard set" : "Create a new flashcard set"}</h2>
                     <Button type="submit" disabled={isPending}>
-                        {isPending ? "Creating..." : "Create"}
+                        {isPending ? (setId ? "Updating..." : "Creating...") : (setId ? "Update" : "Create")}
                     </Button>
                 </div>
                 <CardInformationForm />
