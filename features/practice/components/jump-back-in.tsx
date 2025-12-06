@@ -34,7 +34,7 @@ export function JumpBackIn({ progressSessions }: JumpBackInProps) {
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1">
                                         <h3 className="font-semibold text-lg mb-1">
-                                            {progress.setTitle}
+                                            {progress.setTitle} <span className="capitalize">({modeRoute})</span>
                                         </h3>
                                         <p className="text-sm text-muted-foreground">
                                             {progressPercentage}% of questions completed
