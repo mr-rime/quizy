@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Maximize, Settings } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 interface FlashcardControlsProps {
     currentIndex: number;

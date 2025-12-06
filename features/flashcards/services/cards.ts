@@ -25,6 +25,16 @@ export async function updateFlashcard(data: z.infer<typeof updateCardSchema>) {
 
     const validatedData = updateCardSchema.parse(data);
 
+    const card = await db.query.cards.findFirst({
+        where: eq(cards.id, validatedData.id),
+        with: {
+            set: true,
+        },
+    });
+
+    if (!card) throw new Error("Card not found");
+    if (card.set.userId !== session.userId) throw new Error("Unauthorized");
+
     await db.update(cards)
         .set({
             term: validatedData.term,

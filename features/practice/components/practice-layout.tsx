@@ -1,16 +1,11 @@
-'use client'
+"use client"
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import { ArrowLeft, MoreHorizontal, Share, Edit, Trash, Layers, BrainCircuit } from "lucide-react";
+import { ArrowLeft, Share, Layers, BrainCircuit } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { PracticeDropdown } from "./practice-dropdown";
 
 interface PracticeLayoutProps {
     setId: string;
@@ -24,7 +19,6 @@ export function PracticeLayout({ setId, title, cardCount, children }: PracticeLa
 
     return (
         <div className="container mx-auto p-6 max-w-5xl space-y-8">
-            {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <Button variant="ghost" size="icon" onClick={() => router.back()}>
@@ -40,23 +34,7 @@ export function PracticeLayout({ setId, title, cardCount, children }: PracticeLa
                         <Share className="h-4 w-4" />
                         Share
                     </Button>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                                <MoreHorizontal className="h-5 w-5" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">
-                                <Trash className="mr-2 h-4 w-4" />
-                                Delete
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <PracticeDropdown setId={setId} />
                 </div>
             </div>
 

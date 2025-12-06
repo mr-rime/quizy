@@ -9,36 +9,36 @@ import Link from "next/link"
 import { FolderDialog } from "@/features/folders/components/create-folder-button"
 
 export function CreateFlashcardMenu() {
-  const [openFolderDialog, setOpenFolderDialog] = useState(false)
+    const [openFolderDialog, setOpenFolderDialog] = useState(false)
 
-  return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button className="relative flex size-9 shrink-0 overflow-hidden rounded-full">
-            <Plus className="text-4xl" />
-          </Button>
-        </DropdownMenuTrigger>
+    return (
+        <>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button className="relative flex size-9 shrink-0 overflow-hidden rounded-full">
+                        <Plus className="text-4xl" />
+                    </Button>
+                </DropdownMenuTrigger>
 
-        <DropdownMenuContent className="w-40 relative -left-2" align="end">
+                <DropdownMenuContent className="w-40 relative -left-2" align="end">
 
-          <DropdownMenuItem asChild>
-            <Link href="/create-set">
-              <FlashCardIcon /> Flashcard set
-            </Link>
-          </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                        <Link href="/create-set">
+                            <FlashCardIcon /> Flashcard set
+                        </Link>
+                    </DropdownMenuItem>
 
-          <DropdownMenuItem onClick={() => setOpenFolderDialog(true)}>
-            <FlashCardIcon /> Create folder
-          </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setOpenFolderDialog(true)}>
+                        <FlashCardIcon /> Create folder
+                    </DropdownMenuItem>
 
-        </DropdownMenuContent>
-      </DropdownMenu>
+                </DropdownMenuContent>
+            </DropdownMenu>
 
-      <FolderDialog
-        open={openFolderDialog}
-        onOpenChange={setOpenFolderDialog}
-      />
-    </>
-  )
+            <FolderDialog
+                open={openFolderDialog}
+                onOpenChange={setOpenFolderDialog}
+            />
+        </>
+    )
 }
