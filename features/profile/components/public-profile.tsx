@@ -1,8 +1,9 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { User, Calendar, Layers, FileText } from "lucide-react";
+import { User, Calendar, Layers, FileText, ArrowLeft } from "lucide-react";
 import { PublicSetCard } from "./public-set-card";
+import { Button } from "@/components/ui/button";
 
 interface PublicProfileProps {
     profile: {
@@ -31,6 +32,9 @@ export function PublicProfile({ profile, publicSets }: PublicProfileProps) {
         <div className="container mx-auto p-6 max-w-6xl space-y-8">
             <Card className="p-8">
                 <div className="flex items-start gap-6">
+                    <Button variant="ghost" size="icon" onClick={() => window.history.back()}>
+                        <ArrowLeft className="h-6 w-6" />
+                    </Button>
                     <div className="p-4 rounded-full bg-primary/10">
                         <User className="h-12 w-12 text-primary" />
                     </div>

@@ -1,5 +1,5 @@
 "use client"
-import { House, Library, Folder, Plus, Star, Trophy } from "lucide-react";
+import { House, Library, Folder, Plus, Star, Trophy, Bookmark } from "lucide-react";
 import Link from "next/link";
 import { JSX, use, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -17,6 +17,7 @@ type LinkType = {
 const links: LinkType[] = [
     { name: "Home", href: "/", icon: <House size={20} /> },
     { name: "Your Library", href: "/library", icon: <Library size={20} /> },
+    { name: "Saved Sets", href: "/saved", icon: <Bookmark size={20} /> },
     { name: "Favorites", href: "/favorites", icon: <Star size={20} /> },
     { name: "Achievements", href: "/achievements", icon: <Trophy size={20} /> },
 ];

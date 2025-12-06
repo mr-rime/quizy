@@ -91,12 +91,25 @@ export const folderSets = pgTable("folder_set", {
     pk: primaryKey({ columns: [t.folderId, t.setId] }),
 }));
 
+export const savedSets = pgTable("saved_set", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    setId: uuid("set_id")
+        .notNull()
+        .references(() => flashcardSets.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow(),
+});
+
+
 export const userRelations = relations(users, ({ many, one }) => ({
     sessions: many(sessions),
     flashcardSets: many(flashcardSets),
     folders: many(folders),
     favorites: many(favorites),
     practiceProgress: many(practiceProgress),
+    savedSets: many(savedSets),
     stats: one(userStats, {
         fields: [users.id],
         references: [userStats.userId],
@@ -121,6 +134,7 @@ export const flashcardSetRelations = relations(flashcardSets, ({ one, many }) =>
     cards: many(cards),
     folderSets: many(folderSets),
     practiceProgress: many(practiceProgress),
+    savedSets: many(savedSets),
 }));
 
 
@@ -150,6 +164,18 @@ export const folderSetRelations = relations(folderSets, ({ one }) => ({
         references: [flashcardSets.id],
     }),
 }));
+
+export const savedSetRelations = relations(savedSets, ({ one }) => ({
+    user: one(users, {
+        fields: [savedSets.userId],
+        references: [users.id],
+    }),
+    set: one(flashcardSets, {
+        fields: [savedSets.setId],
+        references: [flashcardSets.id],
+    }),
+}));
+
 
 export const favorites = pgTable("favorite", {
     id: uuid("id").defaultRandom().primaryKey(),

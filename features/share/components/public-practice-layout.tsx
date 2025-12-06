@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use } from "react";
 import { getPublicSet } from "../services/share";
+import { SaveButton } from "@/features/saved-sets/components/save-button";
 
 interface PublicPracticeLayoutProps<T> {
     flashcardSetPromise: Promise<T>;
@@ -37,6 +38,7 @@ export function PublicPracticeLayout<T>({ flashcardSetPromise, children }: Publi
                         <p className="text-muted-foreground">{cardCount} terms</p>
                     </div>
                 </div>
+                <SaveButton setId={setId} initialSaved={false} />
             </div>
 
             {user && (

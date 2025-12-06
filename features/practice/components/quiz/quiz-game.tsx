@@ -184,7 +184,7 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
                     </div>
                 </div>
 
-                <Card className="p-12 min-h-[300px] flex flex-col items-center justify-center text-center gap-6 relative">
+                <Card className="p-8 md:p-12 flex flex-col items-center justify-center text-center gap-4 md:gap-6 relative">
                     <Button
                         variant="ghost"
                         size="icon"
@@ -194,17 +194,19 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
                         <Volume2 className="h-6 w-6" />
                     </Button>
                     <div className="text-sm text-muted-foreground uppercase tracking-wider">Term</div>
-                    <h2 className="text-4xl font-bold">{currentQuestion.card.term}</h2>
-                    <div className="relative w-full max-h-48 flex items-center justify-center mt-4">
-                        <Image
-                            src={currentQuestion.card.imageUrl || ""}
-                            alt={currentQuestion.card.term}
-                            width={400}
-                            height={192}
-                            className="max-w-full max-h-48 object-contain rounded-lg cursor-zoom-in hover:opacity-90 transition-opacity shadow-md"
-                            onClick={handleImageClick}
-                        />
-                    </div>
+                    <h2 className="text-3xl md:text-4xl font-bold">{currentQuestion.card.term}</h2>
+                    {currentQuestion.card.imageUrl && (
+                        <div className="relative w-full max-w-md max-h-40 md:max-h-48 flex items-center justify-center mt-2">
+                            <Image
+                                src={currentQuestion.card.imageUrl}
+                                alt={currentQuestion.card.term}
+                                width={400}
+                                height={192}
+                                className="max-w-full max-h-40 md:max-h-48 object-contain rounded-lg cursor-zoom-in hover:opacity-90 transition-opacity shadow-md"
+                                onClick={handleImageClick}
+                            />
+                        </div>
+                    )}
                 </Card>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
