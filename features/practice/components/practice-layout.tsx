@@ -31,7 +31,7 @@ export function PracticeLayout<T>({ flashcardSetPromise, children }: PracticeLay
         <div className="container mx-auto p-6 max-w-5xl space-y-8">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={() => router.back()}>
+                    <Button variant="ghost" size="icon" onClick={() => router.push("/latest")}>
                         <ArrowLeft className="h-6 w-6" />
                     </Button>
                     <div>

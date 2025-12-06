@@ -72,11 +72,9 @@ export function FlashcardFinish({ cardsLength, setId, userId, restartPractice }:
                     <RotateCcw className="mr-2 h-4 w-4" />
                     Restart Flashcards
                 </Button>
-                <Link href={`/practice/${setId}`}>
-                    <Button variant="outline" size="lg" className="w-full">
-                        Back to Set
-                    </Button>
-                </Link>
+                <Button variant="outline" size="lg" className="w-full" onClick={() => window.history.back()}>
+                    Back to Set
+                </Button>
             </div>
         </div>
     )

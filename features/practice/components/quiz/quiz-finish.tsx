@@ -73,11 +73,9 @@ export function QuizFinish({ score, questions, setId, userId, restartQuiz }: Qui
                     <RotateCcw className="mr-2 h-4 w-4" />
                     Restart Quiz
                 </Button>
-                <Link href={`/practice/${setId}`}>
-                    <Button variant="outline" size="lg" className="w-full">
-                        Back to Set
-                    </Button>
-                </Link>
+                <Button variant="outline" size="lg" className="w-full" onClick={() => window.history.back()}>
+                    Back to Set
+                </Button>
             </div>
         </div>
     )
