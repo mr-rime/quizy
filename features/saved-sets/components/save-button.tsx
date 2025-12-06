@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Bookmark, BookmarkCheck } from "lucide-react";
 import { useState, useTransition } from "react";
@@ -14,6 +15,7 @@ interface SaveButtonProps {
 export function SaveButton({ setId, initialSaved }: SaveButtonProps) {
     const [isSaved, setIsSaved] = useState(initialSaved);
     const [isPending, startTransition] = useTransition();
+    const router = useRouter();
 
     const handleToggle = () => {
         startTransition(async () => {
@@ -23,6 +25,7 @@ export function SaveButton({ setId, initialSaved }: SaveButtonProps) {
             if (result.success) {
                 setIsSaved(!isSaved);
                 toast.success(isSaved ? "Removed from saved" : "Saved successfully");
+                router.refresh();
             } else {
                 toast.error(result.error || "Failed to update");
             }

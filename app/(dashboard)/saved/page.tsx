@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { FileText, Calendar, User } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default async function SavedPage() {
     const userId = await getUserId();
     const savedSets = await getSavedSets(userId);
