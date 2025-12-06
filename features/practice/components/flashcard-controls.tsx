@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Check } from "lucide-react"; // Added Check icon
 interface FlashcardControlsProps {
     currentIndex: number;
     totalCards: number;
+    setId: string
     onNext: () => void;
     onPrev: () => void;
 }
@@ -11,6 +12,7 @@ interface FlashcardControlsProps {
 export function FlashcardControls({
     currentIndex,
     totalCards,
+    setId,
     onNext,
     onPrev
 }: FlashcardControlsProps) {
@@ -34,15 +36,25 @@ export function FlashcardControls({
                 >
                     <ArrowLeft className="h-6 w-6" />
                 </Button>
-                <Button
-                    variant={isLastCard ? "default" : "outline"} // Highlight finish action
-                    size="icon"
-                    onClick={onNext}
-                    // disabled={currentIndex === totalCards - 1} // REMOVED
-                    className="rounded-full h-12 w-12"
-                >
-                    {isLastCard ? <Check className="h-6 w-6" /> : <ArrowRight className="h-6 w-6" />}
-                </Button>
+                {
+                    setId === "favorites" ? (
+                        <Button
+                            variant={"outline"}
+                            size="icon"
+                            disabled={currentIndex === totalCards - 1}
+                            className="rounded-full h-12 w-12"
+                        >
+                            <ArrowRight className="h-6 w-6" />
+                        </Button>
+                    ) : <Button
+                        variant={isLastCard ? "default" : "outline"}
+                        size="icon"
+                        onClick={onNext}
+                        className="rounded-full h-12 w-12"
+                    >
+                        {isLastCard ? <Check className="h-6 w-6" /> : <ArrowRight className="h-6 w-6" />}
+                    </Button>
+                }
             </div>
         </div>
     );

@@ -238,6 +238,7 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [] 
                 totalCards={cards.length}
                 onNext={handleNext}
                 onPrev={handlePrev}
+                setId={setId}
             />
 
             <EditCardDialog
