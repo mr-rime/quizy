@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -6,16 +6,26 @@ import { ArrowLeft, Share, Layers, BrainCircuit } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PracticeDropdown } from "./practice-dropdown";
+import { use } from "react";
+import { getFlashcardSet } from "../services/flashcards";
 
-interface PracticeLayoutProps {
-    setId: string;
-    title: string;
-    cardCount: number;
+
+interface PracticeLayoutProps<T> {
+    flashcardSetPromise: Promise<T>;
     children?: React.ReactNode;
 }
 
-export function PracticeLayout({ setId, title, cardCount, children }: PracticeLayoutProps) {
+export function PracticeLayout<T>({ flashcardSetPromise, children }: PracticeLayoutProps<T>) {
     const router = useRouter();
+
+    const set = use(flashcardSetPromise) as Awaited<ReturnType<typeof getFlashcardSet>>;
+
+    if (!set) {
+        return <p className="text-center py-8 text-muted-foreground">Flashcard set not found.</p>;
+    }
+
+    const { id: setId, title, cards } = set;
+    const cardCount = cards.length;
 
     return (
         <div className="container mx-auto p-6 max-w-5xl space-y-8">

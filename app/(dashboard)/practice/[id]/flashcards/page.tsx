@@ -15,19 +15,20 @@ interface PageProps {
     }>;
 }
 
-const getCachedFavorites = cache(unstable_cache(
-    async (userId: string) => {
-        return getFavorites(userId);
+const getCachedFavoritesAndFlashcards = cache(unstable_cache(
+    async (id: string, userId: string) => {
+        return await Promise.all([
+            getFavorites(userId),
+            getFlashcardSet(id, userId)]);
     },
-    ["favorites"],
-    { revalidate: 3600, tags: ["favorites"] }
+    ["favorites", "flashcards"],
+    { revalidate: 3600, tags: ["favorites", "flashcards"] }
 ))
 
 export default async function FlashcardsPage({ params }: PageProps) {
     const { id } = await params;
-    const set = await getFlashcardSet(id);
     const userId = await getUserId();
-    const favorites = await getCachedFavorites(userId);
+    const [favorites, set] = await getCachedFavoritesAndFlashcards(id, userId);
     const favoriteIds = favorites.map(f => f.id);
 
     if (!set) {
