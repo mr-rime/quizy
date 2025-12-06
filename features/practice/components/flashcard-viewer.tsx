@@ -11,6 +11,8 @@ import { EditCardDialog } from "./edit-card-dialog";
 import { saveProgress, getProgressForSet, deleteProgressBySet } from "../services/progress";
 import { addXP, updateStreak, incrementFlashcardCompleted } from "@/features/gamification/services/stats";
 import { checkAndAwardAchievements } from "@/features/gamification/services/achievements";
+import { FlashcardFinish } from "./flashcard-finish";
+import { Skeleton } from "@/components/skeleton";
 
 interface Flashcard {
     id: string;
@@ -32,6 +34,7 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [] 
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set(initialFavoriteIds));
     const [isLoadingProgress, setIsLoadingProgress] = useState(true);
+    const [isFinished, setIsFinished] = useState(false);
 
     const currentCard = cards[currentIndex];
 
@@ -52,52 +55,38 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [] 
     }, [userId, setId]);
 
     useEffect(() => {
-        if (isLoadingProgress) return;
+        if (isLoadingProgress || isFinished) return;
 
         async function saveCurrentProgress() {
             try {
-                if (currentIndex === cards.length - 1) {
-                    await deleteProgressBySet(userId, setId, "flashcard");
-
-                    const { leveledUp, newLevel } = await addXP(userId, 15);
-                    await updateStreak(userId);
-                    await incrementFlashcardCompleted(userId);
-                    const newAchievements = await checkAndAwardAchievements(userId);
-
-                    if (leveledUp) {
-                        toast.success(`Level Up! You're now level ${newLevel}! 🎉`);
-                    }
-
-                    if (newAchievements.length > 0) {
-                        newAchievements.forEach(achievement => {
-                            toast.success(`Achievement Unlocked: ${achievement.name}! ${achievement.icon}`);
-                        });
-                    }
-
-                    toast.success("+15 XP earned!");
-                } else {
-                    await saveProgress({
-                        userId,
-                        setId,
-                        mode: "flashcard",
-                        currentIndex,
-                        totalQuestions: cards.length,
-                    });
-                }
+                await saveProgress({
+                    userId,
+                    setId,
+                    mode: "flashcard",
+                    currentIndex,
+                    totalQuestions: cards.length,
+                });
             } catch (error) {
                 console.error("Error saving progress:", error);
             }
         }
 
         saveCurrentProgress();
-    }, [currentIndex, cards.length, userId, setId, isLoadingProgress]);
+    }, [currentIndex, cards.length, userId, setId, isLoadingProgress, isFinished]);
 
-    const handleNext = useCallback(() => {
+    const handleNext = useCallback(async () => {
         if (currentIndex < cards.length - 1) {
             setCurrentIndex(prev => prev + 1);
             setIsFlipped(false);
+        } else {
+            setIsFinished(true);
+            try {
+                await deleteProgressBySet(userId, setId, "flashcard");
+            } catch (error) {
+                console.error("Error deleting progress:", error);
+            }
         }
-    }, [currentIndex, cards.length, setCurrentIndex, setIsFlipped]);
+    }, [currentIndex, cards.length, userId, setId]);
 
     const handlePrev = useCallback(() => {
         if (currentIndex > 0) {
@@ -182,7 +171,38 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [] 
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, []);
 
-    if (!currentCard || isLoadingProgress) return <div>Loading...</div>;
+
+    const restartPractice = () => {
+        setIsFinished(false);
+        setCurrentIndex(0);
+        setIsFlipped(false);
+    };
+
+    if (isFinished) {
+        return (
+            <FlashcardFinish
+                cardsLength={cards.length}
+                setId={setId}
+                userId={userId}
+                restartPractice={restartPractice}
+            />
+        );
+    }
+
+    if (!currentCard || isLoadingProgress) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8">
+                <div className="w-full max-w-2xl aspect-[3/2] relative perspective-1000">
+                    <Skeleton className="w-full h-full rounded-xl" />
+                </div>
+                <div className="flex items-center gap-4 w-full max-w-md justify-center">
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <Skeleton className="h-10 w-32 rounded-lg" />
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                </div>
+            </div>
+        );
+    }
 
     const isFavorite = favoriteIds.has(currentCard.id);
 
