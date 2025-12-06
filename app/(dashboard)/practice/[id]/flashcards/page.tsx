@@ -23,12 +23,12 @@ const getFlashcardsData = cache(async (id: string) => {
         getFlashcardSet(id, userId)
     ]);
     const favoriteIds = favorites.map(f => f.id);
-    return { set, favoriteIds };
+    return { set, favoriteIds, userId };
 });
 
 export default async function FlashcardsPage({ params }: PageProps) {
     const { id } = await params;
-    const { set, favoriteIds } = await getFlashcardsData(id);
+    const { set, favoriteIds, userId } = await getFlashcardsData(id);
 
     if (!set) {
         notFound();
@@ -48,7 +48,7 @@ export default async function FlashcardsPage({ params }: PageProps) {
                 </div>
             </div>
 
-            <FlashcardViewer cards={set.cards} setId={set.id} initialFavoriteIds={favoriteIds} />
+            <FlashcardViewer cards={set.cards} setId={set.id} userId={userId} initialFavoriteIds={favoriteIds} />
         </div>
     );
 }

@@ -1,17 +1,50 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { CheckCircle, RotateCcw, XCircle } from "lucide-react";
 import Link from "next/link";
-
-
+import { useEffect } from "react";
+import { addXP, updateStreak, incrementQuizCompleted } from "@/features/gamification/services/stats";
+import { checkAndAwardAchievements } from "@/features/gamification/services/achievements";
+import { toast } from "sonner";
 
 type QuizFinishProps = {
     score: number;
     questions: { length: number };
     setId: string;
+    userId: string;
     restartQuiz: () => void;
 }
 
-export function QuizFinish({ score, questions, setId, restartQuiz }: QuizFinishProps) {
+export function QuizFinish({ score, questions, setId, userId, restartQuiz }: QuizFinishProps) {
+    useEffect(() => {
+        async function rewardCompletion() {
+            const isPerfect = score === questions.length;
+            const baseXp = 20;
+            const bonusXp = isPerfect ? 10 : 0;
+            const totalXp = baseXp + bonusXp;
+
+            const { leveledUp, newLevel } = await addXP(userId, totalXp);
+            await updateStreak(userId);
+            await incrementQuizCompleted(userId);
+            const newAchievements = await checkAndAwardAchievements(userId);
+
+            if (leveledUp) {
+                toast.success(`Level Up! You're now level ${newLevel}! 🎉`);
+            }
+
+            if (newAchievements.length > 0) {
+                newAchievements.forEach(achievement => {
+                    toast.success(`Achievement Unlocked: ${achievement.name}! ${achievement.icon}`);
+                });
+            }
+
+            toast.success(`+${totalXp} XP earned!`);
+        }
+
+        rewardCompletion();
+    }, [userId, score, questions.length]);
+
     return (
         <div className="flex flex-col items-center justify-center min-h-[50vh] gap-8">
             <div className="text-center space-y-4">

@@ -8,6 +8,9 @@ import { EditFlashcardSchema } from "../utils/validations";
 import { FlashcardDisplay } from "./flashcard-display";
 import { FlashcardControls } from "./flashcard-controls";
 import { EditCardDialog } from "./edit-card-dialog";
+import { saveProgress, getProgressForSet, deleteProgressBySet } from "../services/progress";
+import { addXP, updateStreak, incrementFlashcardCompleted } from "@/features/gamification/services/stats";
+import { checkAndAwardAchievements } from "@/features/gamification/services/achievements";
 
 interface Flashcard {
     id: string;
@@ -19,16 +22,75 @@ interface Flashcard {
 interface FlashcardViewerProps {
     cards: Flashcard[];
     setId: string;
+    userId: string;
     initialFavoriteIds?: string[];
 }
 
-export function FlashcardViewer({ cards, setId, initialFavoriteIds = [] }: FlashcardViewerProps) {
+export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [] }: FlashcardViewerProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set(initialFavoriteIds));
+    const [isLoadingProgress, setIsLoadingProgress] = useState(true);
 
     const currentCard = cards[currentIndex];
+
+    useEffect(() => {
+        async function loadProgress() {
+            try {
+                const progress = await getProgressForSet(userId, setId, "flashcard");
+                if (progress) {
+                    setCurrentIndex(progress.currentIndex);
+                }
+            } catch (error) {
+                console.error("Error loading progress:", error);
+            } finally {
+                setIsLoadingProgress(false);
+            }
+        }
+        loadProgress();
+    }, [userId, setId]);
+
+    useEffect(() => {
+        if (isLoadingProgress) return;
+
+        async function saveCurrentProgress() {
+            try {
+                if (currentIndex === cards.length - 1) {
+                    await deleteProgressBySet(userId, setId, "flashcard");
+
+                    const { leveledUp, newLevel } = await addXP(userId, 15);
+                    await updateStreak(userId);
+                    await incrementFlashcardCompleted(userId);
+                    const newAchievements = await checkAndAwardAchievements(userId);
+
+                    if (leveledUp) {
+                        toast.success(`Level Up! You're now level ${newLevel}! 🎉`);
+                    }
+
+                    if (newAchievements.length > 0) {
+                        newAchievements.forEach(achievement => {
+                            toast.success(`Achievement Unlocked: ${achievement.name}! ${achievement.icon}`);
+                        });
+                    }
+
+                    toast.success("+15 XP earned!");
+                } else {
+                    await saveProgress({
+                        userId,
+                        setId,
+                        mode: "flashcard",
+                        currentIndex,
+                        totalQuestions: cards.length,
+                    });
+                }
+            } catch (error) {
+                console.error("Error saving progress:", error);
+            }
+        }
+
+        saveCurrentProgress();
+    }, [currentIndex, cards.length, userId, setId, isLoadingProgress]);
 
     const handleNext = useCallback(() => {
         if (currentIndex < cards.length - 1) {
@@ -120,7 +182,7 @@ export function FlashcardViewer({ cards, setId, initialFavoriteIds = [] }: Flash
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, []);
 
-    if (!currentCard) return <div>No cards found.</div>;
+    if (!currentCard || isLoadingProgress) return <div>Loading...</div>;
 
     const isFavorite = favoriteIds.has(currentCard.id);
 

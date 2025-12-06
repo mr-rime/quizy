@@ -45,7 +45,7 @@ export default async function QuizzesPage({ params }: PageProps) {
                 </div>
             </div>
 
-            <QuizGame cards={set.cards} setId={set.id} />
+            <QuizGame cards={set.cards} setId={set.id} userId={userId} />
         </div>
     );
 }

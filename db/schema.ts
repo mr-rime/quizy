@@ -4,7 +4,8 @@ import {
     timestamp,
     uuid,
     varchar,
-    primaryKey
+    primaryKey,
+    integer
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -88,11 +89,17 @@ export const folderSets = pgTable("folder_set", {
     pk: primaryKey({ columns: [t.folderId, t.setId] }),
 }));
 
-export const userRelations = relations(users, ({ many }) => ({
+export const userRelations = relations(users, ({ many, one }) => ({
     sessions: many(sessions),
     flashcardSets: many(flashcardSets),
     folders: many(folders),
     favorites: many(favorites),
+    practiceProgress: many(practiceProgress),
+    stats: one(userStats, {
+        fields: [users.id],
+        references: [userStats.userId],
+    }),
+    achievements: many(userAchievements),
 }));
 
 export const sessionRelations = relations(sessions, ({ one }) => ({
@@ -111,6 +118,7 @@ export const flashcardSetRelations = relations(flashcardSets, ({ one, many }) =>
     }),
     cards: many(cards),
     folderSets: many(folderSets),
+    practiceProgress: many(practiceProgress),
 }));
 
 
@@ -160,5 +168,90 @@ export const favoriteRelations = relations(favorites, ({ one }) => ({
     card: one(cards, {
         fields: [favorites.cardId],
         references: [cards.id],
+    }),
+}));
+
+export const practiceProgress = pgTable("practice_progress", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    setId: uuid("set_id")
+        .notNull()
+        .references(() => flashcardSets.id, { onDelete: "cascade" }),
+    mode: varchar("mode", { length: 20 }).notNull(), // "quiz" or "flashcard"
+    currentIndex: integer("current_index").notNull().default(0),
+    totalQuestions: integer("total_questions").notNull(),
+    score: integer("score").default(0),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date()),
+});
+
+export const practiceProgressRelations = relations(practiceProgress, ({ one }) => ({
+    user: one(users, {
+        fields: [practiceProgress.userId],
+        references: [users.id],
+    }),
+    set: one(flashcardSets, {
+        fields: [practiceProgress.setId],
+        references: [flashcardSets.id],
+    }),
+}));
+
+export const userStats = pgTable("user_stats", {
+    userId: uuid("user_id").primaryKey()
+        .references(() => users.id, { onDelete: "cascade" }),
+    totalXp: integer("total_xp").notNull().default(0),
+    level: integer("level").notNull().default(1),
+    currentStreak: integer("current_streak").notNull().default(0),
+    longestStreak: integer("longest_streak").notNull().default(0),
+    lastPracticeDate: timestamp("last_practice_date"),
+    quizzesCompleted: integer("quizzes_completed").notNull().default(0),
+    flashcardsCompleted: integer("flashcards_completed").notNull().default(0),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date()),
+});
+
+export const achievements = pgTable("achievement", {
+    id: varchar("id", { length: 50 }).primaryKey(),
+    name: varchar("name", { length: 100 }).notNull(),
+    description: varchar("description", { length: 255 }).notNull(),
+    icon: varchar("icon", { length: 50 }).notNull(),
+    requiredValue: integer("required_value").notNull(),
+    category: varchar("category", { length: 20 }).notNull(),
+});
+
+export const userAchievements = pgTable("user_achievement", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id").notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    achievementId: varchar("achievement_id", { length: 50 }).notNull()
+        .references(() => achievements.id, { onDelete: "cascade" }),
+    unlockedAt: timestamp("unlocked_at").defaultNow(),
+});
+
+export const userStatsRelations = relations(userStats, ({ one }) => ({
+    user: one(users, {
+        fields: [userStats.userId],
+        references: [users.id],
+    }),
+}));
+
+export const achievementRelations = relations(achievements, ({ many }) => ({
+    userAchievements: many(userAchievements),
+}));
+
+export const userAchievementRelations = relations(userAchievements, ({ one }) => ({
+    user: one(users, {
+        fields: [userAchievements.userId],
+        references: [users.id],
+    }),
+    achievement: one(achievements, {
+        fields: [userAchievements.achievementId],
+        references: [achievements.id],
     }),
 }));

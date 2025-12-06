@@ -11,6 +11,7 @@ import { QuizFinish } from "./quiz-finish";
 import { QuizSkeleton } from "./quiz-skeleton";
 import { ImageZoomModal } from "@/components/image-zoom-modal";
 import Image from "next/image";
+import { saveProgress, getProgressForSet, deleteProgressBySet } from "../../services/progress";
 
 interface Flashcard {
     id: string;
@@ -22,6 +23,7 @@ interface Flashcard {
 interface QuizGameProps {
     cards: Flashcard[];
     setId: string;
+    userId: string;
 }
 
 interface Question {
@@ -30,7 +32,7 @@ interface Question {
     correctOptionId: string;
 }
 
-export function QuizGame({ cards, setId }: QuizGameProps) {
+export function QuizGame({ cards, setId, userId }: QuizGameProps) {
     const [questions, setQuestions] = useState<Question[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
@@ -38,20 +40,16 @@ export function QuizGame({ cards, setId }: QuizGameProps) {
     const [score, setScore] = useState(0);
     const [isFinished, setIsFinished] = useState(false);
     const [isZoomOpen, setIsZoomOpen] = useState(false);
-
-    const setGeneratedQuestions = useEffectEvent(setQuestions)
+    const [isLoadingProgress, setIsLoadingProgress] = useState(true);
+    const [hasInitialized, setHasInitialized] = useState(false);
 
     const correctAudio = typeof window !== 'undefined' ? new Audio('/audio/correct-choice.mp3') : null;
     const incorrectAudio = typeof window !== 'undefined' ? new Audio('/audio/incorrect-choice.mp3') : null;
 
     useEffect(() => {
-        // if (cards.length < 4) {
-        //     // Not enough cards for a quiz with 4 options
-        //     // In a real app, handle this gracefully. For now, we proceed with what we have or duplicate.
-        // }
+        if (hasInitialized) return;
 
-        const shuffledCards = [...cards].sort(() => Math.random() - 0.5);
-        const generatedQuestions = shuffledCards.map(card => {
+        const generatedQuestions = cards.map(card => {
             const otherCards = cards.filter(c => c.id !== card.id);
             const distractors = otherCards.sort(() => Math.random() - 0.5).slice(0, 3);
             const options = [card, ...distractors].sort(() => Math.random() - 0.5);
@@ -63,10 +61,31 @@ export function QuizGame({ cards, setId }: QuizGameProps) {
             };
         });
 
-        setGeneratedQuestions(generatedQuestions);
-    }, [cards]);
+        setQuestions(generatedQuestions);
+        setHasInitialized(true);
+    }, [cards, hasInitialized]);
 
-    const handleAnswer = (optionId: string) => {
+    useEffect(() => {
+        if (!hasInitialized || questions.length === 0) return;
+
+        async function loadProgress() {
+            try {
+                const progress = await getProgressForSet(userId, setId, "quiz");
+                if (progress && progress.currentIndex < questions.length) {
+                    setCurrentIndex(progress.currentIndex);
+                    setScore(progress.score ?? 0);
+                }
+            } catch (error) {
+                console.error("Error loading progress:", error);
+            } finally {
+                setIsLoadingProgress(false);
+            }
+        }
+
+        loadProgress();
+    }, [hasInitialized, questions.length, userId, setId]);
+
+    const handleAnswer = async (optionId: string) => {
         if (selectedOptionId) return;
 
         setSelectedOptionId(optionId);
@@ -75,8 +94,9 @@ export function QuizGame({ cards, setId }: QuizGameProps) {
 
         setIsCorrect(correct);
 
+        const newScore = correct ? score + 1 : score;
         if (correct) {
-            setScore(prev => prev + 1);
+            setScore(newScore);
             correctAudio?.play().catch(err => console.error('Error playing correct sound:', err));
         } else {
             incorrectAudio?.play().catch(err => console.error('Error playing incorrect sound:', err));
@@ -84,11 +104,29 @@ export function QuizGame({ cards, setId }: QuizGameProps) {
 
         setTimeout(() => {
             if (currentIndex < questions.length - 1) {
-                setCurrentIndex(prev => prev + 1);
+                const nextIndex = currentIndex + 1;
+
+                setCurrentIndex(nextIndex);
                 setSelectedOptionId(null);
                 setIsCorrect(null);
+
+                saveProgress({
+                    userId,
+                    setId,
+                    mode: "quiz",
+                    currentIndex: nextIndex,
+                    totalQuestions: questions.length,
+                    score: newScore,
+                }).catch(error => {
+                    console.error("Error saving progress:", error);
+                });
             } else {
                 setIsFinished(true);
+
+                deleteProgressBySet(userId, setId, "quiz").catch(error => {
+                    console.error("Error deleting progress:", error);
+                });
+
                 confetti({
                     particleCount: 100,
                     spread: 70,
@@ -116,7 +154,7 @@ export function QuizGame({ cards, setId }: QuizGameProps) {
         setIsZoomOpen(true);
     };
 
-    if (questions.length === 0) return <QuizSkeleton />;
+    if (questions.length === 0 || isLoadingProgress) return <QuizSkeleton />;
 
     if (isFinished) {
         return (
@@ -124,6 +162,7 @@ export function QuizGame({ cards, setId }: QuizGameProps) {
                 score={score}
                 questions={questions}
                 setId={setId}
+                userId={userId}
                 restartQuiz={restartQuiz}
             />
         );

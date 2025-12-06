@@ -9,11 +9,11 @@ const getFavoritesData = cache(async () => {
     const userId = await getUserId();
     const favorites = await getFavorites(userId);
     const favoriteIds = favorites.map(f => f.id);
-    return { favorites, favoriteIds };
+    return { favorites, favoriteIds, userId };
 });
 
 export default async function FavoritesPage() {
-    const { favorites, favoriteIds } = await getFavoritesData();
+    const { favorites, favoriteIds, userId } = await getFavoritesData();
 
     return (
         <div className="container mx-auto p-6 max-w-5xl space-y-8">
@@ -24,7 +24,7 @@ export default async function FavoritesPage() {
                 </div>
             </div>
 
-            <FlashcardViewer cards={favorites} setId="favorites" initialFavoriteIds={favoriteIds} />
+            <FlashcardViewer cards={favorites} setId="favorites" userId={userId} initialFavoriteIds={favoriteIds} />
         </div>
     );
 }

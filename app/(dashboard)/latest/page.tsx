@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Layers } from "lucide-react";
 import Image from "next/image";
 import { getRecentSets } from "@/features/practice/services/recent";
+import { getActiveProgress } from "@/features/practice/services/progress";
+import { JumpBackIn } from "@/features/practice/components/jump-back-in";
 import { cookies } from "next/headers";
 import { getSessionCookie } from "@/features/auth/services/session";
 import { cache } from "react";
@@ -14,16 +16,24 @@ const getLatestData = cache(async () => {
     const cookieStore = await cookies();
     const token = cookieStore.get("session_token")?.value;
     const session = await getSessionCookie(token);
-    const recentSets = await getRecentSets(session?.userId || "", 4);
-    return { recentSets };
+    const userId = session?.userId || "";
+
+    const [recentSets, progressSessions] = await Promise.all([
+        getRecentSets(userId, 4),
+        getActiveProgress(userId),
+    ]);
+
+    return { recentSets, progressSessions };
 });
 
 export default async function LatestPage() {
-    const { recentSets } = await getLatestData();
+    const { recentSets, progressSessions } = await getLatestData();
 
     return (
         <div className="flex items-center p-[1.5rem_3rem]">
             <div className="w-full">
+                <JumpBackIn progressSessions={progressSessions} />
+
                 <h2 className="text-[1.25rem] font-medium">Recents</h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 mt-5 gap-5 w-full">
