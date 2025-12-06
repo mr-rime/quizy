@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useEffectEvent, use } from "react";
+import { useState, useEffect, useCallback, useEffectEvent } from "react";
 import { toast } from "sonner";
 import { updateFlashcard } from "@/features/flashcards/services/cards";
 import { toggleFavorite } from "@/features/flashcards/services/favorites";
@@ -17,16 +17,12 @@ interface Flashcard {
 }
 
 interface FlashcardViewerProps {
-    favoritesPromise?: Promise<Flashcard[]>;
-    cards?: Flashcard[];
+    cards: Flashcard[];
     setId: string;
     initialFavoriteIds?: string[];
 }
 
-export function FlashcardViewer({ favoritesPromise, cards: cardsProp, initialFavoriteIds: initialFavoriteIdsProp }: FlashcardViewerProps) {
-    const favorites = favoritesPromise ? use(favoritesPromise) : null;
-    const cards = favorites || cardsProp || [];
-    const initialFavoriteIds = favorites ? favorites.map(f => f.id) : (initialFavoriteIdsProp || []);
+export function FlashcardViewer({ cards, setId, initialFavoriteIds = [] }: FlashcardViewerProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);

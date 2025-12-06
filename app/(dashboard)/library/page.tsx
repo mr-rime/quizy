@@ -1,24 +1,22 @@
 import { Library } from "@/features/library/components/library";
 import { getFlashcardSets } from "@/features/practice/services/flashcards";
 import { getFolders } from "@/features/folders/services/folders";
-import { cache } from "react";
-import { unstable_cache } from "next/cache";
 import { getUserId } from "@/features/user/services/user";
+import { cache } from "react";
 
-const getCachedFlodersAndSets = cache(unstable_cache(
-    async (userId: string) => {
-        const [sets, folders] = await Promise.all([
-            getFlashcardSets(userId),
-            getFolders(userId)
-        ])
+export const revalidate = 3600;
 
-        return [sets, folders];
-    }, ["folders", "sets"]
-));
+const getLibraryData = cache(async () => {
+    const userId = await getUserId();
+    const [sets, folders] = await Promise.all([
+        getFlashcardSets(userId),
+        getFolders(userId)
+    ]);
+    return { sets, folders };
+});
 
 export default async function page() {
-    const userId = await getUserId();
-    const [sets, folders] = await getCachedFlodersAndSets(userId);
+    const { sets, folders } = await getLibraryData();
 
     return (
         <div className="p-[1.5rem_3rem]">

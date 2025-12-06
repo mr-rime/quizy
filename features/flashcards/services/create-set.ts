@@ -42,8 +42,12 @@ export async function createFlashcardSet(data: CreateFlashcardSetInput) {
             }
         });
 
-        revalidateTag("sets", "max");
+        revalidateTag("flashcard-sets", "max");
+        revalidateTag("flashcard-set", "max");
+        revalidateTag("recent-sets", "max");
         revalidatePath("/latest");
+        revalidatePath("/library");
+        revalidatePath("/"); 
         redirect("/")
     } catch (err) {
         console.log(err)

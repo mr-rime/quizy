@@ -6,6 +6,7 @@ import { eq, and, desc, inArray } from "drizzle-orm";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { createFolderSchema, CreateFolderSchema, UpdateFolderSchema } from "../utils/validations";
 import { getUserId } from "@/features/user/services/user";
+import { unstable_cache } from "next/cache";
 
 
 export async function createFolder(data: CreateFolderSchema) {
@@ -24,44 +25,58 @@ export async function createFolder(data: CreateFolderSchema) {
     return newFolder;
 }
 
-export async function getFolders(userId: string) {
-    if (!userId) return [];
+export const getFolders = unstable_cache(
+    async (userId: string) => {
+        if (!userId) return [];
 
-    const userFolders = await db.query.folders.findMany({
-        where: eq(folders.userId, userId),
-        orderBy: [desc(folders.createdAt)],
-    });
+        const userFolders = await db.query.folders.findMany({
+            where: eq(folders.userId, userId),
+            orderBy: [desc(folders.createdAt)],
+        });
 
-    const folderIds = userFolders.map(f => f.id);
-    const setsInFolders = await db.query.folderSets.findMany({
-        where: inArray(folderSets.folderId, folderIds),
-        with: { set: true },
-    });
+        const folderIds = userFolders.map(f => f.id);
+        const setsInFolders = await db.query.folderSets.findMany({
+            where: inArray(folderSets.folderId, folderIds),
+            with: { set: true },
+        });
 
-    return userFolders.map(folder => ({
-        ...folder,
-        folderSets: setsInFolders.filter(fs => fs.folderId === folder.id),
-    }));
-}
+        return userFolders.map(folder => ({
+            ...folder,
+            folderSets: setsInFolders.filter(fs => fs.folderId === folder.id),
+        }));
+    },
+    ["folders"],
+    {
+        revalidate: 3600,
+        tags: ["folders"]
+    }
+);
 
-export async function getFolder(id: string, userId: string) {
-    const folder = await db.query.folders.findFirst({
-        where: and(eq(folders.id, id), eq(folders.userId, userId)),
-        with: {
-            folderSets: {
-                with: {
-                    set: {
-                        with: {
-                            user: true,
-                            cards: true
+export const getFolder = unstable_cache(
+    async (id: string, userId: string) => {
+        const folder = await db.query.folders.findFirst({
+            where: and(eq(folders.id, id), eq(folders.userId, userId)),
+            with: {
+                folderSets: {
+                    with: {
+                        set: {
+                            with: {
+                                user: true,
+                                cards: true
+                            }
                         }
                     }
                 }
             }
-        }
-    });
-    return folder;
-}
+        });
+        return folder;
+    },
+    ["folder"],
+    {
+        revalidate: 3600,
+        tags: ["folder"]
+    }
+);
 
 export async function updateFolder(id: string, data: UpdateFolderSchema) {
     const userId = await getUserId();
@@ -70,12 +85,16 @@ export async function updateFolder(id: string, data: UpdateFolderSchema) {
         .where(and(eq(folders.id, id), eq(folders.userId, userId)));
     revalidatePath(`/folders/${id}`);
     revalidatePath("/folders");
+    revalidateTag("folder", "max");
+    revalidateTag("folders", "max");
 }
 
 export async function deleteFolder(id: string) {
     const userId = await getUserId();
     await db.delete(folders).where(and(eq(folders.id, id), eq(folders.userId, userId)));
     revalidatePath("/folders");
+    revalidateTag("folder", "max");
+    revalidateTag("folders", "max");
 }
 
 export async function addSetToFolder(folderId: string, setId: string) {
@@ -92,6 +111,9 @@ export async function addSetToFolder(folderId: string, setId: string) {
     }).onConflictDoNothing();
 
     revalidatePath(`/folders/${folderId}`);
+    revalidatePath("/library");
+    revalidateTag("folder", "max");
+    revalidateTag("folders", "max");
 }
 
 export async function removeSetFromFolder(folderId: string, setId: string) {
@@ -105,4 +127,7 @@ export async function removeSetFromFolder(folderId: string, setId: string) {
         .where(and(eq(folderSets.folderId, folderId), eq(folderSets.setId, setId)));
 
     revalidatePath(`/folders/${folderId}`);
+    revalidatePath("/library");
+    revalidateTag("folder", "max");
+    revalidateTag("folders", "max");
 }

@@ -8,13 +8,13 @@ export default async function Layout({ children }: { children: React.ReactNode }
     const folders = getFolders(userId);
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-black font-sans flex flex-col">
+        <div className="min-h-screen bg-zinc-50 dark:bg-black font-sans flex flex-col pt-16">
             <Header />
 
             <div className="flex flex-1">
                 <Sidebar foldersPromise={folders} />
 
-                <main className="flex-1 p-6">{children}</main>
+                <main className="flex-1 p-6 ml-64">{children}</main>
             </div>
         </div>
     );

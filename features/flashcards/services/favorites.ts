@@ -5,7 +5,8 @@ import { favorites } from "@/db/schema";
 import { getSessionCookie } from "@/features/auth/services/session";
 import { cookies } from "next/headers";
 import { and, eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidateTag, revalidatePath } from "next/cache";
+import { unstable_cache } from "next/cache";
 
 export async function toggleFavorite(cardId: string) {
     const cookieStore = await cookies();
@@ -26,6 +27,7 @@ export async function toggleFavorite(cardId: string) {
             )
         );
 
+
     if (existingFavorite) {
         await db.delete(favorites).where(eq(favorites.id, existingFavorite.id));
     } else {
@@ -36,18 +38,28 @@ export async function toggleFavorite(cardId: string) {
     }
 
     revalidatePath("/favorites");
+
+    revalidateTag("favorites", "max");
+    revalidateTag("flashcard-set", "max");
 }
 
-export async function getFavorites(userId: string) {
-    const userFavorites = await db.query.favorites.findMany({
-        where: eq(favorites.userId, userId),
-        with: {
-            card: true,
-        },
-    });
+export const getFavorites = unstable_cache(
+    async (userId: string) => {
+        const userFavorites = await db.query.favorites.findMany({
+            where: eq(favorites.userId, userId),
+            with: {
+                card: true,
+            },
+        });
 
-    return userFavorites.map(f => f.card);
-}
+        return userFavorites.map(f => f.card);
+    },
+    ["favorites"],
+    {
+        revalidate: 3600,
+        tags: ["favorites"]
+    }
+);
 
 export async function isFavorite(cardId: string) {
     const cookieStore = await cookies();

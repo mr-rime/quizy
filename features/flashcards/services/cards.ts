@@ -5,7 +5,7 @@ import { cards } from "@/db/schema";
 import { getSessionCookie } from "@/features/auth/services/session";
 import { cookies } from "next/headers";
 import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidateTag, revalidatePath } from "next/cache";
 import { z } from "zod";
 
 const updateCardSchema = z.object({
@@ -42,9 +42,10 @@ export async function updateFlashcard(data: z.infer<typeof updateCardSchema>) {
         })
         .where(eq(cards.id, validatedData.id));
 
-    const [updatedCard] = await db.select({ setId: cards.setId }).from(cards).where(eq(cards.id, validatedData.id));
+    revalidatePath(`/practice/${card.set.id}`);
+    revalidatePath("/library");
+    revalidatePath("/favorites");
 
-    if (updatedCard) {
-        revalidatePath(`/practice/${updatedCard.setId}/flashcards`);
-    }
+    revalidateTag("flashcard-set", "max");
+    revalidateTag("favorites", "max");
 }

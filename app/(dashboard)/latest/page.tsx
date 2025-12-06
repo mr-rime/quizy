@@ -6,23 +6,20 @@ import Image from "next/image";
 import { getRecentSets } from "@/features/practice/services/recent";
 import { cookies } from "next/headers";
 import { getSessionCookie } from "@/features/auth/services/session";
-import { unstable_cache } from "next/cache";
 import { cache } from "react";
 
+export const revalidate = 3600;
 
-export const getCachedRecentSets = cache(unstable_cache(
-    async (userId: string, limit = 4) => {
-        return getRecentSets(userId, limit);
-    },
-    ["recent-sets"]
-));
-
-export default async function LatestPage() {
+const getLatestData = cache(async () => {
     const cookieStore = await cookies();
     const token = cookieStore.get("session_token")?.value;
     const session = await getSessionCookie(token);
+    const recentSets = await getRecentSets(session?.userId || "", 4);
+    return { recentSets };
+});
 
-    const recentSets = await getCachedRecentSets(session?.userId || "", 4);
+export default async function LatestPage() {
+    const { recentSets } = await getLatestData();
 
     return (
         <div className="flex items-center p-[1.5rem_3rem]">

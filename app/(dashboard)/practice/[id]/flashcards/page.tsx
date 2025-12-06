@@ -5,9 +5,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFlashcardSet } from "@/features/practice/services/flashcards";
 import { getFavorites } from "@/features/flashcards/services/favorites";
-import { cache } from "react";
-import { unstable_cache } from "next/cache";
 import { getUserId } from "@/features/user/services/user";
+import { cache } from "react";
+
+export const revalidate = 3600;
 
 interface PageProps {
     params: Promise<{
@@ -15,21 +16,19 @@ interface PageProps {
     }>;
 }
 
-const getCachedFavoritesAndFlashcards = cache(unstable_cache(
-    async (id: string, userId: string) => {
-        return await Promise.all([
-            getFavorites(userId),
-            getFlashcardSet(id, userId)]);
-    },
-    ["favorites", "flashcards"],
-    { revalidate: 3600, tags: ["favorites", "flashcards"] }
-))
+const getFlashcardsData = cache(async (id: string) => {
+    const userId = await getUserId();
+    const [favorites, set] = await Promise.all([
+        getFavorites(userId),
+        getFlashcardSet(id, userId)
+    ]);
+    const favoriteIds = favorites.map(f => f.id);
+    return { set, favoriteIds };
+});
 
 export default async function FlashcardsPage({ params }: PageProps) {
     const { id } = await params;
-    const userId = await getUserId();
-    const [favorites, set] = await getCachedFavoritesAndFlashcards(id, userId);
-    const favoriteIds = favorites.map(f => f.id);
+    const { set, favoriteIds } = await getFlashcardsData(id);
 
     if (!set) {
         notFound();

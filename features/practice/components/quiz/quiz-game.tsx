@@ -8,6 +8,7 @@ import { CheckCircle, XCircle, Volume2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import { QuizFinish } from "./quiz-finish";
+import { QuizSkeleton } from "./quiz-skeleton";
 
 interface Flashcard {
     id: string;
@@ -100,7 +101,7 @@ export function QuizGame({ cards, setId }: QuizGameProps) {
         window.speechSynthesis.speak(utterance);
     };
 
-    if (questions.length === 0) return <div>Loading quiz...</div>;
+    if (questions.length === 0) return <QuizSkeleton />;
 
     if (isFinished) {
         return (

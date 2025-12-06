@@ -30,7 +30,7 @@ export function Sidebar({ foldersPromise }: SidebarProps) {
     const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
 
     return (
-        <aside className="w-64 border-r bg-white dark:bg-card p-5 shadow-md flex flex-col ">
+        <aside className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 border-r bg-white dark:bg-card p-5 shadow-md flex flex-col overflow-y-auto">
             <nav>
                 <ul className="flex flex-col gap-4">
                     {links.map((link) => {

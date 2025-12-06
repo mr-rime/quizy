@@ -4,7 +4,7 @@ import { ThemeToggle } from "../theme-toggle";
 
 export function Header() {
     return (
-        <header className="p-2 h-18 flex items-center justify-between px-20 border-b bg-card">
+        <header className="fixed top-0 left-0 right-0 z-50 p-2 h-16 flex items-center justify-between px-20 border-b bg-card">
             <h1 className="text-black dark:text-white text-2xl">
                 <span className="font-bold">Q</span>uizy
             </h1>
