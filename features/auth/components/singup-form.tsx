@@ -12,6 +12,7 @@ import z from "zod";
 import { toast } from "sonner";
 import { useTransition } from "react";
 import { Loader } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 
 export function SingupForm() {
@@ -19,6 +20,7 @@ export function SingupForm() {
     const { register, formState: { errors }, handleSubmit } = useForm({
         resolver: zodResolver(signupSchema)
     });
+    const router = useRouter();
 
     const onSubmit = async (data: z.output<typeof signupSchema>) => {
         startTransition(async () => {
@@ -32,6 +34,7 @@ export function SingupForm() {
             const result = await res.json();
             if (!result.success) {
                 toast.error(result.error);
+                router.push("/")
             }
 
             if (result.success) {

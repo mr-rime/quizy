@@ -65,6 +65,13 @@ export async function POST(req: NextRequest) {
             );
         }
 
+        if (err.code === '23505' && (err.constraint === 'user_username_unique' || err.detail?.includes('username'))) {
+            return NextResponse.json(
+                { success: false, error: "Username already taken" },
+                { status: 409 }
+            );
+        }
+
         console.error("Signup error:", err);
 
         return NextResponse.json(
