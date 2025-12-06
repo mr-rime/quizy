@@ -22,21 +22,23 @@ export function PublicPracticeLayout<T>({ flashcardSetPromise, children }: Publi
 
     const set = use(flashcardSetPromise) as Awaited<ReturnType<typeof getPublicSet>>;
 
+    useEffect(() => {
+        if (set?.id) {
+            isSetSaved(set.id).then(saved => {
+                setIsSaved(saved);
+                setIsCheckingStatus(false);
+            }).catch(() => {
+                setIsCheckingStatus(false);
+            });
+        }
+    }, [set?.id]);
+
     if (!set) {
         return <p className="text-center py-8 text-muted-foreground">This set is not publicly available.</p>;
     }
 
     const { id: setId, title, cards, user } = set;
     const cardCount = cards.length;
-
-    useEffect(() => {
-        isSetSaved(setId).then(saved => {
-            setIsSaved(saved);
-            setIsCheckingStatus(false);
-        }).catch(() => {
-            setIsCheckingStatus(false);
-        });
-    }, [setId]);
 
     return (
         <div className="container mx-auto p-6 max-w-5xl space-y-8">

@@ -10,8 +10,6 @@ import { cookies } from "next/headers";
 import { getSessionCookie } from "@/features/auth/services/session";
 import { cache } from "react";
 
-export const revalidate = 3600;
-
 const getLatestData = cache(async () => {
     const cookieStore = await cookies();
     const token = cookieStore.get("session_token")?.value;

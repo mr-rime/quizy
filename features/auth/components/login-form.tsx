@@ -12,12 +12,13 @@ import z from "zod";
 import { useTransition } from "react";
 import { Loader } from "lucide-react";
 import { toast } from "sonner";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 
 
 export function LoginForm() {
     const [isPending, startTransition] = useTransition();
+    const router = useRouter();
     const { register, formState: { errors, }, handleSubmit } = useForm({
         resolver: zodResolver(loginSchema)
     });
@@ -39,7 +40,8 @@ export function LoginForm() {
 
             if (result.success) {
                 toast.success(result.message);
-                redirect("/latest");
+                router.refresh();
+                router.push("/latest");
             }
         })
     };
