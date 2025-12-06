@@ -42,15 +42,6 @@ export function FlashcardControls({
                     <ArrowRight className="h-6 w-6" />
                 </Button>
             </div>
-
-            <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon">
-                    <Maximize className="h-5 w-5" />
-                </Button>
-                <Button variant="ghost" size="icon">
-                    <Settings className="h-5 w-5" />
-                </Button>
-            </div>
         </div>
     );
 }

@@ -22,7 +22,7 @@ interface FlashcardViewerProps {
     initialFavoriteIds: string[];
 }
 
-export function FlashcardViewer({ cards, setId, initialFavoriteIds }: FlashcardViewerProps) {
+export function FlashcardViewer({ cards, initialFavoriteIds }: FlashcardViewerProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
@@ -77,7 +77,6 @@ export function FlashcardViewer({ cards, setId, initialFavoriteIds }: FlashcardV
         const cardId = currentCard.id;
         const isFavorite = favoriteIds.has(cardId);
 
-        // Optimistic update
         setFavoriteIds(prev => {
             const next = new Set(prev);
             if (isFavorite) {
@@ -94,7 +93,6 @@ export function FlashcardViewer({ cards, setId, initialFavoriteIds }: FlashcardV
         } catch (error) {
             console.error("Failed to toggle favorite:", error);
             toast.error("Failed to toggle favorite");
-            // Revert on error
             setFavoriteIds(prev => {
                 const next = new Set(prev);
                 if (isFavorite) {

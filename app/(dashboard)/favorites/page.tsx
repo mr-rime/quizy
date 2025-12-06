@@ -18,7 +18,7 @@ export default async function FavoritesPage() {
                 <FlashcardViewer cards={favorites} setId="favorites" initialFavoriteIds={favoriteIds} />
             ) : (
                 <div className="text-center py-20 text-muted-foreground">
-                    You haven't favorited any cards yet.
+                    You haven&apos;t favorited any cards yet.
                 </div>
             )}
         </div>

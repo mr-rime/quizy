@@ -38,7 +38,7 @@ export function FolderView({ folder }: FolderViewProps) {
         try {
             await deleteFolder(folder.id);
             toast.success("Folder deleted");
-            router.push("/folders");
+            router.push("/");
         } catch (err) {
             console.error(err)
             toast.error("Failed to delete folder");

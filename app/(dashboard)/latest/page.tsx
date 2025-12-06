@@ -38,7 +38,7 @@ export default async function LatestPage() {
                     <div className="mt-10">
                         <Card className="w-full min-h-[310px] overflow-hidden">
                             <CardContent className="flex flex-col md:flex-row justify-between ">
-                                <div className="flex flex-col justify-between p-8">
+                                <div className="flex flex-col justify-between ">
                                     <div className="space-y-4">
                                         <h2 className="text-2xl font-bold">{recentSets[0].title}</h2>
                                         <p className="text-muted-foreground">Flip through terms and definitions</p>
