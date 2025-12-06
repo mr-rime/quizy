@@ -21,8 +21,12 @@ export type FlashcardFormData = {
     }[];
 }
 
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+
 export function FlashcardForm() {
-    const [, startTransition] = useTransition();
+    const [isPending, startTransition] = useTransition();
+    const router = useRouter();
     const methods = useForm<FlashcardFormData>({
         resolver: zodResolver(createFlashcardSetSchema),
         defaultValues: {
@@ -40,8 +44,13 @@ export function FlashcardForm() {
     const onSubmit = (data: FlashcardFormData) => {
         startTransition(async () => {
             try {
-                await createFlashcardSet(data);
-                toast.success("Flashcard set created successfully");
+                const result = await createFlashcardSet(data);
+                if (result?.success && result.id) {
+                    toast.success("Flashcard set created successfully");
+                    router.push(`/practice/${result.id}`);
+                } else {
+                    toast.error(result?.error || "Failed to create flashcard set");
+                }
             } catch (error) {
                 toast.error("Failed to create flashcard set");
                 console.error(error);
@@ -51,7 +60,13 @@ export function FlashcardForm() {
 
     return (
         <FormProvider {...methods}>
-            <form id="create-set-form" className="mt-10" onSubmit={methods.handleSubmit(onSubmit)}>
+            <form id="create-set-form" onSubmit={methods.handleSubmit(onSubmit)}>
+                <div className="flex justify-between items-center mb-10">
+                    <h2 className="text-[1.5rem] font-medium">Create a new flashcard set</h2>
+                    <Button type="submit" disabled={isPending}>
+                        {isPending ? "Creating..." : "Create"}
+                    </Button>
+                </div>
                 <CardInformationForm />
                 <CreateFlashcardForm />
             </form>

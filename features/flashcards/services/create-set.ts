@@ -23,7 +23,7 @@ export async function createFlashcardSet(data: CreateFlashcardSetInput) {
 
         const validatedData = createFlashcardSetSchema.parse(data);
 
-        await db.transaction(async (tx) => {
+        const newSetId = await db.transaction(async (tx) => {
             const [newSet] = await tx.insert(flashcardSets).values({
                 title: validatedData.title,
                 description: validatedData.description,
@@ -40,6 +40,7 @@ export async function createFlashcardSet(data: CreateFlashcardSetInput) {
                     }))
                 );
             }
+            return newSet.id
         });
 
         revalidateTag("flashcard-sets", "max");
@@ -47,9 +48,12 @@ export async function createFlashcardSet(data: CreateFlashcardSetInput) {
         revalidateTag("recent-sets", "max");
         revalidatePath("/latest");
         revalidatePath("/library");
-        revalidatePath("/"); 
-        redirect("/")
+        revalidatePath("/");
+        revalidatePath("/");
+
+        return { success: true, id: newSetId };
     } catch (err) {
-        console.log(err)
+        console.log(err);
+        return { success: false, error: "Failed to create set" };
     };
 }

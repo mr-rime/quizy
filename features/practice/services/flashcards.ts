@@ -82,6 +82,7 @@ export async function deleteFlashcardSet(id: string) {
     revalidatePath("/library");
     revalidatePath("/");
     revalidatePath(`/practice/${id}`);
+    revalidatePath("/latest");
 
     revalidateTag("flashcard-sets", "max");
     revalidateTag("flashcard-set", "max");
