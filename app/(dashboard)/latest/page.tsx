@@ -43,7 +43,20 @@ export default async function LatestPage() {
                         </Link>
                     ))}
                     {recentSets.length === 0 && (
-                        <div className="col-span-2 text-muted-foreground">No recent sets found.</div>
+                        <div className="col-span-2 flex flex-col items-center justify-center py-16 px-4 text-center">
+                            <div className="rounded-full bg-muted p-6 mb-6">
+                                <Layers className="h-12 w-12 text-muted-foreground" />
+                            </div>
+                            <h3 className="text-xl font-semibold mb-2">No Recent Sets Found</h3>
+                            <p className="text-muted-foreground mb-6 max-w-sm">
+                                You haven't created or practiced any sets yet. Start by creating your first flashcard set!
+                            </p>
+                            <Link href="/create-set">
+                                <Button size="lg" className="rounded-full px-8">
+                                    Create New Set
+                                </Button>
+                            </Link>
+                        </div>
                     )}
                 </div>
 

@@ -55,9 +55,7 @@
 
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.145 0 0);
-
-    /* ========== BRAND COLOR (#EC750F) FOR BUTTONS ETC ========== */
-    --primary: #EC750F;
+    --primary: oklch(0.65 0 0);
     --primary-foreground: white;
 
     --secondary: oklch(0.97 0 0);
@@ -66,8 +64,7 @@
     --muted: oklch(0.97 0 0);
     --muted-foreground: oklch(0.556 0 0);
 
-    /* also apply the orange to accent variants */
-    --accent: #EC750F;
+    --accent: oklch(0.65 0 0);
     --accent-foreground: white;
 
     --destructive: oklch(0.577 0.245 27.325);
@@ -87,10 +84,11 @@
     --sidebar: oklch(0.985 0 0);
     --sidebar-foreground: oklch(0.145 0 0);
 
-    --sidebar-primary: #EC750F;
+    --sidebar-primary: oklch(0.65 0 0);
+    ;
     --sidebar-primary-foreground: white;
 
-    --sidebar-accent: #EC750F;
+    --sidebar-accent: oklch(0.65 0 0);
     --sidebar-accent-foreground: white;
 
     --sidebar-border: oklch(0.922 0 0);
@@ -154,10 +152,14 @@
     .skeleton {
         position: relative;
         overflow: hidden;
-        background-color: #2a2a2e;
+        background-color: #e5e5e5;
         width: 100px;
         height: 100px;
         border-radius: 0.5rem;
+    }
+
+    .dark .skeleton {
+        background-color: #2a2a2e;
     }
 
     .shimmer-overlay {

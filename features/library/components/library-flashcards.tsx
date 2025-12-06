@@ -1,5 +1,8 @@
 import { LibraryItemCard } from "./library-item-card";
 import { FlashcardSet } from "@/types";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Layers } from "lucide-react";
 
 interface LibraryFlashcardsProps {
     sets: FlashcardSet[];
@@ -94,8 +97,19 @@ export function LibraryFlashcards({ sets }: LibraryFlashcardsProps) {
             )}
 
             {sets.length === 0 && (
-                <div className="text-center py-12 text-muted-foreground">
-                    No flashcard sets found. Create one to get started!
+                <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+                    <div className="rounded-full bg-muted p-6 mb-6">
+                        <Layers className="h-12 w-12 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">No Flashcard Sets Found</h3>
+                    <p className="text-muted-foreground mb-6 max-w-sm">
+                        You haven't created any flashcard sets yet. Start building your collection now!
+                    </p>
+                    <Link href="/create-set">
+                        <Button size="lg" className="rounded-full px-8">
+                            Create New Set
+                        </Button>
+                    </Link>
                 </div>
             )}
         </div>

@@ -8,7 +8,7 @@ export function DashboardSkeleton() {
                 {[1, 2].map((i) => (
                     <div
                         key={i}
-                        className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 h-40 flex items-center"
+                        className="bg-card p-6 rounded-2xl border border-border h-40 flex items-center"
                     >
                         <div className="flex items-center space-x-4">
                             <Skeleton className="h-15 w-15 rounded-md" />
@@ -21,7 +21,7 @@ export function DashboardSkeleton() {
                 ))}
             </div>
 
-            <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 flex flex-col md:flex-row justify-between">
+            <div className="bg-card p-6 rounded-2xl border border-border flex flex-col md:flex-row justify-between">
 
                 <div className="flex-1 space-y-4">
                     <Skeleton className="h-5 w-40" />
