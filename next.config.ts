@@ -15,6 +15,17 @@ const nextConfig: NextConfig = {
             fullUrl: true,
         },
     },
+
+    images: {
+        remotePatterns: [
+            {
+                protocol: "https",
+                hostname: "pixabay.com",
+                pathname: "/**",
+            },
+        ],
+    },
+
 };
 
 export default nextConfig;

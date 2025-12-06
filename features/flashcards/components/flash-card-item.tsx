@@ -7,15 +7,15 @@ import { CSS } from '@dnd-kit/utilities'
 import { useState } from 'react'
 import { ImageSearchModal } from './image-search-modal'
 
+import { FlashcardFormData } from './flashcard-form'
+import Image from 'next/image'
+
 type FlashCardItemProps = {
     id: string,
     index: number,
     remove: (index: number) => void,
     itemsCount: number
 }
-
-import { FlashcardFormData } from './flashcard-form'
-
 export function FlashCardItem({ id, index, remove, itemsCount }: FlashCardItemProps) {
     const { register, formState: { errors }, setValue, watch } = useFormContext<FlashcardFormData>();
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -79,9 +79,11 @@ export function FlashCardItem({ id, index, remove, itemsCount }: FlashCardItemPr
                     <div className="flex items-start pt-1">
                         {imageUrl ? (
                             <div className="relative group">
-                                <img
+                                <Image
                                     src={imageUrl}
                                     alt="Selected"
+                                    width={128}
+                                    height={128}
                                     className="w-28 h-28 sm:w-32 sm:h-32 object-cover rounded-lg cursor-pointer shadow-lg hover:shadow-xl transition-all border-2 border-border hover:border-primary"
                                     onClick={() => setIsImageModalOpen(true)}
                                 />

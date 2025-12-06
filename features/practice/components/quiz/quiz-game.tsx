@@ -10,6 +10,7 @@ import confetti from "canvas-confetti";
 import { QuizFinish } from "./quiz-finish";
 import { QuizSkeleton } from "./quiz-skeleton";
 import { ImageZoomModal } from "@/components/image-zoom-modal";
+import Image from "next/image";
 
 interface Flashcard {
     id: string;
@@ -148,14 +149,16 @@ export function QuizGame({ cards, setId }: QuizGameProps) {
                     </Button>
                     <div className="text-sm text-muted-foreground uppercase tracking-wider">Term</div>
                     <h2 className="text-4xl font-bold">{currentQuestion.card.term}</h2>
-                    {currentQuestion.card.imageUrl && (
-                        <img
-                            src={currentQuestion.card.imageUrl}
+                    <div className="relative w-full max-h-48 flex items-center justify-center mt-4">
+                        <Image
+                            src={currentQuestion.card.imageUrl || ""}
                             alt={currentQuestion.card.term}
-                            className="max-w-full max-h-48 object-contain rounded-lg cursor-zoom-in hover:opacity-90 transition-opacity shadow-md mt-4"
+                            width={400}
+                            height={192}
+                            className="max-w-full max-h-48 object-contain rounded-lg cursor-zoom-in hover:opacity-90 transition-opacity shadow-md"
                             onClick={handleImageClick}
                         />
-                    )}
+                    </div>
                 </Card>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

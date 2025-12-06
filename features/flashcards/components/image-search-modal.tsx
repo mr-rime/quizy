@@ -11,6 +11,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 
 type PixabayPhoto = {
     id: number;
@@ -159,10 +160,11 @@ export function ImageSearchModal({ open, onOpenChange, onSelectImage }: ImageSea
                                     className="relative aspect-square cursor-pointer rounded-lg overflow-hidden group hover:ring-2 hover:ring-primary transition-all"
                                     onClick={() => handleSelectImage(photo.url)}
                                 >
-                                    <img
+                                    <Image
                                         src={photo.thumbnail}
                                         alt={photo.alt}
-                                        className="w-full h-full object-cover"
+                                        fill
+                                        className="object-cover"
                                     />
                                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
                                         <p className="text-white text-xs truncate">
