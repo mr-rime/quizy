@@ -198,6 +198,7 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
                     {currentQuestion.card.imageUrl && (
                         <div className="relative w-full max-w-md max-h-40 md:max-h-48 flex items-center justify-center mt-2">
                             <Image
+                                key={currentQuestion.card.imageUrl}
                                 src={currentQuestion.card.imageUrl}
                                 alt={currentQuestion.card.term}
                                 width={400}

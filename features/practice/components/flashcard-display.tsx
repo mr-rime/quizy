@@ -83,6 +83,7 @@ export function FlashcardDisplay({
                             {card.imageUrl && (
                                 <div className="relative w-full max-h-48 flex items-center justify-center">
                                     <Image
+                                        key={card.imageUrl}
                                         src={card.imageUrl}
                                         alt={card.term}
                                         width={400}
