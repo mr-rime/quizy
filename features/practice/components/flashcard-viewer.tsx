@@ -93,8 +93,11 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [] 
             setCurrentIndex(prev => prev + 1);
             setIsFlipped(false);
         } else {
-            setIsFinished(true);
-            if (setId !== "favorites") {
+            if (setId === "favorites") {
+                setCurrentIndex(0);
+                setIsFlipped(false);
+            } else {
+                setIsFinished(true);
                 try {
                     await deleteProgressBySet(userId, setId, "flashcard");
                 } catch (error) {
