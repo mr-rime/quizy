@@ -12,6 +12,7 @@ import { QuizSkeleton } from "./quiz-skeleton";
 import { ImageZoomModal } from "@/components/image-zoom-modal";
 import Image from "next/image";
 import { saveProgress, getProgressForSet, deleteProgressBySet } from "../../services/progress";
+import { useSpeech } from "../../hooks/use-speech";
 
 interface Flashcard {
     id: string;
@@ -42,7 +43,7 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
     const [isZoomOpen, setIsZoomOpen] = useState(false);
     const [isLoadingProgress, setIsLoadingProgress] = useState(true);
     const [hasInitialized, setHasInitialized] = useState(false);
-    const [lastSpeakTime, setLastSpeakTime] = useState(0);
+    const { speak } = useSpeech();
 
     const correctAudio = typeof window !== 'undefined' ? new Audio('/audio/correct-choice.mp3') : null;
     const incorrectAudio = typeof window !== 'undefined' ? new Audio('/audio/incorrect-choice.mp3') : null;
@@ -145,20 +146,7 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
         setIsFinished(false);
     };
 
-    const handleSpeak = (text: string) => {
-        const now = Date.now();
-        const DEBOUNCE_DELAY = 1000;
 
-        if (now - lastSpeakTime < DEBOUNCE_DELAY) {
-            return;
-        }
-
-        if (window.responsiveVoice) {
-            window.responsiveVoice.cancel();
-            setLastSpeakTime(now);
-            window.responsiveVoice.speak(text);
-        }
-    };
 
     const handleImageClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -200,7 +188,7 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
                         variant="ghost"
                         size="icon"
                         className="absolute top-2 sm:top-4 right-2 sm:right-4 h-10 w-10 sm:h-11 sm:w-11"
-                        onClick={() => handleSpeak(currentQuestion.card.term)}
+                        onClick={() => speak(currentQuestion.card.term)}
                     >
                         <Volume2 className="h-5 w-5 sm:h-6 sm:w-6" />
                     </Button>

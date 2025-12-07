@@ -11,7 +11,7 @@ import { EditCardDialog } from "./edit-card-dialog";
 import { saveProgress, getProgressForSet, deleteProgressBySet } from "../services/progress";
 import { FlashcardFinish } from "./flashcard-finish";
 import { Skeleton } from "@/components/skeleton";
-import { Button } from "@/components/ui/button";
+import { useSpeech } from "../hooks/use-speech";
 
 interface Flashcard {
     id: string;
@@ -35,7 +35,7 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [],
     const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set(initialFavoriteIds));
     const [isLoadingProgress, setIsLoadingProgress] = useState(true);
     const [isFinished, setIsFinished] = useState(false);
-    const [lastSpeakTime, setLastSpeakTime] = useState(0);
+
     const [lastNavigationTime, setLastNavigationTime] = useState(0);
 
 
@@ -129,37 +129,10 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [],
         setIsFlipped(!isFlipped);
     };
 
+    const { speak } = useSpeech();
+
     const handleSpeak = (text: string) => {
-        console.log("==== handleSpeak called ====");
-        console.log("Text:", text);
-
-        const now = Date.now();
-        const DEBOUNCE_DELAY = 1000;
-        console.log("Now:", now);
-        console.log("LastSpeakTime:", lastSpeakTime);
-        console.log("Diff:", now - lastSpeakTime);
-
-        if (now - lastSpeakTime < DEBOUNCE_DELAY) {
-            console.warn("⛔ Blocked by debounce");
-            return;
-        }
-
-        if (!window.responsiveVoice) {
-            console.error("❌ window.responsiveVoice is missing");
-            return;
-        }
-
-        console.log("✔ responsiveVoice is available");
-        console.log("Cancelling previous speech...");
-        window.responsiveVoice.cancel();
-
-        console.log("Setting lastSpeakTime...");
-        setLastSpeakTime(now);
-
-        console.log("Speaking with voice:", "UK English Female");
-        window.responsiveVoice.speak("hello world");
-
-        console.log("🎤 Speak() triggered");
+        speak(text);
     };
 
 
@@ -278,16 +251,7 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [],
 
     return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8">
-            <Button onClick={() => handleSpeak("Hello, this should work now!")}>
-                Speak
-            </Button>
 
-            <button
-                style={{ padding: "10px", background: "lightblue" }}
-                onClick={() => handleSpeak("Native button test")}
-            >
-                Native Speak
-            </button>
 
 
             <FlashcardDisplay
