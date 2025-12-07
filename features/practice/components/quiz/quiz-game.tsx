@@ -42,6 +42,7 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
     const [isZoomOpen, setIsZoomOpen] = useState(false);
     const [isLoadingProgress, setIsLoadingProgress] = useState(true);
     const [hasInitialized, setHasInitialized] = useState(false);
+    const [lastSpeakTime, setLastSpeakTime] = useState(0);
 
     const correctAudio = typeof window !== 'undefined' ? new Audio('/audio/correct-choice.mp3') : null;
     const incorrectAudio = typeof window !== 'undefined' ? new Audio('/audio/incorrect-choice.mp3') : null;
@@ -145,6 +146,16 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
     };
 
     const handleSpeak = (text: string) => {
+        const now = Date.now();
+        const DEBOUNCE_DELAY = 1000;
+
+        if (now - lastSpeakTime < DEBOUNCE_DELAY) {
+            return;
+        }
+
+        window.speechSynthesis.cancel();
+        setLastSpeakTime(now);
+
         const utterance = new SpeechSynthesisUtterance(text);
         window.speechSynthesis.speak(utterance);
     };

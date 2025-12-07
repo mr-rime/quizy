@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Block private dashboards
+Disallow: /dashboard/
+Disallow: /saved/
+Disallow: /profile/
+
+# Block auth pages (avoid indexing login/signup)
+Disallow: /login/
+Disallow: /signup/
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://quizy-eg.vercel.app/sitemap.xml

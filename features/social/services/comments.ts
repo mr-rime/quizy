@@ -4,9 +4,19 @@ import { db } from "@/db/drizzle";
 import { setComments } from "@/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { revalidatePath, revalidateTag } from "next/cache";
+import { createRateLimiter } from "@/lib/rate-limit";
+import { isRateLimitError } from "@/types";
+
+const commentLimiter = createRateLimiter({
+    points: 10,
+    duration: 60,
+    keyPrefix: "comment"
+});
 
 export async function addComment(setId: string, userId: string, content: string) {
     try {
+        await commentLimiter.consume(userId);
+
         if (!content.trim()) {
             return { success: false, error: "Comment cannot be empty" };
         }
@@ -33,6 +43,15 @@ export async function addComment(setId: string, userId: string, content: string)
 
         return { success: true, comment };
     } catch (error) {
+        // Handle rate limit errors
+        if (isRateLimitError(error)) {
+            const retryAfterSec = Math.ceil(error.msBeforeNext / 1000);
+            return {
+                success: false,
+                error: `Too many comments. Please wait ${retryAfterSec} seconds before commenting again.`
+            };
+        }
+
         console.error("Error adding comment:", error);
         return { success: false, error: "Failed to add comment" };
     }

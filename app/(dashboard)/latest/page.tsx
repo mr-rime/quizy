@@ -39,7 +39,7 @@ export default async function LatestPage() {
                         <Link key={set.id} href={`/practice/${set.id}`}>
                             <Card className="hover:bg-accent transition-colors cursor-pointer h-full">
                                 <CardContent className="p-4 sm:p-6 flex items-center gap-3 sm:gap-4">
-                                    <div className="p-3 sm:p-4 rounded-lg bg-primary/10 text-primary flex-shrink-0">
+                                    <div className="p-3 sm:p-4 rounded-lg bg-primary/10 text-primary shrink-0">
                                         <Layers className="h-6 w-6 sm:h-8 sm:w-8" />
                                     </div>
                                     <div className="min-w-0">
@@ -83,7 +83,7 @@ export default async function LatestPage() {
                                     </Link>
                                 </div>
 
-                                <div className="relative w-full md:w-[400px] lg:w-[500px] h-[200px] sm:h-[250px] md:h-[300px] flex-shrink-0">
+                                <div className="relative w-full md:w-[400px] lg:w-[500px] h-[200px] sm:h-[250px] md:h-[300px] shrink-0">
                                     <Image
                                         src={"/flashcards_new.png"}
                                         alt="flashcard set icon"

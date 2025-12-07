@@ -6,7 +6,7 @@ export const createFlashcardSetSchema = z.object({
     isPublic: z.boolean().optional().default(false),
     flashcards: z.array(z.object({
         term: z.string().min(1, "Term is required"),
-        definition: z.string().optional(),
+        definition: z.string().min(1, "Definition is required"),
         image: z.string().optional(),
     }))
 });

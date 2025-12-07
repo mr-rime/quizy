@@ -33,6 +33,8 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [] 
     const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set(initialFavoriteIds));
     const [isLoadingProgress, setIsLoadingProgress] = useState(true);
     const [isFinished, setIsFinished] = useState(false);
+    const [lastSpeakTime, setLastSpeakTime] = useState(0);
+    const [lastNavigationTime, setLastNavigationTime] = useState(0);
 
 
 
@@ -78,6 +80,15 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [] 
     }, [currentIndex, cards.length, userId, setId, isLoadingProgress, isFinished]);
 
     const handleNext = useCallback(async () => {
+        const now = Date.now();
+        const DEBOUNCE_DELAY = 300;
+
+        if (now - lastNavigationTime < DEBOUNCE_DELAY) {
+            return;
+        }
+
+        setLastNavigationTime(now);
+
         if (currentIndex < cards.length - 1) {
             setCurrentIndex(prev => prev + 1);
             setIsFlipped(false);
@@ -91,20 +102,39 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [] 
                 }
             }
         }
-    }, [currentIndex, cards.length, userId, setId]);
+    }, [currentIndex, cards.length, userId, setId, lastNavigationTime]);
 
     const handlePrev = useCallback(() => {
+        const now = Date.now();
+        const DEBOUNCE_DELAY = 300;
+
+        if (now - lastNavigationTime < DEBOUNCE_DELAY) {
+            return;
+        }
+
+        setLastNavigationTime(now);
+
         if (currentIndex > 0) {
             setCurrentIndex(prev => prev - 1);
             setIsFlipped(false);
         }
-    }, [currentIndex, setCurrentIndex, setIsFlipped]);
+    }, [currentIndex, setCurrentIndex, setIsFlipped, lastNavigationTime]);
 
     const handleFlip = () => {
         setIsFlipped(!isFlipped);
     };
 
     const handleSpeak = (text: string) => {
+        const now = Date.now();
+        const DEBOUNCE_DELAY = 1000;
+
+        if (now - lastSpeakTime < DEBOUNCE_DELAY) {
+            return;
+        }
+
+        window.speechSynthesis.cancel();
+        setLastSpeakTime(now);
+
         const utterance = new SpeechSynthesisUtterance(text);
         window.speechSynthesis.speak(utterance);
     };

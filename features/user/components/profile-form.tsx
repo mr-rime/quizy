@@ -129,7 +129,10 @@ export function ProfileForm({ user }: ProfileFormProps) {
                                     </p>
                                 )}
                             </div>
-                            <Button type="submit" disabled={isLoadingEmail}>
+                            <Button
+                                type="submit"
+                                disabled={isLoadingEmail || emailForm.watch("email") === user.email}
+                            >
                                 {isLoadingEmail ? "Updating..." : "Update Email"}
                             </Button>
                         </form>
@@ -155,7 +158,10 @@ export function ProfileForm({ user }: ProfileFormProps) {
                                     </p>
                                 )}
                             </div>
-                            <Button type="submit" disabled={isLoadingUsername}>
+                            <Button
+                                type="submit"
+                                disabled={isLoadingUsername || usernameForm.watch("username") === user.username}
+                            >
                                 {isLoadingUsername ? "Updating..." : "Update Username"}
                             </Button>
                         </form>
