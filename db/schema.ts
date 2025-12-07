@@ -43,6 +43,7 @@ export const flashcardSets = pgTable("flashcard_set", {
     title: varchar("title", { length: 100 }).notNull(),
     description: varchar("description", { length: 500 }),
     isPublic: boolean("is_public").notNull().default(false),
+    likeCount: integer("like_count").notNull().default(0),
     userId: uuid("user_id")
         .notNull()
         .references(() => users.id, { onDelete: "cascade" }),
@@ -102,6 +103,50 @@ export const savedSets = pgTable("saved_set", {
     createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const setComments = pgTable("set_comment", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    setId: uuid("set_id")
+        .notNull()
+        .references(() => flashcardSets.id, { onDelete: "cascade" }),
+    content: text("content").notNull(),
+    isPinned: boolean("is_pinned").notNull().default(false),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date()),
+});
+
+export const setLikes = pgTable("set_like", {
+    userId: uuid("user_id")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    setId: uuid("set_id")
+        .notNull()
+        .references(() => flashcardSets.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow(),
+}, (t) => ({
+    pk: primaryKey({ columns: [t.userId, t.setId] }),
+}));
+
+export const setJoins = pgTable("set_join", {
+    userId: uuid("user_id")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    setId: uuid("set_id")
+        .notNull()
+        .references(() => flashcardSets.id, { onDelete: "cascade" }),
+    joinCount: integer("join_count").notNull().default(1),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date()),
+}, (t) => ({
+    pk: primaryKey({ columns: [t.userId, t.setId] }),
+}));
+
 
 export const userRelations = relations(users, ({ many, one }) => ({
     sessions: many(sessions),
@@ -110,6 +155,9 @@ export const userRelations = relations(users, ({ many, one }) => ({
     favorites: many(favorites),
     practiceProgress: many(practiceProgress),
     savedSets: many(savedSets),
+    setLikes: many(setLikes),
+    setComments: many(setComments),
+    setJoins: many(setJoins),
     stats: one(userStats, {
         fields: [users.id],
         references: [userStats.userId],
@@ -135,6 +183,9 @@ export const flashcardSetRelations = relations(flashcardSets, ({ one, many }) =>
     folderSets: many(folderSets),
     practiceProgress: many(practiceProgress),
     savedSets: many(savedSets),
+    likes: many(setLikes),
+    comments: many(setComments),
+    joins: many(setJoins),
 }));
 
 
@@ -172,6 +223,40 @@ export const savedSetRelations = relations(savedSets, ({ one }) => ({
     }),
     set: one(flashcardSets, {
         fields: [savedSets.setId],
+        references: [flashcardSets.id],
+    }),
+}));
+
+export const setLikeRelations = relations(setLikes, ({ one }) => ({
+    user: one(users, {
+        fields: [setLikes.userId],
+        references: [users.id],
+    }),
+    set: one(flashcardSets, {
+        fields: [setLikes.setId],
+        references: [flashcardSets.id],
+    }),
+}));
+
+
+export const setCommentRelations = relations(setComments, ({ one }) => ({
+    user: one(users, {
+        fields: [setComments.userId],
+        references: [users.id],
+    }),
+    set: one(flashcardSets, {
+        fields: [setComments.setId],
+        references: [flashcardSets.id],
+    }),
+}));
+
+export const setJoinRelations = relations(setJoins, ({ one }) => ({
+    user: one(users, {
+        fields: [setJoins.userId],
+        references: [users.id],
+    }),
+    set: one(flashcardSets, {
+        fields: [setJoins.setId],
         references: [flashcardSets.id],
     }),
 }));

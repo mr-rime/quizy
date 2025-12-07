@@ -173,44 +173,44 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
 
     return (
         <>
-            <div className="flex flex-col gap-8 max-w-3xl mx-auto">
-                <div className="flex items-center gap-4">
-                    <div className="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
+            <div className="flex flex-col gap-6 sm:gap-8 max-w-3xl mx-auto">
+                <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="bg-green-600 text-white rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center font-bold text-xs sm:text-sm">
                         {score}
                     </div>
-                    <Progress value={progress} className="h-3" />
-                    <div className="bg-muted text-muted-foreground rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
+                    <Progress value={progress} className="h-2 sm:h-3" />
+                    <div className="bg-muted text-muted-foreground rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center font-bold text-xs sm:text-sm">
                         {questions.length - currentIndex}
                     </div>
                 </div>
 
-                <Card className="p-8 md:p-12 flex flex-col items-center justify-center text-center gap-4 md:gap-6 relative">
+                <Card className="p-6 sm:p-8 lg:p-12 flex flex-col items-center justify-center text-center gap-3 sm:gap-4 lg:gap-6 relative">
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="absolute top-4 right-4"
+                        className="absolute top-2 sm:top-4 right-2 sm:right-4 h-10 w-10 sm:h-11 sm:w-11"
                         onClick={() => handleSpeak(currentQuestion.card.term)}
                     >
-                        <Volume2 className="h-6 w-6" />
+                        <Volume2 className="h-5 w-5 sm:h-6 sm:w-6" />
                     </Button>
-                    <div className="text-sm text-muted-foreground uppercase tracking-wider">Term</div>
-                    <h2 className="text-3xl md:text-4xl font-bold">{currentQuestion.card.term}</h2>
+                    <div className="text-xs sm:text-sm text-muted-foreground uppercase tracking-wider">Term</div>
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold px-2">{currentQuestion.card.term}</h2>
                     {currentQuestion.card.imageUrl && (
-                        <div className="relative w-full max-w-md max-h-40 md:max-h-48 flex items-center justify-center mt-2">
+                        <div className="relative w-full max-w-md max-h-32 sm:max-h-40 lg:max-h-48 flex items-center justify-center mt-2">
                             <Image
                                 key={currentQuestion.card.imageUrl}
                                 src={currentQuestion.card.imageUrl}
                                 alt={currentQuestion.card.term}
                                 width={400}
                                 height={192}
-                                className="max-w-full max-h-40 md:max-h-48 object-contain rounded-lg cursor-zoom-in hover:opacity-90 transition-opacity shadow-md"
+                                className="max-w-full max-h-32 sm:max-h-40 lg:max-h-48 object-contain rounded-lg cursor-zoom-in hover:opacity-90 transition-opacity shadow-md"
                                 onClick={handleImageClick}
                             />
                         </div>
                     )}
                 </Card>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     {currentQuestion.options.map((option, index) => {
                         const isSelected = selectedOptionId === option.id;
                         const isCorrectOption = option.id === currentQuestion.correctOptionId;
@@ -219,22 +219,22 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
                                 key={option.id}
                                 variant="outline"
                                 className={cn(
-                                    "h-auto py-6 text-lg justify-start px-6 relative overflow-hidden transition-all",
-                                    selectedOptionId && isCorrectOption && "border-green-500 bg-green-50 text-green-700 hover:bg-green-50 hover:text-green-700",
-                                    selectedOptionId && isSelected && !isCorrect && "border-red-500 bg-red-50 text-red-700 hover:bg-red-50 hover:text-red-700",
+                                    "h-auto min-h-[44px] py-4 sm:py-5 lg:py-6 text-base sm:text-lg justify-start px-4 sm:px-6 relative overflow-hidden transition-all",
+                                    selectedOptionId && isCorrectOption && "border-green-500 bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-950 hover:text-green-700 dark:hover:text-green-300",
+                                    selectedOptionId && isSelected && !isCorrect && "border-red-500 bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-700 dark:hover:text-red-300",
                                     !selectedOptionId && "hover:border-primary/50"
                                 )}
                                 onClick={() => handleAnswer(option.id)}
                                 disabled={!!selectedOptionId}
                             >
-                                <span className="mr-4 opacity-50 font-mono">{index + 1}</span>
-                                <span className="truncate">{option.definition || "No definition"}</span>
+                                <span className="mr-3 sm:mr-4 opacity-50 font-mono text-sm sm:text-base">{index + 1}</span>
+                                <span className="flex-1 text-left break-words">{option.definition || "No definition"}</span>
 
                                 {selectedOptionId && isCorrectOption && (
-                                    <CheckCircle className="absolute right-4 h-5 w-5 text-green-600" />
+                                    <CheckCircle className="flex-shrink-0 ml-2 h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
                                 )}
                                 {selectedOptionId && isSelected && !isCorrect && (
-                                    <XCircle className="absolute right-4 h-5 w-5 text-red-600" />
+                                    <XCircle className="flex-shrink-0 ml-2 h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
                                 )}
                             </Button>
                         );

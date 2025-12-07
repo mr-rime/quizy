@@ -2,9 +2,7 @@
 
 import { db } from "@/db/drizzle";
 import { flashcardSets } from "@/db/schema";
-import { eq } from "drizzle-orm";
-
-import { and } from "drizzle-orm";
+import { eq, and, or } from "drizzle-orm";
 import { getCurrentUser, getUserId } from "@/features/user/services/user";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
@@ -20,10 +18,20 @@ export const getFlashcardSet = unstable_cache(
         const set = await db.query.flashcardSets.findFirst({
             where: and(
                 eq(flashcardSets.id, id),
-                eq(flashcardSets.userId, userId)
+                or(
+                    eq(flashcardSets.userId, userId),
+                    eq(flashcardSets.isPublic, true)
+                )
             ),
             with: {
                 cards: true,
+                user: {
+                    columns: {
+                        id: true,
+                        username: true,
+                        image: true,
+                    }
+                }
             },
         });
 

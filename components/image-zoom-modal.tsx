@@ -17,15 +17,16 @@ export function ImageZoomModal({ imageUrl, alt, open, onOpenChange }: ImageZoomM
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent
-                className="max-w-[95vw] max-h-[95vh] p-0 overflow-hidden bg-transparent border-none shadow-none"
+                className="max-w-[95vw] sm:max-w-[90vw] max-h-[95vh] p-2 sm:p-4 overflow-hidden bg-transparent border-none shadow-none"
                 showCloseButton={false}
             >
-                <div className="relative w-full h-[95vh] flex items-center justify-center">
+                <div className="relative w-full h-[90vh] sm:h-[95vh] flex items-center justify-center">
                     <button
                         onClick={() => onOpenChange(false)}
-                        className="absolute top-4 right-4 z-50 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+                        className="absolute top-2 sm:top-4 right-2 sm:right-4 z-50 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 sm:p-3 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                        aria-label="Close"
                     >
-                        <X size={24} />
+                        <X size={20} className="sm:w-6 sm:h-6" />
                     </button>
                     <div className="relative w-full h-full">
                         <Image

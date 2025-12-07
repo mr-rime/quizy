@@ -46,3 +46,17 @@ export interface FolderSet {
     folder?: Folder;
     set?: FlashcardSet;
 }
+
+export interface PublicFlashcardSet {
+    id: string;
+    title: string;
+    description: string | null;
+    userId: string;
+    createdAt: Date | null;
+    username: string | null;
+    userImage: string | null;
+    likeCount: number;
+    cardCount: number;
+    commentCount: number;
+    joinCount: number;
+}

@@ -1,14 +1,17 @@
+"use client"
+
 import { LogoutButton } from "@/features/auth/components/logout-button";
 import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { Star, User } from "lucide-react";
-import { getCurrentUser } from "../services/user";
+import { Star, User as UserIcon } from "lucide-react";
+import { User } from "@/types/auth";
 
+interface ProfileMenuProps {
+    user: User | null;
+}
 
-export async function ProfileMenu() {
-    const user = await getCurrentUser();
-
+export function ProfileMenu({ user }: ProfileMenuProps) {
     if (!user) {
         return null;
     }
@@ -38,7 +41,7 @@ export async function ProfileMenu() {
                 <DropdownMenuGroup>
                     <DropdownMenuItem asChild>
                         <Link href="/profile" className="cursor-pointer w-full flex items-center">
-                            <User className="mr-2 h-4 w-4" />
+                            <UserIcon className="mr-2 h-4 w-4" />
                             <span>Profile</span>
                         </Link>
                     </DropdownMenuItem>
@@ -55,4 +58,3 @@ export async function ProfileMenu() {
         </DropdownMenu>
     )
 }
-

@@ -77,9 +77,9 @@ export function FlashcardForm({ setId, initialData }: FlashcardFormProps = {}) {
     return (
         <FormProvider {...methods}>
             <form id="create-set-form" onSubmit={methods.handleSubmit(onSubmit)}>
-                <div className="flex justify-between items-center mb-10">
-                    <h2 className="text-[1.5rem] font-medium">{setId ? "Edit flashcard set" : "Create a new flashcard set"}</h2>
-                    <Button type="submit" disabled={isPending}>
+                <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8 sm:mb-10">
+                    <h2 className="text-xl sm:text-2xl font-medium">{setId ? "Edit flashcard set" : "Create a new flashcard set"}</h2>
+                    <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
                         {isPending ? (setId ? "Updating..." : "Creating...") : (setId ? "Update" : "Create")}
                     </Button>
                 </div>

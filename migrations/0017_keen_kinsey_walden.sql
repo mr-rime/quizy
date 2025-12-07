@@ -1,0 +1,1 @@
+ALTER TABLE "set_join" DROP COLUMN "id";

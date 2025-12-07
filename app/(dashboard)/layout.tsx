@@ -3,21 +3,22 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { getFolders } from "@/features/folders/services/folders";
 import { getUserId } from "@/features/user/services/user";
 import { getUserStats } from "@/features/gamification/services/stats";
+import { DashboardLayoutClient } from "./layout-client";
+import { getCurrentUser } from "@/features/user/services/user";
 
-export default async function Layout({ children }: { children: React.ReactNode }) {
+interface LayoutProps {
+    children: React.ReactNode;
+}
+
+export default async function Layout({ children }: LayoutProps) {
     const userId = await getUserId();
     const folders = getFolders(userId);
-    const stats = await getUserStats(userId);
+    const stats = getUserStats(userId);
+    const user = await getCurrentUser();
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-black font-sans flex flex-col pt-16">
-            <Header stats={stats} />
-
-            <div className="flex flex-1">
-                <Sidebar foldersPromise={folders} />
-
-                <main className="flex-1 p-6 ml-64">{children}</main>
-            </div>
-        </div>
+        <DashboardLayoutClient foldersPromise={folders} statsPromise={stats} user={user}>
+            {children}
+        </DashboardLayoutClient>
     );
 }
