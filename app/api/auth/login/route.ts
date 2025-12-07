@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { login } from "@/features/auth/services/login";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { setSessionCookie } from "@/features/auth/services/cookie";
-import { RateLimiterRes } from "rate-limiter-flexible";
+import { isRateLimitError } from "@/types";
 
 const limiter = createRateLimiter({
     points: 10,
@@ -38,11 +38,10 @@ export async function POST(req: NextRequest) {
 
         return response;
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
+    } catch (err: unknown) {
 
-        if ((err as RateLimiterRes)?.msBeforeNext) {
-            const retryAfterSec = Math.ceil((err as RateLimiterRes).msBeforeNext / 1000);
+        if (isRateLimitError(err)) {
+            const retryAfterSec = Math.ceil(err.msBeforeNext / 1000);
             return NextResponse.json(
                 { success: false, error: "Too many requests. Try again later." },
                 {

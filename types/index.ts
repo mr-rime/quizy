@@ -60,3 +60,8 @@ export interface PublicFlashcardSet {
     commentCount: number;
     joinCount: number;
 }
+
+export type { Comment, CommentWithUser, CommentUser } from "./comments";
+
+export type { ApiError, DatabaseError, RateLimitError } from "./errors";
+export { isRateLimitError, isDatabaseError, isApiError } from "./errors";

@@ -3,7 +3,7 @@
 import { db } from "@/db/drizzle";
 import { setJoins } from "@/db/schema";
 import { revalidateTag } from "next/cache";
-import { eq, and, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 
 export async function trackSetJoin(setId: string, userId: string) {
     try {

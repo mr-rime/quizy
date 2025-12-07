@@ -1,5 +1,3 @@
-import { Header } from "@/components/layout/header";
-import { Sidebar } from "@/components/layout/sidebar";
 import { getFolders } from "@/features/folders/services/folders";
 import { getUserId } from "@/features/user/services/user";
 import { getUserStats } from "@/features/gamification/services/stats";

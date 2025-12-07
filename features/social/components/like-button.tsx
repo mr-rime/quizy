@@ -14,7 +14,7 @@ interface LikeButtonProps {
     variant?: "default" | "compact";
 }
 
-export function LikeButton({ setId, userId, initialLiked, initialCount, variant = "default" }: LikeButtonProps) {
+export function LikeButton({ setId, initialLiked, initialCount, variant = "default" }: LikeButtonProps) {
     const [liked, setLiked] = useState(initialLiked);
     const [likeCount, setLikeCount] = useState(initialCount);
     const [isPending, startTransition] = useTransition();

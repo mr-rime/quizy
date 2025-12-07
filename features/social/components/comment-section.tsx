@@ -4,12 +4,13 @@ import { use } from "react";
 import { CommentForm } from "./comment-form";
 import { CommentItem } from "./comment-item";
 import { MessageSquare } from "lucide-react";
+import type { CommentWithUser } from "@/types";
 
 interface CommentSectionProps {
     setId: string;
     userId: string;
     setOwnerId: string;
-    commentsPromise: Promise<any[]>;
+    commentsPromise: Promise<CommentWithUser[]>;
 }
 
 export function CommentSection({ setId, userId, setOwnerId, commentsPromise }: CommentSectionProps) {

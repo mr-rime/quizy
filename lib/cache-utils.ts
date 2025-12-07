@@ -22,19 +22,12 @@ export const CACHE_TAGS = {
     LATEST: "latest",
 } as const;
 
-/**
- * Helper to generate cache key for a specific resource
- * @param tag - Base cache tag
- * @param id - Resource ID (optional)
- */
+
 export function getCacheKey(tag: string, id?: string): string {
     return id ? `${tag}-${id}` : tag;
 }
 
-/**
- * Helper to get all cache tags that should be invalidated for a resource
- * @param resource - Resource type (e.g., 'flashcard-set', 'folder')
- */
+
 export function getInvalidationTags(resource: keyof typeof CACHE_TAGS): string[] {
     const tags: string[] = [];
 

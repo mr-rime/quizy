@@ -16,6 +16,7 @@ import { CommentSection } from "@/features/social/components/comment-section";
 import { trackSetJoin } from "@/features/social/services/joins";
 import { saveSet, unsaveSet } from "@/features/saved-sets/services/saved-sets";
 import { toast } from "sonner";
+import type { CommentWithUser } from "@/types";
 
 
 
@@ -25,7 +26,7 @@ interface PracticeLayoutProps<T> {
     currentUsername?: string | null;
     isSaved?: boolean;
     isLiked?: boolean;
-    commentsPromise: Promise<any[]>;
+    commentsPromise: Promise<CommentWithUser[]>;
     children?: React.ReactNode;
 }
 

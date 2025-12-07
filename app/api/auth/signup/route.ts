@@ -4,7 +4,7 @@ import { signUp } from "@/features/auth/services/sign-up";
 import { getUserByEmail } from "@/features/user/services/user";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { NextRequest, NextResponse } from "next/server";
-import { RateLimiterRes } from "rate-limiter-flexible";
+import { isRateLimitError, isDatabaseError } from "@/types";
 
 const limiter = createRateLimiter({
     points: 10,
@@ -50,10 +50,9 @@ export async function POST(req: NextRequest) {
         response = setSessionCookie(response, session!.token);
 
         return response;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-        if ((err as RateLimiterRes)?.msBeforeNext) {
-            const retryAfterSec = Math.ceil((err as RateLimiterRes).msBeforeNext / 1000);
+    } catch (err: unknown) {
+        if (isRateLimitError(err)) {
+            const retryAfterSec = Math.ceil(err.msBeforeNext / 1000);
             return NextResponse.json(
                 { success: false, error: "Too many requests. Try again later." },
                 {
@@ -65,7 +64,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        if (err.code === '23505' && (err.constraint === 'user_username_unique' || err.detail?.includes('username'))) {
+        if (isDatabaseError(err) && err.code === '23505' && (err.constraint === 'user_username_unique' || err.detail?.includes('username'))) {
             return NextResponse.json(
                 { success: false, error: "Username already taken" },
                 { status: 409 }
@@ -74,8 +73,9 @@ export async function POST(req: NextRequest) {
 
         console.error("Signup error:", err);
 
+        const errorMessage = err instanceof Error ? err.message : "Unknown error";
         return NextResponse.json(
-            { success: false, error: "Internal server error", details: err.message },
+            { success: false, error: "Internal server error", details: errorMessage },
             { status: 500 }
         );
     }

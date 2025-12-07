@@ -4,7 +4,6 @@ import { db } from "@/db/drizzle";
 import { setComments } from "@/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { revalidatePath, revalidateTag } from "next/cache";
-import { flashcardSets } from "@/db/schema";
 
 export async function addComment(setId: string, userId: string, content: string) {
     try {

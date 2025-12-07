@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db/drizzle";
-import { flashcardSets, users, setComments, setJoins } from "@/db/schema";
+import { flashcardSets, users } from "@/db/schema";
 import { eq, desc, ilike, or, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 

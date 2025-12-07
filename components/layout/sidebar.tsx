@@ -1,5 +1,5 @@
 "use client"
-import { House, Library, Folder, Plus, Star, Trophy, Bookmark, X, Compass } from "lucide-react";
+import { House, Library, Folder, Plus, Star, Trophy, Bookmark, Compass } from "lucide-react";
 import Link from "next/link";
 import { JSX, use, useState } from "react";
 import { usePathname } from "next/navigation";
