@@ -17,6 +17,7 @@ interface FlashcardDisplayProps {
     card: Flashcard;
     isFlipped: boolean;
     isFavorite: boolean;
+    isOwner?: boolean;
     onFlip: () => void;
     onEdit: () => void;
     onSpeak: (text: string) => void;
@@ -27,6 +28,7 @@ export function FlashcardDisplay({
     card,
     isFlipped,
     isFavorite,
+    isOwner = false,
     onFlip,
     onEdit,
     onSpeak,
@@ -48,9 +50,11 @@ export function FlashcardDisplay({
                 )}>
                     <Card className="absolute w-full h-full backface-hidden flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 bg-card border-2 hover:border-primary/50 transition-colors">
                         <div className="absolute top-2 sm:top-4 right-2 sm:right-4 flex gap-1 sm:gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => onEdit()}>
-                                <Edit2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                            </Button>
+                            {isOwner && (
+                                <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => onEdit()}>
+                                    <Edit2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                                </Button>
+                            )}
                             <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => onSpeak(card.term)}>
                                 <Volume2 className="h-3 w-3 sm:h-4 sm:w-4" />
                             </Button>
@@ -66,9 +70,11 @@ export function FlashcardDisplay({
 
                     <Card className="absolute w-full h-full backface-hidden rotate-y-180 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 bg-card border-2 hover:border-primary/50 transition-colors overflow-y-auto">
                         <div className="absolute top-2 sm:top-4 right-2 sm:right-4 flex gap-1 sm:gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => onEdit()}>
-                                <Edit2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                            </Button>
+                            {isOwner && (
+                                <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => onEdit()}>
+                                    <Edit2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                                </Button>
+                            )}
                             <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => onSpeak(card.definition || "")}>
                                 <Volume2 className="h-3 w-3 sm:h-4 sm:w-4" />
                             </Button>

@@ -24,9 +24,10 @@ interface FlashcardViewerProps {
     setId: string;
     userId: string;
     initialFavoriteIds?: string[];
+    setOwnerId?: string;
 }
 
-export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [] }: FlashcardViewerProps) {
+export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [], setOwnerId }: FlashcardViewerProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
@@ -253,6 +254,7 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [] 
     }
 
     const isFavorite = favoriteIds.has(currentCard.id);
+    const isOwner = setOwnerId ? userId === setOwnerId : false;
 
     return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8">
@@ -260,6 +262,7 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [] 
                 card={currentCard}
                 isFlipped={isFlipped}
                 isFavorite={isFavorite}
+                isOwner={isOwner}
                 onFlip={handleFlip}
                 onEdit={openEdit}
                 onSpeak={handleSpeak}

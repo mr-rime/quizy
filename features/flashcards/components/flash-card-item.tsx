@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Image as ImageIcon, Trash, GripVertical, X } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 import { useSortable } from '@dnd-kit/sortable'
@@ -65,14 +66,16 @@ export function FlashCardItem({ id, index, remove, itemsCount }: FlashCardItemPr
                 </CardHeader>
                 <CardContent className="flex gap-3 pt-4">
                     <div className="w-2/4 space-y-2">
-                        <Input placeholder="Enter term" {...register(`flashcards.${index}.term`)} />
+                        <Label htmlFor={`term-${index}`}>Term</Label>
+                        <Input id={`term-${index}`} placeholder="Enter term" {...register(`flashcards.${index}.term`)} />
                         <p className={`transition-all ${errors.flashcards?.[index]?.term ? "h-4" : "h-0 overflow-hidden"}`}>
                             {errors.flashcards?.[index]?.term && <span className="text-sm text-red-500">{errors.flashcards[index]?.term?.message}</span>}
                         </p>
                     </div>
 
                     <div className="w-2/4 space-y-2">
-                        <Input placeholder="Enter definition" {...register(`flashcards.${index}.definition`)} />
+                        <Label htmlFor={`definition-${index}`}>Definition</Label>
+                        <Input id={`definition-${index}`} placeholder="Enter definition" {...register(`flashcards.${index}.definition`)} />
                         <p className={`transition-all ${errors.flashcards?.[index]?.definition ? "h-4" : "h-0 overflow-hidden"}`}>
                             {errors.flashcards?.[index]?.definition && <span className="text-sm text-red-500">{errors.flashcards[index]?.definition?.message}</span>}
                         </p>

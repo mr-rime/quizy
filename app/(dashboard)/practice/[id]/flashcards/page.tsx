@@ -42,7 +42,13 @@ export default async function FlashcardsPage({ params }: PageProps) {
                 </div>
             </div>
 
-            <FlashcardViewer cards={set.cards} setId={set.id} userId={userId} initialFavoriteIds={favoriteIds} />
+            <FlashcardViewer
+                cards={set.cards}
+                setId={set.id}
+                userId={userId}
+                initialFavoriteIds={favoriteIds}
+                setOwnerId={set.userId}
+            />
         </div>
     );
 }
