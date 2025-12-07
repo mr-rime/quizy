@@ -15,6 +15,8 @@ export function useSpeech() {
         }
     }, []);
 
+    const isArabic = (text: string) => /[\u0600-\u06FF]/.test(text);
+
     const speak = useCallback((text: string) => {
         if (!text) return;
 
@@ -35,12 +37,19 @@ export function useSpeech() {
         const utterance = new SpeechSynthesisUtterance(text);
 
         const voices = window.speechSynthesis.getVoices();
-        const preferredVoice = voices.find(v => v.name === "Google US English")
-            || voices.find(v => v.name.includes("Google") && v.lang.startsWith("en"))
-            || voices.find(v => v.name.includes("Zira"))
-            || voices.find(v => v.lang === "en-US")
-            || voices.find(v => v.lang.startsWith("en"))
-            || voices[0];
+        let preferredVoice;
+
+        if (isArabic(text)) {
+            preferredVoice = voices.find(v => v.lang.startsWith("ar")) || voices[0];
+        } else {
+            preferredVoice =
+                voices.find(v => v.name === "Google US English") ||
+                voices.find(v => v.name.includes("Google") && v.lang.startsWith("en")) ||
+                voices.find(v => v.name.includes("Zira")) ||
+                voices.find(v => v.lang === "en-US") ||
+                voices.find(v => v.lang.startsWith("en")) ||
+                voices[0];
+        }
 
         if (preferredVoice) {
             utterance.voice = preferredVoice;
