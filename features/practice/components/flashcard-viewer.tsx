@@ -157,7 +157,7 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [],
         setLastSpeakTime(now);
 
         console.log("Speaking with voice:", "UK English Female");
-        window.responsiveVoice.speak(text, "UK English Female");
+        window.responsiveVoice.speak("hello world");
 
         console.log("🎤 Speak() triggered");
     };

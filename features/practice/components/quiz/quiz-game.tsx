@@ -230,7 +230,7 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
                                 key={option.id}
                                 variant="outline"
                                 className={cn(
-                                    "h-auto min-h-[44px] py-4 sm:py-5 lg:py-6 text-base sm:text-lg justify-start px-4 sm:px-6 relative overflow-hidden transition-all",
+                                    "h-auto min-h-11 py-4 sm:py-5 lg:py-6 text-base sm:text-lg justify-start px-4 sm:px-6 relative overflow-hidden transition-all",
                                     selectedOptionId && isCorrectOption && "border-green-500 bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-950 hover:text-green-700 dark:hover:text-green-300",
                                     selectedOptionId && isSelected && !isCorrect && "border-red-500 bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-700 dark:hover:text-red-300",
                                     !selectedOptionId && "hover:border-primary/50"
@@ -239,13 +239,13 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
                                 disabled={!!selectedOptionId}
                             >
                                 <span className="mr-3 sm:mr-4 opacity-50 font-mono text-sm sm:text-base">{index + 1}</span>
-                                <span className="flex-1 text-left break-words">{option.definition || "No definition"}</span>
+                                <span className="flex-1 text-left wrap-break-word">{option.definition || "No definition"}</span>
 
                                 {selectedOptionId && isCorrectOption && (
-                                    <CheckCircle className="flex-shrink-0 ml-2 h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
+                                    <CheckCircle className="shrink-0 ml-2 h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
                                 )}
                                 {selectedOptionId && isSelected && !isCorrect && (
-                                    <XCircle className="flex-shrink-0 ml-2 h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
+                                    <XCircle className="shrink-0 ml-2 h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
                                 )}
                             </Button>
                         );
