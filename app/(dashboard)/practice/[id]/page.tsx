@@ -1,6 +1,6 @@
 import { PracticeLayout } from "@/features/practice/components/practice-layout";
 import { getFlashcardSet } from "@/features/practice/services/flashcards";
-import { getUserId } from "@/features/user/services/user";
+import { getCurrentUser } from "@/features/user/services/user";
 import { notFound } from "next/navigation";
 import { getSetComments } from "@/features/social/services/comments";
 import { isSetSaved } from "@/features/saved-sets/services/saved-sets";
@@ -12,7 +12,8 @@ interface PageProps {
 
 export default async function PracticePage({ params }: PageProps) {
     const { id } = await params;
-    const userId = await getUserId();
+    const user = await getCurrentUser();
+    const userId = user?.id || "";
 
     const setPromise = getFlashcardSet(id, userId);
 

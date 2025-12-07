@@ -61,7 +61,14 @@ export function FlashcardDisplay({
                     </div>
                     <p className="text-2xl text-center text-muted-foreground">{card.definition}</p>
                     {card.imageUrl && (
-                        <Image src={card.imageUrl} alt="Card image" className="mt-4 max-h-40 rounded-md" width={200} height={160} style={{ objectFit: "contain" }} />
+                        <Image
+                            src={card.imageUrl}
+                            alt="Card image"
+                            className="mt-4 rounded-md max-w-[85%] md:max-w-full max-h-40 md:max-h-40 w-auto h-auto"
+                            width={200}
+                            height={160}
+                            style={{ objectFit: "contain" }}
+                        />
                     )}
                 </Card>
             </div>

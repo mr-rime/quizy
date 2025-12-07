@@ -57,7 +57,11 @@ export function FolderDialog({ open, onOpenChange, folder }: FolderDialogProps) 
             router.refresh();
         } catch (error) {
             console.error(error);
-            toast.error(folder ? "Failed to update folder" : "Failed to create folder");
+            if (error instanceof Error) {
+                toast.error(error.message);
+            } else {
+                toast.error(folder ? "Failed to update folder" : "Failed to create folder");
+            }
         }
     };
 

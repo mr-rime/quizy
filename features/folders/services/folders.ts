@@ -17,8 +17,8 @@ export async function createFolder(data: CreateFolderSchema) {
         where: eq(folders.userId, userId),
     });
 
-    if (existingFolders.length >= 5) {
-        throw new Error("You can only create up to 5 folders. Delete an existing folder to create a new one.");
+    if (existingFolders.length >= 4) {
+        throw new Error("You can only create up to 4 folders. Delete an existing folder to create a new one.");
     }
 
     const [newFolder] = await db.insert(folders).values({
@@ -107,7 +107,6 @@ export async function deleteFolder(id: string) {
 
 export async function addSetToFolder(folderId: string, setId: string) {
     const userId = await getUserId();
-    // Verify ownership
     const folder = await db.query.folders.findFirst({
         where: and(eq(folders.id, folderId), eq(folders.userId, userId)),
     });

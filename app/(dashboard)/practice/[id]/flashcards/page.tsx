@@ -3,7 +3,7 @@ import { BackButton } from "@/components/ui/back-button";
 import { notFound } from "next/navigation";
 import { getFlashcardSet } from "@/features/practice/services/flashcards";
 import { getFavorites } from "@/features/flashcards/services/favorites";
-import { getUserId } from "@/features/user/services/user";
+import { getCurrentUser } from "@/features/user/services/user";
 import { cache } from "react";
 
 export const revalidate = 3600;
@@ -15,7 +15,14 @@ interface PageProps {
 }
 
 const getFlashcardsData = cache(async (id: string) => {
-    const userId = await getUserId();
+    const user = await getCurrentUser();
+    const userId = user?.id || "";
+
+    if (!userId) {
+        const set = await getFlashcardSet(id, "");
+        return { set, favoriteIds: [], userId: "" };
+    }
+
     const [favorites, set] = await Promise.all([
         getFavorites(userId),
         getFlashcardSet(id, userId)

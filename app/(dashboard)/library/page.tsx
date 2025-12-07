@@ -23,7 +23,7 @@ export default async function page() {
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-[2rem] font-medium">Your library</h2>
                 <p className="text-sm text-muted-foreground">
-                    {folders.length}/5 folders
+                    {folders.length}/4 folders
                 </p>
             </div>
 
