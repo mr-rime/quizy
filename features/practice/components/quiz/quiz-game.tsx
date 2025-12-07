@@ -153,11 +153,11 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
             return;
         }
 
-        window.speechSynthesis.cancel();
-        setLastSpeakTime(now);
-
-        const utterance = new SpeechSynthesisUtterance(text);
-        window.speechSynthesis.speak(utterance);
+        if (window.responsiveVoice) {
+            window.responsiveVoice.cancel();
+            setLastSpeakTime(now);
+            window.responsiveVoice.speak(text);
+        }
     };
 
     const handleImageClick = (e: React.MouseEvent) => {

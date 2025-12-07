@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from 'sonner';
@@ -101,6 +102,7 @@ export default function RootLayout({
                     {children}
                     <Toaster position="top-right" richColors closeButton />
                 </ThemeProvider>
+                <Script src="https://code.responsivevoice.org/responsivevoice.js?key=8s8V4Fl8" strategy="afterInteractive" />
             </body>
         </html>
     );
