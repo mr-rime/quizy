@@ -13,7 +13,6 @@ export interface DatabaseError extends ApiError {
 
 export type RateLimitError = RateLimiterRes;
 
-// Type guards
 export function isRateLimitError(error: unknown): error is RateLimitError {
     return (
         typeof error === "object" &&

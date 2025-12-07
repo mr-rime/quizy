@@ -17,7 +17,7 @@ export type FlashcardFormData = {
     flashcards: {
         id?: string;
         term: string;
-        definition?: string;
+        definition: string;
         image?: string;
     }[];
 }

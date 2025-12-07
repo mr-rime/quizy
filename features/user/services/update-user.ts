@@ -8,6 +8,26 @@ import { getSessionCookie } from "../../auth/services/session";
 import { updateEmailSchema, updateUsernameSchema, updatePasswordSchema } from "../utils/validations";
 import { compare, hash } from "bcryptjs";
 import { revalidateTag } from "next/cache";
+import { createRateLimiter } from "@/lib/rate-limit";
+import { isRateLimitError } from "@/types";
+
+const emailLimiter = createRateLimiter({
+    points: 3,
+    duration: 3600,
+    keyPrefix: "update-email"
+});
+
+const usernameLimiter = createRateLimiter({
+    points: 3,
+    duration: 3600,
+    keyPrefix: "update-username"
+});
+
+const passwordLimiter = createRateLimiter({
+    points: 5,
+    duration: 3600,
+    keyPrefix: "update-password"
+});
 
 export async function updateUserEmail(email: string) {
     try {
@@ -18,6 +38,8 @@ export async function updateUserEmail(email: string) {
         if (!session) {
             return { success: false, error: "Unauthorized" };
         }
+
+        await emailLimiter.consume(session.userId);
 
         const validatedData = updateEmailSchema.parse({ email });
 
@@ -45,6 +67,13 @@ export async function updateUserEmail(email: string) {
 
         return { success: true };
     } catch (error) {
+        if (isRateLimitError(error)) {
+            const retryAfterMin = Math.ceil(error.msBeforeNext / 60000);
+            return {
+                success: false,
+                error: `Too many email updates. Please wait ${retryAfterMin} minute(s) before trying again.`
+            };
+        }
         console.error("Update email error:", error);
         return { success: false, error: "Failed to update email" };
     }
@@ -59,6 +88,8 @@ export async function updateUsername(username: string) {
         if (!session) {
             return { success: false, error: "Unauthorized" };
         }
+
+        await usernameLimiter.consume(session.userId);
 
         const validatedData = updateUsernameSchema.parse({ username });
 
@@ -86,6 +117,13 @@ export async function updateUsername(username: string) {
 
         return { success: true };
     } catch (error) {
+        if (isRateLimitError(error)) {
+            const retryAfterMin = Math.ceil(error.msBeforeNext / 60000);
+            return {
+                success: false,
+                error: `Too many username updates. Please wait ${retryAfterMin} minute(s) before trying again.`
+            };
+        }
         console.error("Update username error:", error);
         return { success: false, error: "Failed to update username" };
     }
@@ -100,6 +138,8 @@ export async function updatePassword(currentPassword: string, newPassword: strin
         if (!session) {
             return { success: false, error: "Unauthorized" };
         }
+
+        await passwordLimiter.consume(session.userId);
 
         const validatedData = updatePasswordSchema.parse({
             currentPassword,
@@ -130,6 +170,13 @@ export async function updatePassword(currentPassword: string, newPassword: strin
 
         return { success: true };
     } catch (error) {
+        if (isRateLimitError(error)) {
+            const retryAfterMin = Math.ceil(error.msBeforeNext / 60000);
+            return {
+                success: false,
+                error: `Too many password updates. Please wait ${retryAfterMin} minute(s) before trying again.`
+            };
+        }
         console.error("Update password error:", error);
         return { success: false, error: "Failed to update password" };
     }
