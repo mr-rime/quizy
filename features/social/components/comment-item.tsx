@@ -6,6 +6,17 @@ import { toast } from "sonner";
 import { Pencil, Trash2, Pin, PinOff } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface CommentItemProps {
     comment: {
@@ -22,15 +33,18 @@ interface CommentItemProps {
     };
     currentUserId: string;
     isSetOwner: boolean;
+    isAdmin?: boolean;
     onCommentUpdated?: () => void;
 }
 
-export function CommentItem({ comment, currentUserId, isSetOwner, onCommentUpdated }: CommentItemProps) {
+export function CommentItem({ comment, currentUserId, isSetOwner, isAdmin = false, onCommentUpdated }: CommentItemProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [editContent, setEditContent] = useState(comment.content);
     const [isPending, startTransition] = useTransition();
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
     const isCommentAuthor = comment.userId === currentUserId;
+    const canDelete = isCommentAuthor || isSetOwner || isAdmin;
 
     const handleUpdate = () => {
         if (!editContent.trim()) {
@@ -52,15 +66,12 @@ export function CommentItem({ comment, currentUserId, isSetOwner, onCommentUpdat
     };
 
     const handleDelete = () => {
-        if (!confirm("Are you sure you want to delete this comment?")) {
-            return;
-        }
-
         startTransition(async () => {
             const result = await deleteComment(comment.id, currentUserId);
 
             if (result.success) {
                 toast.success("Comment deleted");
+                setIsDeleteDialogOpen(false);
                 onCommentUpdated?.();
             } else {
                 toast.error(result.error || "Failed to delete comment");
@@ -143,15 +154,35 @@ export function CommentItem({ comment, currentUserId, isSetOwner, onCommentUpdat
                                     Edit
                                 </button>
                             )}
-                            {(isCommentAuthor || isSetOwner) && (
-                                <button
-                                    onClick={handleDelete}
-                                    disabled={isPending}
-                                    className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1"
-                                >
-                                    <Trash2 className="h-3 w-3" />
-                                    Delete
-                                </button>
+                            {canDelete && (
+                                <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                                    <AlertDialogTrigger asChild>
+                                        <button
+                                            className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1"
+                                        >
+                                            <Trash2 className="h-3 w-3" />
+                                            Delete
+                                        </button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Delete comment?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                This action cannot be undone. This will permanently delete this comment.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction
+                                                onClick={handleDelete}
+                                                disabled={isPending}
+                                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                            >
+                                                {isPending ? "Deleting..." : "Delete"}
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             )}
                             {isSetOwner && (
                                 <button

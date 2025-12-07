@@ -10,10 +10,11 @@ interface CommentSectionProps {
     setId: string;
     userId: string;
     setOwnerId: string;
+    isAdmin?: boolean;
     commentsPromise: Promise<CommentWithUser[]>;
 }
 
-export function CommentSection({ setId, userId, setOwnerId, commentsPromise }: CommentSectionProps) {
+export function CommentSection({ setId, userId, setOwnerId, isAdmin = false, commentsPromise }: CommentSectionProps) {
     const comments = use(commentsPromise);
 
     return (
@@ -39,6 +40,7 @@ export function CommentSection({ setId, userId, setOwnerId, commentsPromise }: C
                             comment={comment}
                             currentUserId={userId}
                             isSetOwner={userId === setOwnerId}
+                            isAdmin={isAdmin}
                         />
                     ))
                 )}

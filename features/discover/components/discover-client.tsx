@@ -7,9 +7,10 @@ import { PublicFlashcardSet } from "@/types";
 
 interface DiscoverClientProps {
     initialSets: PublicFlashcardSet[];
+    isAdmin?: boolean;
 }
 
-export function DiscoverClient({ initialSets }: DiscoverClientProps) {
+export function DiscoverClient({ initialSets, isAdmin = false }: DiscoverClientProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const sets = initialSets;
@@ -38,7 +39,7 @@ export function DiscoverClient({ initialSets }: DiscoverClientProps) {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {sets.map((set) => (
-                        <SetCard key={set.id} set={set} />
+                        <SetCard key={set.id} set={set} isAdmin={isAdmin} />
                     ))}
                 </div>
             )}

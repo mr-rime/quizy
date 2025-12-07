@@ -26,6 +26,7 @@ interface PracticeLayoutProps<T> {
     currentUsername?: string | null;
     isSaved?: boolean;
     isLiked?: boolean;
+    isAdmin?: boolean;
     commentsPromise: Promise<CommentWithUser[]>;
     children?: React.ReactNode;
 }
@@ -35,6 +36,7 @@ export function PracticeLayout<T>({
     currentUserId,
     isSaved = false,
     isLiked = false,
+    isAdmin = false,
     commentsPromise,
     children
 }: PracticeLayoutProps<T>) {
@@ -173,6 +175,7 @@ export function PracticeLayout<T>({
                     setId={set.id}
                     userId={currentUserId}
                     setOwnerId={set.userId}
+                    isAdmin={isAdmin}
                     commentsPromise={commentsPromise}
                 />
             </div>

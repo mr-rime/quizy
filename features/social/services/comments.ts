@@ -6,6 +6,7 @@ import { eq, and, desc } from "drizzle-orm";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { isRateLimitError } from "@/types";
+import { isAdmin } from "@/lib/auth-helpers";
 
 const commentLimiter = createRateLimiter({
     points: 10,
@@ -25,6 +26,17 @@ export async function addComment(setId: string, userId: string, content: string)
             return { success: false, error: "Comment is too long (max 1000 characters)" };
         }
 
+        const existingComment = await db.query.setComments.findFirst({
+            where: and(
+                eq(setComments.setId, setId),
+                eq(setComments.userId, userId)
+            )
+        });
+
+        if (existingComment) {
+            return { success: false, error: "You can only post one comment per set. Delete your existing comment to post a new one." };
+        }
+
         const [comment] = await db.insert(setComments)
             .values({
                 setId,
@@ -38,12 +50,10 @@ export async function addComment(setId: string, userId: string, content: string)
         revalidateTag(`set-${setId}-comments`, "max");
         revalidateTag(`set-${setId}`, "max");
         revalidateTag("discover-sets", "max");
-        // ... (keeping other tags)
         revalidateTag("recent-sets", "max");
 
         return { success: true, comment };
     } catch (error) {
-        // Handle rate limit errors
         if (isRateLimitError(error)) {
             const retryAfterSec = Math.ceil(error.msBeforeNext / 1000);
             return {
@@ -95,7 +105,6 @@ export async function updateComment(commentId: string, userId: string, content: 
 
 export async function deleteComment(commentId: string, userId: string) {
     try {
-        // First get the comment to find the set ID
         const comment = await db.query.setComments.findFirst({
             where: eq(setComments.id, commentId),
             with: {
@@ -112,11 +121,11 @@ export async function deleteComment(commentId: string, userId: string) {
             return { success: false, error: "Comment not found" };
         }
 
-        // Check permissions: either the comment author OR the set author can delete
         const isCommentAuthor = comment.userId === userId;
         const isSetAuthor = comment.set.userId === userId;
+        const userIsAdmin = await isAdmin(userId);
 
-        if (!isCommentAuthor && !isSetAuthor) {
+        if (!isCommentAuthor && !isSetAuthor && !userIsAdmin) {
             return { success: false, error: "Unauthorized to delete this comment" };
         }
 
@@ -125,7 +134,6 @@ export async function deleteComment(commentId: string, userId: string) {
 
         revalidatePath(`/practice/${comment.setId}`);
         revalidateTag(`set-${comment.setId}-comments`, "max");
-        // ... other tags
 
         return { success: true };
     } catch (error) {
@@ -152,7 +160,6 @@ export async function togglePinComment(commentId: string, userId: string) {
             return { success: false, error: "Comment not found" };
         }
 
-        // Only set author can pin/unpin
         if (comment.set.userId !== userId) {
             return { success: false, error: "Only the set author can pin comments" };
         }

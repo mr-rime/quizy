@@ -1,6 +1,7 @@
 import { getPublicSets } from "@/features/discover/services/discover";
 import { DiscoverClient } from "@/features/discover/components/discover-client";
 import { Compass } from "lucide-react";
+import { getCurrentUser } from "@/features/user/services/user";
 
 interface DiscoverPageProps {
     searchParams: Promise<{ q?: string }>;
@@ -10,7 +11,12 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
     const params = await searchParams;
     const query = params.q || "";
 
-    const sets = await getPublicSets(query);
+    const [sets, user] = await Promise.all([
+        getPublicSets(query),
+        getCurrentUser()
+    ]);
+
+    const isAdmin = user?.role === "admin";
 
     return (
         <div className="p-4 sm:p-6 lg:p-8">
@@ -24,7 +30,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                     Explore public flashcard sets created by the community
                 </p>
 
-                <DiscoverClient initialSets={sets} />
+                <DiscoverClient initialSets={sets} isAdmin={isAdmin} />
             </div>
         </div>
     );

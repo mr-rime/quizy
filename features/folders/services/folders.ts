@@ -13,6 +13,14 @@ export async function createFolder(data: CreateFolderSchema) {
     const userId = await getUserId();
     const validated = createFolderSchema.parse(data);
 
+    const existingFolders = await db.query.folders.findMany({
+        where: eq(folders.userId, userId),
+    });
+
+    if (existingFolders.length >= 5) {
+        throw new Error("You can only create up to 5 folders. Delete an existing folder to create a new one.");
+    }
+
     const [newFolder] = await db.insert(folders).values({
         title: validated.title,
         description: validated.description,
