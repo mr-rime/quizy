@@ -39,7 +39,6 @@ export function LoginForm() {
             }
 
             if (result.success) {
-                toast.success(result.message);
                 router.refresh();
                 router.push("/latest");
             }

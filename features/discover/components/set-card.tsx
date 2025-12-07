@@ -65,7 +65,7 @@ export function SetCard({ set, isAdmin = false }: SetCardProps) {
                                 <AlertDialogHeader>
                                     <AlertDialogTitle>Make set private?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        This will remove "{set.title}" from the discover page. The set will become private and only visible to its owner.
+                                        This will remove &quot;{set.title}&quot; from the discover page. The set will become private and only visible to its owner.
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>

@@ -97,7 +97,7 @@ export function CommentItem({ comment, currentUserId, isSetOwner, isAdmin = fals
             "flex gap-3 p-4 rounded-lg transition-colors border",
             comment.isPinned ? "bg-primary/5 border-primary/20" : "bg-muted/50 border-transparent"
         )}>
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                     <span className="text-sm font-semibold text-primary">
                         {comment.user?.username?.[0]?.toUpperCase() || "U"}
@@ -143,7 +143,7 @@ export function CommentItem({ comment, currentUserId, isSetOwner, isAdmin = fals
                     </div>
                 ) : (
                     <>
-                        <p className="text-sm text-foreground whitespace-pre-wrap break-words">{comment.content}</p>
+                        <p className="text-sm text-foreground whitespace-pre-wrap wrap-break-word">{comment.content}</p>
                         <div className="flex items-center gap-2 mt-2">
                             {isCommentAuthor && (
                                 <button
