@@ -42,9 +42,13 @@ export function CommentItem({ comment, currentUserId, isSetOwner, isAdmin = fals
     const [editContent, setEditContent] = useState(comment.content);
     const [isPending, startTransition] = useTransition();
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
 
     const isCommentAuthor = comment.userId === currentUserId;
     const canDelete = isCommentAuthor || isSetOwner || isAdmin;
+
+    const isLongComment = comment.content.length > 300;
+    const displayContent = isExpanded || !isLongComment ? comment.content : comment.content.slice(0, 300) + "...";
 
     const handleUpdate = () => {
         if (!editContent.trim()) {
@@ -143,7 +147,17 @@ export function CommentItem({ comment, currentUserId, isSetOwner, isAdmin = fals
                     </div>
                 ) : (
                     <>
-                        <p className="text-sm text-foreground whitespace-pre-wrap wrap-break-word">{comment.content}</p>
+                        <p className="text-sm text-foreground whitespace-pre-wrap wrap-break-word">
+                            {displayContent}
+                        </p>
+                        {isLongComment && (
+                            <button
+                                onClick={() => setIsExpanded(!isExpanded)}
+                                className="text-xs text-muted-foreground hover:text-foreground font-medium mt-1"
+                            >
+                                {isExpanded ? "Show less" : "Show more"}
+                            </button>
+                        )}
                         <div className="flex items-center gap-2 mt-2">
                             {isCommentAuthor && (
                                 <button

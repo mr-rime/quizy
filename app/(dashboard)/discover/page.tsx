@@ -1,4 +1,4 @@
-import { getPublicSets } from "@/features/discover/services/discover";
+import { getPublicSets, getPublicFolders } from "@/features/discover/services/discover";
 import { DiscoverClient } from "@/features/discover/components/discover-client";
 import { Compass } from "lucide-react";
 import { getCurrentUser } from "@/features/user/services/user";
@@ -13,8 +13,9 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
     const params = await searchParams;
     const query = params.q || "";
 
-    const [sets, user] = await Promise.all([
+    const [sets, folders, user] = await Promise.all([
         getPublicSets(query),
+        getPublicFolders(query),
         getCurrentUser()
     ]);
 
@@ -29,11 +30,12 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                 </div>
 
                 <p className="text-muted-foreground">
-                    Explore public flashcard sets created by the community
+                    Explore public flashcard sets and folders created by the community
                 </p>
 
-                <DiscoverClient initialSets={sets} isAdmin={isAdmin} />
+                <DiscoverClient initialSets={sets} initialFolders={folders} isAdmin={isAdmin} />
             </div>
         </div>
     );
 }
+

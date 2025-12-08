@@ -16,7 +16,19 @@ import { CommentSection } from "@/features/social/components/comment-section";
 import { trackSetJoin } from "@/features/social/services/joins";
 import { saveSet, unsaveSet } from "@/features/saved-sets/services/saved-sets";
 import { toast } from "sonner";
+import { togglePublishSet } from "@/features/flashcards/services/publish-set";
 import type { CommentWithUser } from "@/types";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 
 
@@ -45,6 +57,7 @@ export function PracticeLayout<T>({
     const [shareUrl, setShareUrl] = useState("");
     const [saved, setSaved] = useState(isSaved);
     const [isPending, startTransition] = useTransition();
+    const [isPublishing, startPublishing] = useTransition();
 
     const set = use(flashcardSetPromise) as Awaited<ReturnType<typeof getFlashcardSet>>;
 
@@ -76,11 +89,25 @@ export function PracticeLayout<T>({
         });
     };
 
+    const handlePublish = () => {
+        startPublishing(async () => {
+            if (!set?.id) return;
+
+            const result = await togglePublishSet(set.id);
+
+            if (result.success) {
+                toast.success(result.isPublished ? "Set published to Discover" : "Set unpublished from Discover");
+            } else {
+                toast.error(result.error || "Failed to update publish status");
+            }
+        });
+    }
+
     if (!set) {
         return <p className="text-center py-8 text-muted-foreground">Flashcard set not found.</p>;
     }
 
-    const { id: setId, title, cards, isPublic } = set;
+    const { id: setId, title, cards, isPublic, isPublished } = set;
 
 
 
@@ -104,6 +131,43 @@ export function PracticeLayout<T>({
                             <Share className="h-4 w-4" />
                             <span className="sm:inline">Share</span>
                         </Button>
+                        <Button variant="outline" className="gap-2 flex-1 sm:flex-initial" onClick={() => setShareModalOpen(true)}>
+                            <Share className="h-4 w-4" />
+                            <span className="sm:inline">Share</span>
+                        </Button>
+
+                        {isPublished ? (
+                            <Button
+                                variant="secondary"
+                                onClick={handlePublish}
+                                disabled={isPublishing}
+                            >
+                                {isPublishing ? "Updating..." : "Unpublish"}
+                            </Button>
+                        ) : (
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button
+                                        variant="default"
+                                        disabled={isPublishing}
+                                    >
+                                        {isPublishing ? "Updating..." : "Publish"}
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Publish this set?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This will make your flashcard set visible to everyone in the Discover section.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handlePublish}>Publish</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        )}
                         <PracticeDropdown setId={setId} />
                     </div>
                 ) : set.userId !== currentUserId && (

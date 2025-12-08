@@ -3,8 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Folder, MoreHorizontal, Plus, Trash2, Edit2 } from "lucide-react";
-import { useState } from "react";
+import { Folder, MoreHorizontal, Plus, Trash2, Edit2, Globe, Lock } from "lucide-react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { deleteFolder } from "../services/folders";
 import { useRouter } from "next/navigation";
@@ -13,6 +13,7 @@ import { AddStudyMaterialsModal } from "./add-study-materials-modal";
 import Image from "next/image";
 import { Folder as FolderType } from "@/types";
 import { FolderDialog } from "./create-folder-button";
+import { togglePublishFolder } from "../services/publish-folder";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -22,17 +23,23 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
+    AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+
 
 interface FolderViewProps {
     folder: FolderType;
+    currentUserId: string;
 }
 
-export function FolderView({ folder }: FolderViewProps) {
+export function FolderView({ folder, currentUserId }: FolderViewProps) {
     const router = useRouter();
     const [isAddMaterialsOpen, setIsAddMaterialsOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [isPublishing, startPublishing] = useTransition();
+
+    const isOwner = currentUserId === folder.userId;
 
     const handleDelete = async () => {
         try {
@@ -44,16 +51,17 @@ export function FolderView({ folder }: FolderViewProps) {
             toast.error("Failed to delete folder");
         }
     };
-    // const handleRemoveSet = async (setId: string) => {
-    //     try {
-    //         await removeSetFromFolder(folder.id, setId);
-    //         toast.success("Set removed from folder");
-    //     } catch (err) {
-    //         console.error(err)
-    //         toast.error("Failed to remove set");
-    //     }
-    // };
 
+    const handlePublish = () => {
+        startPublishing(async () => {
+            const result = await togglePublishFolder(folder.id);
+            if (result.success) {
+                toast.success(result.isPublished ? "Folder published" : "Folder unpublished");
+            } else {
+                toast.error(result.error || "Failed to update publish status");
+            }
+        });
+    }
 
     return (
         <div className="space-y-8">
@@ -63,7 +71,15 @@ export function FolderView({ folder }: FolderViewProps) {
                         <Folder className="h-8 w-8" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold">{folder.title}</h1>
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-2xl font-bold">{folder.title}</h1>
+                            {folder.isPublished && (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">
+                                    <Globe className="h-3 w-3" />
+                                    Public
+                                </span>
+                            )}
+                        </div>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <span>{folder.folderSets?.length || 0} sets</span>
                             {folder.description && (
@@ -72,27 +88,70 @@ export function FolderView({ folder }: FolderViewProps) {
                                     <span>{folder.description}</span>
                                 </>
                             )}
+                            {folder.user && (
+                                <>
+                                    <span>•</span>
+                                    <span>By {folder.user.username}</span>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="rounded-full">
-                                <MoreHorizontal className="h-5 w-5" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56">
-                            <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
-                                <Edit2 className="mr-2 h-4 w-4" />
-                                Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600 focus:text-red-600" onClick={() => setIsDeleteDialogOpen(true)}>
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    {isOwner && (
+                        <>
+                            {folder.isPublished ? (
+                                <Button
+                                    variant="outline"
+                                    onClick={handlePublish}
+                                    disabled={isPublishing}
+                                >
+                                    {isPublishing ? "Updating..." : "Unpublish"}
+                                </Button>
+                            ) : (
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            disabled={isPublishing}
+                                        >
+                                            {isPublishing ? "Updating..." : "Publish"}
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Publish this folder?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                This will make your folder visible to everyone.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={handlePublish}>Publish</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            )}
+
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="rounded-full">
+                                        <MoreHorizontal className="h-5 w-5" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-56">
+                                    <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
+                                        <Edit2 className="mr-2 h-4 w-4" />
+                                        Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="text-red-600 focus:text-red-600" onClick={() => setIsDeleteDialogOpen(true)}>
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        Delete
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </>
+                    )}
                 </div>
             </div>
 
@@ -104,18 +163,22 @@ export function FolderView({ folder }: FolderViewProps) {
                         <div className="w-12 h-16 bg-orange-500 rounded-md rotate-15 opacity-80"></div>
                     </div>
                     <h3 className="text-lg font-semibold mb-2">Let&apos;s start building your folder</h3>
-                    <Button onClick={() => setIsAddMaterialsOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
-                        Add study materials
-                    </Button>
+                    {isOwner && (
+                        <Button onClick={() => setIsAddMaterialsOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
+                            Add study materials
+                        </Button>
+                    )}
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div className="col-span-full flex justify-start">
-                        <Button onClick={() => setIsAddMaterialsOpen(true)} variant="outline" className="gap-2">
-                            <Plus className="h-4 w-4" />
-                            Add set
-                        </Button>
-                    </div>
+                    {isOwner && (
+                        <div className="col-span-full flex justify-start">
+                            <Button onClick={() => setIsAddMaterialsOpen(true)} variant="outline" className="gap-2">
+                                <Plus className="h-4 w-4" />
+                                Add set
+                            </Button>
+                        </div>
+                    )}
                     {folder.folderSets?.map(({ set }) => {
                         if (!set) return null;
                         return (

@@ -33,7 +33,9 @@ export async function addComment(setId: string, userId: string, content: string)
             )
         });
 
-        if (existingComment) {
+        const userIsAdmin = await isAdmin(userId);
+
+        if (existingComment && !userIsAdmin) {
             return { success: false, error: "You can only post one comment per set. Delete your existing comment to post a new one." };
         }
 

@@ -20,5 +20,5 @@ export default async function FolderPage({ params }: PageProps) {
         notFound();
     }
 
-    return <FolderView folder={folder} />;
+    return <FolderView folder={folder} currentUserId={userId} />;;
 }

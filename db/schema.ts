@@ -44,6 +44,7 @@ export const flashcardSets = pgTable("flashcard_set", {
     title: varchar("title", { length: 100 }).notNull(),
     description: varchar("description", { length: 500 }),
     isPublic: boolean("is_public").notNull().default(false),
+    isPublished: boolean("is_published").notNull().default(false),
     likeCount: integer("like_count").notNull().default(0),
     userId: uuid("user_id")
         .notNull()
@@ -73,6 +74,8 @@ export const folders = pgTable("folder", {
     id: uuid("id").defaultRandom().primaryKey(),
     title: varchar("title", { length: 100 }).notNull(),
     description: varchar("description", { length: 500 }),
+    isPublic: boolean("is_public").notNull().default(false),
+    isPublished: boolean("is_published").notNull().default(false),
     userId: uuid("user_id")
         .notNull()
         .references(() => users.id, { onDelete: "cascade" }),

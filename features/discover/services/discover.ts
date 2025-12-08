@@ -1,11 +1,11 @@
 "use server";
 
 import { db } from "@/db/drizzle";
-import { flashcardSets, users } from "@/db/schema";
+import { flashcardSets, users, folders } from "@/db/schema";
 import { eq, desc, ilike, or, sql } from "drizzle-orm";
 
 export const getPublicSets = async (searchQuery?: string, limit = 20, offset = 0) => {
-    const whereConditions = [eq(flashcardSets.isPublic, true)];
+    const whereConditions = [eq(flashcardSets.isPublished, true)];
 
     if (searchQuery && searchQuery.trim()) {
         whereConditions.push(
@@ -42,4 +42,41 @@ export const getPublicSets = async (searchQuery?: string, limit = 20, offset = 0
 
 export async function searchPublicSets(query: string) {
     return getPublicSets(query);
+}
+
+export const getPublicFolders = async (searchQuery?: string, limit = 20, offset = 0) => {
+    const whereConditions = [eq(folders.isPublished, true)];
+
+    if (searchQuery && searchQuery.trim()) {
+        whereConditions.push(
+            or(
+                ilike(folders.title, `%${searchQuery}%`),
+                ilike(folders.description, `%${searchQuery}%`)
+            )!
+        );
+    }
+
+    const publicFolders = await db
+        .select({
+            id: folders.id,
+            title: folders.title,
+            description: folders.description,
+            createdAt: folders.createdAt,
+            userId: folders.userId,
+            username: users.username,
+            userImage: users.image,
+            setCount: sql<number>`(select count(*) from folder_set where folder_set.folder_id = ${folders.id})`,
+        })
+        .from(folders)
+        .leftJoin(users, eq(folders.userId, users.id))
+        .where(whereConditions.length > 1 ? sql`${whereConditions[0]} and ${whereConditions[1]}` : whereConditions[0])
+        .orderBy(desc(folders.createdAt))
+        .limit(limit)
+        .offset(offset);
+
+    return publicFolders;
+};
+
+export async function searchPublicFolders(query: string) {
+    return getPublicFolders(query);
 }

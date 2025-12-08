@@ -2,7 +2,8 @@
 
 import { db } from "@/db/drizzle";
 import { folders, folderSets } from "@/db/schema";
-import { eq, and, desc, inArray } from "drizzle-orm";
+import { eq, and, desc, inArray, or } from "drizzle-orm";
+
 import { revalidatePath, revalidateTag } from "next/cache";
 import { createFolderSchema, CreateFolderSchema, UpdateFolderSchema } from "../utils/validations";
 import { getUserId } from "@/features/user/services/user";
@@ -63,7 +64,13 @@ export const getFolders = unstable_cache(
 export const getFolder = unstable_cache(
     async (id: string, userId: string) => {
         const folder = await db.query.folders.findFirst({
-            where: and(eq(folders.id, id), eq(folders.userId, userId)),
+            where: and(
+                eq(folders.id, id),
+                or(
+                    eq(folders.userId, userId),
+                    eq(folders.isPublic, true)
+                )
+            ),
             with: {
                 folderSets: {
                     with: {
@@ -85,6 +92,7 @@ export const getFolder = unstable_cache(
         tags: ["folder"]
     }
 );
+
 
 export async function updateFolder(id: string, data: UpdateFolderSchema) {
     const userId = await getUserId();

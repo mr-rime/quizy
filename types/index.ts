@@ -34,6 +34,8 @@ export interface Folder {
     title: string;
     description: string | null;
     userId: string;
+    isPublic?: boolean;
+    isPublished?: boolean;
     createdAt: Date | null;
     updatedAt: Date | null;
     folderSets?: FolderSet[];
