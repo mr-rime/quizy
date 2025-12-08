@@ -3,6 +3,8 @@ import { DiscoverClient } from "@/features/discover/components/discover-client";
 import { Compass } from "lucide-react";
 import { getCurrentUser } from "@/features/user/services/user";
 
+export const dynamic = "force-dynamic";
+
 interface DiscoverPageProps {
     searchParams: Promise<{ q?: string }>;
 }
