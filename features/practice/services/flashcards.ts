@@ -104,5 +104,8 @@ export async function deleteFlashcardSet(id: string) {
     revalidateTag("flashcard-sets", "max");
     revalidateTag("flashcard-set", "max");
     revalidateTag("recent-sets", "max");
+
+    revalidatePath("/", "layout");
+
     redirect("/latest");
 }
