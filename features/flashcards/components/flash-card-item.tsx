@@ -5,7 +5,7 @@ import { Image as ImageIcon, Trash, GripVertical, X } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { ImageSearchModal } from './image-search-modal'
 
 import { FlashcardFormData } from './flashcard-form'
@@ -17,8 +17,10 @@ type FlashCardItemProps = {
     remove: (index: number) => void,
     itemsCount: number
 }
-export function FlashCardItem({ id, index, remove, itemsCount }: FlashCardItemProps) {
+
+function FlashCardItemComponent({ id, index, remove, itemsCount }: FlashCardItemProps) {
     const { register, formState: { errors }, setValue, watch } = useFormContext<FlashcardFormData>();
+
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
     const imageUrl = watch(`flashcards.${index}.image`);
 
@@ -120,3 +122,5 @@ export function FlashCardItem({ id, index, remove, itemsCount }: FlashCardItemPr
         </div>
     )
 }
+
+export const FlashCardItem = memo(FlashCardItemComponent);

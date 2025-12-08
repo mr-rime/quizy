@@ -5,15 +5,10 @@ import Link from "next/link";
 import { Folder, Layers } from "lucide-react";
 import { AuthorInfo } from "@/features/discover/components/author-info";
 
+import { PublicFolder } from "@/types";
+
 interface FolderCardProps {
-    folder: {
-        id: string;
-        title: string;
-        description: string | null;
-        setCount: number;
-        username: string | null;
-        userImage: string | null;
-    };
+    folder: PublicFolder;
 }
 
 export function FolderCard({ folder }: FolderCardProps) {

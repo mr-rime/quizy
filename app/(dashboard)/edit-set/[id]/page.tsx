@@ -30,7 +30,7 @@ export default async function EditSetPage({ params }: PageProps) {
 
     return (
         <div>
-            <FlashcardForm setId={id} initialData={initialData} />
+            <FlashcardForm key={id} setId={id} initialData={initialData} />
         </div>
     );
 }

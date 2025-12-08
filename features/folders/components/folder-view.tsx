@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Folder, MoreHorizontal, Plus, Trash2, Edit2, Globe, Lock } from "lucide-react";
+import { Folder, MoreHorizontal, Plus, Trash2, Edit2, Globe } from "lucide-react";
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { deleteFolder } from "../services/folders";

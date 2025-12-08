@@ -63,6 +63,17 @@ export interface PublicFlashcardSet {
     joinCount: number;
 }
 
+export interface PublicFolder {
+    id: string;
+    title: string;
+    description: string | null;
+    userId: string;
+    createdAt: Date | null;
+    username: string | null;
+    userImage: string | null;
+    setCount: number;
+}
+
 export type { Comment, CommentWithUser, CommentUser } from "./comments";
 
 export type { ApiError, DatabaseError, RateLimitError } from "./errors";

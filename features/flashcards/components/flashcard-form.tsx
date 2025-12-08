@@ -2,9 +2,9 @@
 
 import { CardInformationForm } from "./card-information-form";
 import CreateFlashcardForm from "./create-flashcard-form";
-import { FormProvider, useForm, useWatch, useFormContext } from "react-hook-form";
+import { FormProvider, useForm, useFormContext } from "react-hook-form";
 
-import { useTransition, useEffect } from "react";
+import { useTransition } from "react";
 import { toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFlashcardSetSchema } from "../utils/validations";
@@ -32,12 +32,10 @@ interface FlashcardFormProps {
 }
 
 import { useSetDraft } from "../hooks/use-set-draft";
+import { AutoSaveDraft } from "./auto-save-draft";
 
-// ... imports remain the same
 
 export function FlashcardForm({ setId, initialData }: FlashcardFormProps = {}) {
-    const [isPending, startTransition] = useTransition();
-    const router = useRouter();
     const methods = useForm<FlashcardFormData>({
         resolver: zodResolver(createFlashcardSetSchema),
         defaultValues: initialData || {
@@ -53,15 +51,6 @@ export function FlashcardForm({ setId, initialData }: FlashcardFormProps = {}) {
         }
     });
 
-    // We can't use the hook here directly because useSetDraft expects to be inside FormProvider context
-    // So we need to create a wrapper or move FormProvider up.
-    // However, the current structure has FlashcardForm rendering FormProvider.
-    // So we must use a child component for the hook OR move the FormProvider out.
-    // Moving FormProvider out is a larger refactor.
-    // Keeping a "Logic" component inside is cleaner for now given the constraints.
-
-    // Let's create a Helper component inside this file simply to invoke the hook.
-
     return (
         <FormProvider {...methods}>
             <FlashcardFormContent setId={setId} onSubmitProp={async (data) => {
@@ -76,16 +65,6 @@ export function FlashcardForm({ setId, initialData }: FlashcardFormProps = {}) {
                         : await createFlashcardSet(formData);
 
                     if (result?.success && result.id) {
-                        // clearDraft will be called inside the hook consumer if we expose it?
-                        // Actually, the hook is inside. 
-                        // We can pass a callback or ref? 
-                        // Or simply, the hook handles auto-saving. Clearing must be manual?
-                        // The hook returns { clearDraft }.
-                        // So we need access to clearDraft in onSubmit.
-
-                        // Re-structuring:
-                        // 1. FlashcardForm renders FormProvider.
-                        // 2. Inner component `SetFormInner` uses hook and handles submit.
                         return result;
                     } else {
                         toast.error(result?.error || (setId ? "Failed to update flashcard set" : "Failed to create flashcard set"));
@@ -101,7 +80,13 @@ export function FlashcardForm({ setId, initialData }: FlashcardFormProps = {}) {
     )
 }
 
-function FlashcardFormContent({ setId, onSubmitProp }: { setId?: string, onSubmitProp: (data: FlashcardFormData) => Promise<any> }) {
+type SetOperationResult = {
+    success: boolean;
+    id?: string;
+    error?: string;
+};
+
+function FlashcardFormContent({ setId, onSubmitProp }: { setId?: string, onSubmitProp: (data: FlashcardFormData) => Promise<SetOperationResult | null> }) {
     const { handleSubmit } = useFormContext<FlashcardFormData>();
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
@@ -128,6 +113,7 @@ function FlashcardFormContent({ setId, onSubmitProp }: { setId?: string, onSubmi
             </div>
             <CardInformationForm />
             <CreateFlashcardForm />
+            <AutoSaveDraft setId={setId} />
         </form>
     );
 }

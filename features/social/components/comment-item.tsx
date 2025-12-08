@@ -153,7 +153,7 @@ export function CommentItem({ comment, currentUserId, isSetOwner, isAdmin = fals
                         {isLongComment && (
                             <button
                                 onClick={() => setIsExpanded(!isExpanded)}
-                                className="text-xs text-muted-foreground hover:text-foreground font-medium mt-1"
+                                className="text-xs text-muted-foreground hover:text-foreground font-medium mt-1 cursor-pointer"
                             >
                                 {isExpanded ? "Show less" : "Show more"}
                             </button>
@@ -162,7 +162,7 @@ export function CommentItem({ comment, currentUserId, isSetOwner, isAdmin = fals
                             {isCommentAuthor && (
                                 <button
                                     onClick={() => setIsEditing(true)}
-                                    className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+                                    className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer"
                                 >
                                     <Pencil className="h-3 w-3" />
                                     Edit
@@ -172,7 +172,7 @@ export function CommentItem({ comment, currentUserId, isSetOwner, isAdmin = fals
                                 <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                                     <AlertDialogTrigger asChild>
                                         <button
-                                            className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1"
+                                            className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1 cursor-pointer"
                                         >
                                             <Trash2 className="h-3 w-3" />
                                             Delete
@@ -202,7 +202,7 @@ export function CommentItem({ comment, currentUserId, isSetOwner, isAdmin = fals
                                 <button
                                     onClick={handleTogglePin}
                                     disabled={isPending}
-                                    className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1"
+                                    className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 cursor-pointer"
                                 >
                                     {comment.isPinned ? <PinOff className="h-3 w-3" /> : <Pin className="h-3 w-3" />}
                                     {comment.isPinned ? "Unpin" : "Pin"}
