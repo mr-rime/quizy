@@ -90,8 +90,9 @@ export const getUserPublicSets = unstable_cache(
 
 export async function generateShareUrl(setId: string): Promise<string> {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ||
-        (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+        (process.env.SITE_URL ? process.env.SITE_URL : 'http://localhost:3000');
 
+    console.log(baseUrl);
     return `${baseUrl}/share/${setId}`;
 }
 
