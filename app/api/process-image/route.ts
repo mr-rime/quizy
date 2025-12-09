@@ -56,13 +56,42 @@ export async function GET(request: NextRequest) {
             const arrayBuffer = await response.arrayBuffer();
             const buffer = Buffer.from(arrayBuffer);
 
-            const { data: optimizedBuffer, info } = await sharp(buffer)
-                .resize(800)
-                .webp()
+            const metadata = await sharp(buffer).metadata();
+
+            let maxWidth = 1200;
+            if (metadata.width && metadata.width < 1200) {
+                maxWidth = metadata.width;
+            }
+
+            const sharpInstance = sharp(buffer)
+                .resize(maxWidth, null, {
+                    fit: "inside",
+                    withoutEnlargement: true,
+                    kernel: sharp.kernel.lanczos3
+                })
+                .rotate()
+                .withMetadata({
+                    exif: {},
+                    icc: undefined,
+                });
+
+            const { data: optimizedBuffer, info } = await sharpInstance
+                .webp({
+                    quality: 75,
+                    alphaQuality: 80,
+                    lossless: false,
+                    nearLossless: false,
+                    smartSubsample: true,
+                    effort: 6,
+                    preset: "photo",
+                })
                 .toBuffer({ resolveWithObject: true });
 
             const byteArray = new Uint8Array(optimizedBuffer);
 
+            const originalSize = buffer.length;
+            const optimizedSize = optimizedBuffer.length;
+            const compressionRatio = ((1 - optimizedSize / originalSize) * 100).toFixed(2);
 
             const utapi = new UTApi();
             const file = new UTFile([byteArray], "optimized-image.webp", { type: "image/webp" });
@@ -90,7 +119,13 @@ export async function GET(request: NextRequest) {
                 optimizedUrl: uploadedData.url,
                 recordId: updatedRecord.id,
                 width: info.width,
-                height: info.height
+                height: info.height,
+                optimization: {
+                    originalSize,
+                    optimizedSize,
+                    compressionRatio: `${compressionRatio}%`,
+                    format: info.format
+                }
             });
 
         } catch (processError) {

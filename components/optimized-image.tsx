@@ -24,17 +24,16 @@ export function OptimizedImage({ src, alt, className, noOptimize = false, ...pro
     const optimizedSrc = data?.success && data?.optimizedUrl ? data.optimizedUrl : src;
 
     return (
-        <div className={cn("relative overflow-hidden", className)}>
-            <Image
-                src={optimizedSrc}
-                alt={alt}
-                className={cn(
-                    "transition-opacity duration-300",
-                    "opacity-100 blur-0"
-                )}
-                unoptimized // because of Vercel's free quota
-                {...props}
-            />
-        </div>
+        <Image
+            src={optimizedSrc}
+            alt={alt}
+            className={cn(
+                "transition-opacity duration-300",
+                "opacity-100 blur-0",
+                className
+            )}
+            unoptimized // because of Vercel's free quota
+            {...props}
+        />
     );
 }
