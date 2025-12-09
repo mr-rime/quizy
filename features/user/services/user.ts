@@ -16,6 +16,15 @@ export async function getUserId() {
     return session.userId;
 }
 
+export async function getOptionalUserId() {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("session_token")?.value;
+    if (!token) return null;
+    const session = await getSessionCookie(token);
+    if (!session) return null;
+    return session.userId;
+}
+
 
 
 const getUserByEmailCached = unstable_cache(

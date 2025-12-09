@@ -25,24 +25,26 @@ export async function createSession(userId: string, ipAddress?: string, userAgen
 
 
 
-const getSessionCookieCached = unstable_cache(
-    async (token: string) => {
-        const [session] = await db
-            .select({
-                userId: sessions.userId,
-                expiresAt: sessions.expiresAt,
-            })
-            .from(sessions)
-            .where(
-                and(
-                    eq(sessions.token, token),
-                    gt(sessions.expiresAt, new Date())
-                )
+export async function getSessionByToken(token: string) {
+    const [session] = await db
+        .select({
+            userId: sessions.userId,
+            expiresAt: sessions.expiresAt,
+        })
+        .from(sessions)
+        .where(
+            and(
+                eq(sessions.token, token),
+                gt(sessions.expiresAt, new Date())
             )
-            .limit(1);
+        )
+        .limit(1);
 
-        return session || null;
-    },
+    return session || null;
+}
+
+const getSessionCookieCached = unstable_cache(
+    getSessionByToken,
     ["session"],
     {
         revalidate: 300,

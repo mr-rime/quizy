@@ -64,11 +64,20 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        if (isDatabaseError(err) && err.code === '23505' && (err.constraint === 'user_username_unique' || err.detail?.includes('username'))) {
-            return NextResponse.json(
-                { success: false, error: "Username already taken" },
-                { status: 409 }
-            );
+        if (isDatabaseError(err) && err.code === '23505') {
+            if (err.constraint === 'user_username_unique' || err.detail?.includes('username')) {
+                return NextResponse.json(
+                    { success: false, error: "Username already taken" },
+                    { status: 409 }
+                );
+            }
+
+            if (err.constraint === 'user_email_unique' || err.detail?.includes('email')) {
+                return NextResponse.json(
+                    { success: false, error: "Email already in use" },
+                    { status: 409 }
+                );
+            }
         }
 
         console.error("Signup error:", err);

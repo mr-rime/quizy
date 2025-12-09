@@ -34,11 +34,10 @@ export function SingupForm() {
             const result = await res.json();
             if (!result.success) {
                 toast.error(result.error);
-                router.push("/")
             }
 
             if (result.success) {
-                toast.success(result.message);
+                router.push("/")
             }
         })
     };

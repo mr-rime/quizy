@@ -19,7 +19,7 @@ export async function handleProtectedRoute(req: NextRequest) {
 
     return NextResponse.next();
 
-    // const session = token ? await getSessionCookie(token) : null;
+    // const session = token ? await getSessionByToken(token) : null;
     // if (!session) {
     //     url.pathname = "/login";
     //     return NextResponse.redirect(url);
