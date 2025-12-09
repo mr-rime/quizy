@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback, useEffect } from 'react';
+import useSWR from 'swr';
 import { useDebounce } from '@/shared/hooks/use-debounce';
 import {
     Dialog,
@@ -30,6 +31,13 @@ type PixabayResponse = {
     nextPage: string | null;
 };
 
+const fetcher = (url: string) => fetch(url).then((res) => {
+    if (!res.ok) {
+        throw new Error('Failed to fetch images');
+    }
+    return res.json();
+});
+
 type ImageSearchModalProps = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -39,61 +47,35 @@ type ImageSearchModalProps = {
 export function ImageSearchModal({ open, onOpenChange, onSelectImage }: ImageSearchModalProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedQuery, setDebouncedQuery] = useState('');
+    const [page, setPage] = useState(1);
 
     const debouncedSearch = useDebounce((query: string) => {
         setDebouncedQuery(query);
         setPage(1);
     }, 500);
-    const [results, setResults] = useState<PixabayPhoto[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [page, setPage] = useState(1);
-    const [totalResults, setTotalResults] = useState(0);
-    const [hasNextPage, setHasNextPage] = useState(false);
 
     useEffect(() => {
         debouncedSearch(searchQuery);
     }, [searchQuery, debouncedSearch]);
 
-    useEffect(() => {
-        if (!debouncedQuery.trim()) {
-            setResults([]);
-            return;
+    const { data, error, isLoading } = useSWR<PixabayResponse>(
+        debouncedQuery.trim()
+            ? `/api/pixabay/search?query=${encodeURIComponent(debouncedQuery)}&page=${page}&per_page=15`
+            : null,
+        fetcher,
+        {
+            revalidateOnFocus: false,
         }
+    );
 
-        const fetchImages = async () => {
-            setLoading(true);
-            setError(null);
-
-            try {
-                const response = await fetch(
-                    `/api/pixabay/search?query=${encodeURIComponent(debouncedQuery)}&page=${page}&per_page=15`
-                );
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch images');
-                }
-
-                const data: PixabayResponse = await response.json();
-                setResults(data.photos);
-                setTotalResults(data.totalResults);
-                setHasNextPage(!!data.nextPage);
-            } catch (err) {
-                setError('Failed to load images. Please try again.');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchImages();
-    }, [debouncedQuery, page]);
+    const results = data?.photos || [];
+    const totalResults = data?.totalResults || 0;
+    const hasNextPage = !!data?.nextPage;
 
     const handleSelectImage = useCallback((imageUrl: string) => {
         onSelectImage(imageUrl);
         onOpenChange(false);
         setSearchQuery('');
-        setResults([]);
         setPage(1);
     }, [onSelectImage, onOpenChange]);
 
@@ -128,7 +110,7 @@ export function ImageSearchModal({ open, onOpenChange, onSelectImage }: ImageSea
                 </div>
 
                 <div className="flex-1 overflow-y-auto">
-                    {loading && (
+                    {isLoading && (
                         <div className="flex items-center justify-center py-12">
                             <Loader2 className="animate-spin text-muted-foreground" size={32} />
                         </div>
@@ -136,23 +118,23 @@ export function ImageSearchModal({ open, onOpenChange, onSelectImage }: ImageSea
 
                     {error && (
                         <div className="text-center py-12 text-red-500">
-                            {error}
+                            Failed to load images. Please try again.
                         </div>
                     )}
 
-                    {!loading && !error && results.length === 0 && debouncedQuery && (
+                    {!isLoading && !error && results.length === 0 && debouncedQuery && (
                         <div className="text-center py-12 text-muted-foreground">
                             No images found. Try a different search term.
                         </div>
                     )}
 
-                    {!loading && !error && results.length === 0 && !debouncedQuery && (
+                    {!isLoading && !error && results.length === 0 && !debouncedQuery && (
                         <div className="text-center py-12 text-muted-foreground">
                             Search for images to get started
                         </div>
                     )}
 
-                    {!loading && !error && results.length > 0 && (
+                    {!isLoading && !error && results.length > 0 && (
                         <div className="grid grid-cols-3 gap-4 py-4">
                             {results.map((photo) => (
                                 <div
