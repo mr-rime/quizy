@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { likeSet } from "../services/likes";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface LikeButtonProps {
     setId: string;
@@ -55,7 +56,7 @@ export function LikeButton({ setId, initialLiked, initialCount, variant = "defau
     }
 
     return (
-        <button
+        <Button
             onClick={handleLike}
             disabled={isPending}
             className="flex items-center gap-2 px-4 py-2 rounded-lg border bg-background hover:bg-accent transition-colors disabled:opacity-50"
@@ -65,6 +66,6 @@ export function LikeButton({ setId, initialLiked, initialCount, variant = "defau
                 liked && "fill-red-500 text-red-500"
             )} />
             <span className="text-sm font-medium">{likeCount} {likeCount === 1 ? "Like" : "Likes"}</span>
-        </button>
+        </Button>
     );
 }
