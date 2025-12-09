@@ -31,6 +31,7 @@ export function OptimizedImage({ src, alt, className, ...props }: OptimizedImage
                     "transition-opacity duration-300",
                     "opacity-100 blur-0"
                 )}
+                unoptimized // because of Vercel's free quota
                 {...props}
             />
         </div>
