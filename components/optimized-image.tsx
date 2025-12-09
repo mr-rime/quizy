@@ -6,13 +6,14 @@ import useSWR from "swr";
 
 interface OptimizedImageProps extends Omit<ImageProps, "src"> {
     src: string;
+    noOptimize?: boolean;
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export function OptimizedImage({ src, alt, className, ...props }: OptimizedImageProps) {
+export function OptimizedImage({ src, alt, className, noOptimize = false, ...props }: OptimizedImageProps) {
     const { data } = useSWR(
-        src ? `/api/process-image?url=${encodeURIComponent(src)}` : null,
+        !noOptimize && src ? `/api/process-image?url=${encodeURIComponent(src)}` : null,
         fetcher,
         {
             revalidateOnFocus: false,
