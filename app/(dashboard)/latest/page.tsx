@@ -89,6 +89,7 @@ export default async function LatestPage() {
                                         alt="flashcard set icon"
                                         fill
                                         className="object-contain md:object-cover rounded-md select-none"
+                                        unoptimized
                                     />
                                 </div>
                             </CardContent>

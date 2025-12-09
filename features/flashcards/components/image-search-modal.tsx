@@ -165,6 +165,7 @@ export function ImageSearchModal({ open, onOpenChange, onSelectImage }: ImageSea
                                         alt={photo.alt}
                                         fill
                                         className="object-cover"
+                                        unoptimized
                                     />
                                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
                                         <p className="text-white text-xs truncate">

@@ -194,7 +194,7 @@ export function FolderView({ folder, currentUserId }: FolderViewProps) {
                                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                             <div className="h-6 w-6 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center overflow-hidden">
                                                 {set.user?.image ? (
-                                                    <Image src={set.user.image} alt={set.user.username} className="h-full w-full object-cover" />
+                                                    <Image src={set.user.image} alt={set.user.username} className="h-full w-full object-cover" unoptimized />
                                                 ) : (
                                                     <span className="text-xs">{set.user?.username?.[0]?.toUpperCase()}</span>
                                                 )}

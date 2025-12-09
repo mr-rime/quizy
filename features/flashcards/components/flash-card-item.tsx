@@ -93,6 +93,7 @@ function FlashCardItemComponent({ id, index, remove, itemsCount }: FlashCardItem
                                     height={128}
                                     className="w-full h-auto object-cover rounded-lg cursor-pointer shadow-lg hover:shadow-xl transition-all border-2 border-border hover:border-primary"
                                     onClick={() => setIsImageModalOpen(true)}
+                                    unoptimized
                                 />
                                 <button
                                     type="button"

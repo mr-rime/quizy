@@ -204,6 +204,7 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
                                 height={192}
                                 className="max-w-full max-h-32 sm:max-h-40 lg:max-h-48 object-contain rounded-lg cursor-zoom-in hover:opacity-90 transition-opacity shadow-md"
                                 onClick={handleImageClick}
+                                unoptimized
                             />
                         </div>
                     )}

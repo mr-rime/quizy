@@ -68,6 +68,7 @@ export function FlashcardDisplay({
                             width={200}
                             height={160}
                             style={{ objectFit: "contain" }}
+                            unoptimized
                         />
                     )}
                 </Card>
