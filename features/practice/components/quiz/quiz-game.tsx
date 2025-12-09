@@ -10,7 +10,7 @@ import confetti from "canvas-confetti";
 import { QuizFinish } from "./quiz-finish";
 import { QuizSkeleton } from "./quiz-skeleton";
 import { ImageZoomModal } from "@/components/image-zoom-modal";
-import Image from "next/image";
+import { OptimizedImage } from "@/components/optimized-image";
 import { saveProgress, getProgressForSet, deleteProgressBySet } from "../../services/progress";
 import { useSpeech } from "../../hooks/use-speech";
 
@@ -196,15 +196,14 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
                     <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold px-2">{currentQuestion.card.term}</h2>
                     {currentQuestion.card.imageUrl && (
                         <div className="relative w-full max-w-md max-h-32 sm:max-h-40 lg:max-h-48 flex items-center justify-center mt-2">
-                            <Image
+                            <OptimizedImage
                                 key={currentQuestion.card.imageUrl}
                                 src={currentQuestion.card.imageUrl}
                                 alt={currentQuestion.card.term}
-                                width={400}
-                                height={192}
+                                width={200}
+                                height={150}
                                 className="max-w-full max-h-32 sm:max-h-40 lg:max-h-48 object-contain rounded-lg cursor-zoom-in hover:opacity-90 transition-opacity shadow-md"
                                 onClick={handleImageClick}
-                                unoptimized
                             />
                         </div>
                     )}

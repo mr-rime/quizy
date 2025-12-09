@@ -4,7 +4,7 @@ import { Edit2, Volume2, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { ImageZoomModal } from "@/components/image-zoom-modal";
-import Image from "next/image";
+import { OptimizedImage } from "@/components/optimized-image";
 
 interface Flashcard {
     id: string;
@@ -88,15 +88,14 @@ export function FlashcardDisplay({
                         <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 w-full">
                             {card.imageUrl && (
                                 <div className="relative w-full max-h-32 sm:max-h-40 lg:max-h-48 flex items-center justify-center">
-                                    <Image
+                                    <OptimizedImage
                                         key={card.imageUrl}
                                         src={card.imageUrl}
                                         alt={card.term}
-                                        width={400}
-                                        height={192}
+                                        width={170}
+                                        height={170}
                                         className="max-w-full max-h-32 sm:max-h-40 lg:max-h-48 object-contain rounded-lg cursor-zoom-in hover:opacity-90 transition-opacity shadow-md"
                                         onClick={handleImageClick}
-                                        unoptimized
                                     />
                                 </div>
                             )}

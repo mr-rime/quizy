@@ -162,6 +162,20 @@
       "when": 1765220403198,
       "tag": "0022_lean_drax",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1765317606560,
+      "tag": "0023_legal_jack_power",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1765318647259,
+      "tag": "0024_dizzy_iron_monger",
+      "breakpoints": true
     }
   ]
 }

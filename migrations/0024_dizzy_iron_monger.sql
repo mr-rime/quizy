@@ -1,0 +1,2 @@
+ALTER TABLE "processed_image" ALTER COLUMN "optimized_url" DROP NOT NULL;--> statement-breakpoint
+ALTER TABLE "processed_image" ADD CONSTRAINT "processed_image_original_url_unique" UNIQUE("original_url");

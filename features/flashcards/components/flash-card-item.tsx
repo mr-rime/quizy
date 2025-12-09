@@ -9,7 +9,7 @@ import { useState, memo } from 'react'
 import { ImageSearchModal } from './image-search-modal'
 
 import { FlashcardFormData } from './flashcard-form'
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/optimized-image'
 
 type FlashCardItemProps = {
     id: string,
@@ -86,14 +86,13 @@ function FlashCardItemComponent({ id, index, remove, itemsCount }: FlashCardItem
                     <div className="w-1/9 flex items-start pt-1">
                         {imageUrl ? (
                             <div className="relative group w-full">
-                                <Image
+                                <OptimizedImage
                                     src={imageUrl}
                                     alt="Selected"
                                     width={128}
                                     height={128}
                                     className="w-full h-auto object-cover rounded-lg cursor-pointer shadow-lg hover:shadow-xl transition-all border-2 border-border hover:border-primary"
                                     onClick={() => setIsImageModalOpen(true)}
-                                    unoptimized
                                 />
                                 <button
                                     type="button"

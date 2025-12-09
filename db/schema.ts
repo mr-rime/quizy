@@ -10,6 +10,15 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
+export const processedImages = pgTable("processed_image", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    originalUrl: text("original_url").notNull().unique(),
+    optimizedUrl: text("optimized_url"),
+    width: integer("width"),
+    height: integer("height"),
+    createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const users = pgTable("user", {
     id: uuid("id").defaultRandom().primaryKey(),
     username: text("username").notNull().unique(),
