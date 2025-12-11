@@ -7,6 +7,7 @@ import { getFlashcardSet } from "@/features/practice/services/flashcards";
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { getUserId } from "@/features/user/services/user";
+import { Flashcard } from "@/features/practice/types";
 
 interface PageProps {
     params: Promise<{
@@ -45,7 +46,7 @@ export default async function QuizzesPage({ params }: PageProps) {
                 </div>
             </div>
 
-            <QuizGame cards={set.cards} setId={set.id} userId={userId} />
+            <QuizGame cards={set.cards as Flashcard[]} setId={set.id} userId={userId} />
         </div>
     );
 }

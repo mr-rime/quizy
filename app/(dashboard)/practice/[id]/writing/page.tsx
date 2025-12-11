@@ -4,6 +4,7 @@ import { getFlashcardSet } from "@/features/practice/services/flashcards";
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { getUserId } from "@/features/user/services/user";
+import { Flashcard } from "@/features/practice/types";
 
 interface PageProps {
     params: Promise<{
@@ -30,7 +31,7 @@ export default async function WritingPage({ params }: PageProps) {
 
     return (
         <div className="container mx-auto p-6 max-w-5xl space-y-8">
-            <WritingGame cards={set.cards} setId={set.id} setTitle={set.title} />
+            <WritingGame cards={set.cards as Flashcard[]} setId={set.id} setTitle={set.title} />
         </div>
     );
 }

@@ -4,6 +4,7 @@ import { QuizGame } from "@/features/practice/components/quiz/quiz-game";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { Flashcard } from "@/features/practice/types";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -32,7 +33,7 @@ export default async function PublicQuizPage({ params }: PageProps) {
                 </div>
             </div>
 
-            <QuizGame cards={set.cards} setId={set.id} userId={set.user.id} />
+            <QuizGame cards={set.cards as Flashcard[]} setId={set.id} userId={set.user.id} />
         </div>
     );
 }
