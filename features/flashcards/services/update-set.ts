@@ -54,6 +54,7 @@ export async function updateFlashcardSet(data: UpdateFlashcardSetInput) {
                         term: card.term,
                         definition: card.definition,
                         imageUrl: card.image,
+                        examples: card.examples,
                     }))
                 );
             }
@@ -69,7 +70,7 @@ export async function updateFlashcardSet(data: UpdateFlashcardSetInput) {
 
         return { success: true, id: data.setId };
     } catch (err) {
-        console.log(err);
+        console.error(err);
         return { success: false, error: "Failed to update set" };
     }
 }

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { updateFlashcard } from "@/features/flashcards/services/cards";
 import { toggleFavorite } from "@/features/flashcards/services/favorites";
 import { EditFlashcardSchema } from "../utils/validations";
-import { FlashcardDisplay } from "./flashcard-display";
+import { FlashcardDisplay } from "./flashcard/flashcard-display";
 import { FlashcardControls } from "./flashcard-controls";
 import { EditCardDialog } from "./edit-card-dialog";
 import { saveProgress, getProgressForSet, deleteProgressBySet } from "../services/progress";
@@ -13,12 +13,7 @@ import { FlashcardFinish } from "./flashcard-finish";
 import { Skeleton } from "@/components/skeleton";
 import { useSpeech } from "../hooks/use-speech";
 
-interface Flashcard {
-    id: string;
-    term: string;
-    definition: string | null;
-    imageUrl: string | null;
-}
+import { Flashcard } from "../types";
 
 interface FlashcardViewerProps {
     cards: Flashcard[];
@@ -214,6 +209,7 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [],
 
     const currentCard = cards[currentIndex];
 
+
     const restartPractice = () => {
         setIsFinished(false);
         setCurrentIndex(0);
@@ -251,8 +247,6 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [],
 
     return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8">
-
-
 
             <FlashcardDisplay
                 card={currentCard}

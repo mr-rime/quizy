@@ -5,7 +5,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFlashcardSet } from "@/features/practice/services/flashcards";
 import { cache } from "react";
-import { unstable_cache } from "next/cache";
 import { getUserId } from "@/features/user/services/user";
 import { Flashcard } from "@/features/practice/types";
 
@@ -15,18 +14,14 @@ interface PageProps {
     }>;
 }
 
-const getCachedFlashcardSet = cache(unstable_cache(
-    async (id: string, userId: string) => {
-        return await getFlashcardSet(id, userId);
-    },
-    ["flashcards"],
-    { revalidate: 3600, tags: ["flashcards"] }
-))
+const getData = cache(async (id: string, userId: string) => {
+    return await getFlashcardSet(id, userId);
+});
 
 export default async function QuizzesPage({ params }: PageProps) {
     const { id } = await params;
     const userId = await getUserId();
-    const set = await getCachedFlashcardSet(id, userId);
+    const set = await getData(id, userId);
 
     if (!set) {
         notFound();

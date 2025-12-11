@@ -25,6 +25,7 @@ export default async function EditSetPage({ params }: PageProps) {
             term: card.term,
             definition: card.definition || "",
             image: card.imageUrl || "",
+            examples: (card.examples as { english: string; arabic: string }[]) || [],
         })),
     };
 

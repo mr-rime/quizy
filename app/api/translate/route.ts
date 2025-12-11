@@ -10,7 +10,9 @@ export async function GET(request: Request) {
     }
 
     try {
-        const response = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`);
+        const response = await fetch(
+            `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`
+        );
 
         if (!response.ok) {
             throw new Error(`External API error: ${response.statusText}`);
@@ -18,7 +20,9 @@ export async function GET(request: Request) {
 
         const data = await response.json();
 
-        const translatedText = data.sentences.map((item: { trans: string[] }) => item.trans.join('')).join('');
+        const translatedText = data[0]
+            .map((item: string[]) => item[0])
+            .join('');
 
         return NextResponse.json({ translatedText });
     } catch (error) {

@@ -53,7 +53,7 @@ export async function createFlashcardSet(data: CreateFlashcardSetInput) {
 
         return { success: true, id: newSetId };
     } catch (err) {
-        console.log(err);
+        console.error(err);
         return { success: false, error: "Failed to create set" };
     };
 }
