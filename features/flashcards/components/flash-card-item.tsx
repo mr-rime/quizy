@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Image as ImageIcon, Trash, GripVertical, X, Plus, Sparkles, Loader2 } from 'lucide-react'
+import { Image as ImageIcon, Trash, GripVertical, X, Plus, Sparkles } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { useSortable } from '@dnd-kit/sortable'
@@ -132,7 +132,7 @@ function FlashCardItemComponent({ id, index, remove, itemsCount }: FlashCardItem
                     </div>
 
                     <div className="space-y-3">
-                        {watch(`flashcards.${index}.examples`)?.map((example: any, exIndex: number) => (
+                        {watch(`flashcards.${index}.examples`)?.map((_, exIndex: number) => (
                             <div key={exIndex} className="flex gap-3 items-start group/example">
                                 <div className="flex-1 space-y-1">
                                     <Input
@@ -173,7 +173,7 @@ function FlashCardItemComponent({ id, index, remove, itemsCount }: FlashCardItem
                                     className="h-8 w-8 text-muted-foreground hover:text-red-500 opacity-0 group-hover/example:opacity-100 transition-opacity"
                                     onClick={() => {
                                         const currentExamples = watch(`flashcards.${index}.examples`) || [];
-                                        const newExamples = currentExamples.filter((_: any, i: number) => i !== exIndex);
+                                        const newExamples = currentExamples.filter((_, i: number) => i !== exIndex);
                                         setValue(`flashcards.${index}.examples`, newExamples);
                                     }}
                                 >

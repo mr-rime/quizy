@@ -17,7 +17,6 @@ export async function GET(request: NextRequest) {
         }
 
 
-        let imageUrl = rawUrl;
         let pixabayId: string | null = null;
 
         const idMatch = rawUrl.match(/[?&]pixabayId=([^&]+)/);
@@ -85,7 +84,7 @@ export async function GET(request: NextRequest) {
                     if (pixabayRes.ok) {
                         const data = await pixabayRes.json();
                         if (data.hits && data.hits.length > 0) {
-                            const newUrl = data.hits[0].largeImageURL; 
+                            const newUrl = data.hits[0].largeImageURL;
                             console.log(`[Auto-Heal] Recovered new URL: ${newUrl}`);
                             fetchUrl = newUrl;
 
@@ -157,7 +156,7 @@ export async function GET(request: NextRequest) {
 
             const uploadedData = uploadResponse[0].data;
 
-         
+
             const [updatedRecord] = await db.update(processedImages)
                 .set({
                     optimizedUrl: uploadedData.url,

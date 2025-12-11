@@ -18,7 +18,7 @@ export async function GET(request: Request) {
 
         const data = await response.json();
 
-        const translatedText = data[0].map((item: any) => item[0]).join('');
+        const translatedText = data.sentences.map((item: { trans: string[] }) => item.trans.join('')).join('');
 
         return NextResponse.json({ translatedText });
     } catch (error) {

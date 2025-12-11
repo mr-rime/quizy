@@ -11,17 +11,17 @@ interface CharacterInputProps extends React.InputHTMLAttributes<HTMLInputElement
 }
 
 export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
-    ({ className, index, status, onBack, onForward, onChange, ...props }, ref) => {
+    ({ className, status, onBack, onForward, onChange, ...props }, ref) => {
         const inputRef = useRef<HTMLInputElement>(null);
 
         useImperativeHandle(ref, () => inputRef.current as HTMLInputElement);
 
         const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-             const value = e.target.value;
+            const value = e.target.value;
             if (value.length > 1) {
                 e.target.value = value.slice(-1);
             }
-            
+
             onChange?.(e);
 
             if (e.target.value) {

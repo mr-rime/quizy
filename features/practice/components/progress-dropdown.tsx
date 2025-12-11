@@ -21,7 +21,8 @@ export function ProgressDropdown({ progressId }: { progressId: string }) {
             await deleteProgress(progressId)
             toast.success("Progress removed")
             setOpen(false)
-        } catch (error) {
+        } catch (err) {
+            console.error("Failed to remove progress:", err)
             toast.error("Failed to remove progress")
         }
     }

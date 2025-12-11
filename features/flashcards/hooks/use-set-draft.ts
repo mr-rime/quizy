@@ -3,6 +3,7 @@
 import { useEffect, useCallback } from "react";
 import { useFormContext } from "react-hook-form";
 import { FlashcardFormData } from "../components/flashcard-form";
+import { Flashcard } from "@/features/practice/types";
 
 export function useSetDraft(setId?: string) {
     const { reset } = useFormContext<FlashcardFormData>();
@@ -15,6 +16,12 @@ export function useSetDraft(setId?: string) {
         if (savedDraft) {
             try {
                 const parsedDraft = JSON.parse(savedDraft);
+                if (parsedDraft.flashcards) {
+                    parsedDraft.flashcards = parsedDraft.flashcards.map((flashcard: Flashcard) => ({
+                        ...flashcard,
+                        examples: flashcard.examples || []
+                    }));
+                }
                 reset(parsedDraft);
             } catch (e) {
                 console.error("Failed to parse draft", e);

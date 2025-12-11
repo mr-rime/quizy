@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useEffectEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { CharacterInput } from "./character-input";
 import { ArrowLeft, Lightbulb, CheckCircle2, XCircle, BookOpen } from "lucide-react";
@@ -31,19 +31,20 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [inputs, setInputs] = useState<string[]>([]);
     const [inputStatus, setInputStatus] = useState<"idle" | "correct" | "incorrect">("idle");
-    const [showHint, setShowHint] = useState(false);
     const [showExamples, setShowExamples] = useState(false);
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
     const currentCard = cards[currentIndex];
     const answer = currentCard?.term || "";
 
+    const setInputsEvent = useEffectEvent(setInputs);
+    const setInputStatusEvent = useEffectEvent(setInputStatus);
+
     useEffect(() => {
         if (currentCard) {
             const initialInputs = currentCard.term.split("").map(char => char === " " ? " " : "");
-            setInputs(initialInputs);
-            setInputStatus("idle");
-            setShowHint(false);
+            setInputsEvent(initialInputs);
+            setInputStatusEvent("idle");
             setTimeout(() => {
                 const firstNonSpace = currentCard.term.split("").findIndex(c => c !== " ");
                 if (firstNonSpace !== -1) {
@@ -53,15 +54,6 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
         }
     }, [currentIndex, currentCard]);
 
-    const handleInputChange = (index: number, value: string) => {
-        const newInputs = [...inputs];
-        newInputs[index] = value;
-        setInputs(newInputs);
-
-        if (inputStatus === "incorrect") {
-            setInputStatus("idle");
-        }
-    };
 
     const handleBack = (index: number) => {
         if (index > 0) {
@@ -154,7 +146,7 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
             </div>
 
             <div className="text-center space-y-6 w-full">
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                <h2 className="text-3xl font-bold bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                     {currentCard.definition || "What's the term?"}
                 </h2>
 

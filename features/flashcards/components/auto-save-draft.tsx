@@ -13,7 +13,7 @@ export function AutoSaveDraft({ setId }: { setId?: string }) {
         if (setId) return;
 
         const timeoutId = setTimeout(() => {
-            const hasContent = values.title || values.description || (values.flashcards && values.flashcards.some(f => f.term || f.definition));
+            const hasContent = values.title || values.description || (values.flashcards && values.flashcards.some(f => f.term || f.definition || (f.examples && f.examples.length > 0)));
 
             if (hasContent) {
                 localStorage.setItem(draftKey, JSON.stringify(values));
