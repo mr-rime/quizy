@@ -1,9 +1,11 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Edit2, Volume2, Star } from "lucide-react";
+import { Edit2, Volume2, Star, Lightbulb } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Flashcard } from "../../types";
+import { useState } from "react";
+import { ExamplesModal } from "../examples-modal";
 
 interface FlashcardDisplayProps {
     card: Flashcard;
@@ -20,6 +22,8 @@ export function FlashcardDisplay({
     onSpeak,
     onEdit
 }: FlashcardDisplayProps) {
+    const [showExamples, setShowExamples] = useState(false);
+
     return (
         <div className="w-full max-w-3xl perspective-1000 h-[400px] cursor-pointer group" onClick={onFlip}>
             <div className={cn(
@@ -34,6 +38,11 @@ export function FlashcardDisplay({
                         <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onSpeak(card.term); }}>
                             <Volume2 className="h-4 w-4" />
                         </Button>
+                        {card.examples && card.examples.length > 0 && (
+                            <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); setShowExamples(true); }}>
+                                <Lightbulb className="h-4 w-4" />
+                            </Button>
+                        )}
                         <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
                             <Star className="h-4 w-4" />
                         </Button>
@@ -52,6 +61,11 @@ export function FlashcardDisplay({
                         <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onSpeak(card.definition || ""); }}>
                             <Volume2 className="h-4 w-4" />
                         </Button>
+                        {card.examples && card.examples.length > 0 && (
+                            <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); setShowExamples(true); }}>
+                                <Lightbulb className="h-4 w-4" />
+                            </Button>
+                        )}
                         <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
                             <Star className="h-4 w-4" />
                         </Button>
@@ -73,6 +87,12 @@ export function FlashcardDisplay({
                     )}
                 </Card>
             </div>
+
+            <ExamplesModal
+                open={showExamples}
+                onOpenChange={setShowExamples}
+                examples={card.examples || []}
+            />
 
             <style jsx global>{`
                 .perspective-1000 {

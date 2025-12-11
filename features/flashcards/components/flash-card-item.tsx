@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Image as ImageIcon, Trash, GripVertical, X } from 'lucide-react'
+import { Image as ImageIcon, Trash, GripVertical, X, Plus, Sparkles, Loader2 } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
+import { Button } from '@/components/ui/button'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useState, memo } from 'react'
@@ -112,6 +113,76 @@ function FlashCardItemComponent({ id, index, remove, itemsCount }: FlashCardItem
                         )}
                     </div>
                 </CardContent>
+
+                <div className="px-6 pb-4">
+                    <div className="flex items-center gap-2 mb-2">
+                        <Label>Examples</Label>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 px-2 text-xs"
+                            onClick={() => {
+                                const currentExamples = watch(`flashcards.${index}.examples`) || [];
+                                setValue(`flashcards.${index}.examples`, [...currentExamples, { english: "", arabic: "" }]);
+                            }}
+                        >
+                            <Plus size={14} className="mr-1" /> Add Example
+                        </Button>
+                    </div>
+
+                    <div className="space-y-3">
+                        {watch(`flashcards.${index}.examples`)?.map((example: any, exIndex: number) => (
+                            <div key={exIndex} className="flex gap-3 items-start group/example">
+                                <div className="flex-1 space-y-1">
+                                    <Input
+                                        placeholder="English example..."
+                                        className="h-8 text-sm"
+                                        {...register(`flashcards.${index}.examples.${exIndex}.english`)}
+                                        onBlur={(e) => {
+                                            const text = e.target.value;
+                                            if (text && !watch(`flashcards.${index}.examples.${exIndex}.arabic`)) {
+                                                setValue(`flashcards.${index}.examples.${exIndex}.arabic`, "Translating...", { shouldValidate: true });
+                                                fetch(`/api/translate?text=${encodeURIComponent(text)}`)
+                                                    .then(res => res.json())
+                                                    .then(data => {
+                                                        if (data.translatedText) {
+                                                            setValue(`flashcards.${index}.examples.${exIndex}.arabic`, data.translatedText, { shouldValidate: true });
+                                                        }
+                                                    })
+                                                    .catch(() => {
+                                                        setValue(`flashcards.${index}.examples.${exIndex}.arabic`, "", { shouldValidate: true });
+                                                    });
+                                            }
+                                        }}
+                                    />
+                                </div>
+                                <div className="flex-1 space-y-1 relative">
+                                    <Input
+                                        placeholder="Arabic translation..."
+                                        className="h-8 text-sm text-right font-arabic"
+                                        dir="rtl"
+                                        {...register(`flashcards.${index}.examples.${exIndex}.arabic`)}
+                                    />
+                                    <Sparkles className="absolute left-2 top-2 text-yellow-500/50 pointer-events-none" size={12} />
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-muted-foreground hover:text-red-500 opacity-0 group-hover/example:opacity-100 transition-opacity"
+                                    onClick={() => {
+                                        const currentExamples = watch(`flashcards.${index}.examples`) || [];
+                                        const newExamples = currentExamples.filter((_: any, i: number) => i !== exIndex);
+                                        setValue(`flashcards.${index}.examples`, newExamples);
+                                    }}
+                                >
+                                    <Trash size={14} />
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </Card>
 
             <ImageSearchModal

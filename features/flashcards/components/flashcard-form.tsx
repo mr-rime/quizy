@@ -19,6 +19,7 @@ export type FlashcardFormData = {
         term: string;
         definition: string;
         image?: string;
+        examples?: { english: string; arabic: string }[];
     }[];
 }
 
@@ -46,7 +47,8 @@ export function FlashcardForm({ setId, initialData }: FlashcardFormProps = {}) {
                 id: "1",
                 term: "",
                 definition: "",
-                image: ""
+                image: "",
+                examples: []
             }]
         }
     });

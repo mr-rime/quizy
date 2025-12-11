@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { CharacterInput } from "./character-input";
-import { ArrowLeft, Lightbulb, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft, Lightbulb, CheckCircle2, XCircle, BookOpen } from "lucide-react";
+import { ExamplesModal } from "./examples-modal";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -16,6 +17,7 @@ interface Flashcard {
     term: string;
     definition: string | null;
     imageUrl: string | null;
+    examples?: { english: string; arabic: string }[] | null;
 }
 
 interface WritingGameProps {
@@ -30,6 +32,7 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
     const [inputs, setInputs] = useState<string[]>([]);
     const [inputStatus, setInputStatus] = useState<"idle" | "correct" | "incorrect">("idle");
     const [showHint, setShowHint] = useState(false);
+    const [showExamples, setShowExamples] = useState(false);
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
     const currentCard = cards[currentIndex];
@@ -203,7 +206,24 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
                         <Lightbulb className="h-4 w-4 text-yellow-500" />
                         Hint
                     </Button>
+
+                    {currentCard.examples && currentCard.examples.length > 0 && (
+                        <Button
+                            variant="outline"
+                            onClick={() => setShowExamples(true)}
+                            className="gap-2"
+                        >
+                            <BookOpen className="h-4 w-4 text-blue-500" />
+                            Examples
+                        </Button>
+                    )}
                 </div>
+
+                <ExamplesModal
+                    open={showExamples}
+                    onOpenChange={setShowExamples}
+                    examples={currentCard.examples || []}
+                />
             </div>
 
             <div className="h-8 flex items-center justify-center">

@@ -4,12 +4,13 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, XCircle, Volume2 } from "lucide-react";
+import { CheckCircle, XCircle, Volume2, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import { QuizFinish } from "./quiz-finish";
 import { QuizSkeleton } from "./quiz-skeleton";
 import { ImageZoomModal } from "@/components/image-zoom-modal";
+import { ExamplesModal } from "../examples-modal";
 import { OptimizedImage } from "@/components/optimized-image";
 import { saveProgress, getProgressForSet, deleteProgressBySet } from "../../services/progress";
 import { useSpeech } from "../../hooks/use-speech";
@@ -19,6 +20,7 @@ interface Flashcard {
     term: string;
     definition: string | null;
     imageUrl: string | null;
+    examples?: { english: string; arabic: string }[] | null;
 }
 
 interface QuizGameProps {
@@ -41,6 +43,7 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
     const [score, setScore] = useState(0);
     const [isFinished, setIsFinished] = useState(false);
     const [isZoomOpen, setIsZoomOpen] = useState(false);
+    const [showExamples, setShowExamples] = useState(false);
     const [isLoadingProgress, setIsLoadingProgress] = useState(true);
     const [hasInitialized, setHasInitialized] = useState(false);
     const { speak } = useSpeech();
@@ -192,6 +195,19 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
                     >
                         <Volume2 className="h-5 w-5 sm:h-6 sm:w-6" />
                     </Button>
+                    {currentQuestion.card.examples && currentQuestion.card.examples.length > 0 && (
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute top-2 sm:top-4 left-2 sm:left-4 h-10 w-10 sm:h-11 sm:w-11"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setShowExamples(true);
+                            }}
+                        >
+                            <BookOpen className="h-5 w-5 sm:h-6 sm:w-6" />
+                        </Button>
+                    )}
                     <div className="text-xs sm:text-sm text-muted-foreground uppercase tracking-wider">Term</div>
                     <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold px-2">{currentQuestion.card.term}</h2>
                     {currentQuestion.card.imageUrl && (
@@ -246,6 +262,11 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
                 alt={currentQuestion.card.term}
                 open={isZoomOpen}
                 onOpenChange={setIsZoomOpen}
+            />
+            <ExamplesModal
+                open={showExamples}
+                onOpenChange={setShowExamples}
+                examples={currentQuestion.card.examples || []}
             />
         </>
     );

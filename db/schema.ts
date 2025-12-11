@@ -6,7 +6,8 @@ import {
     varchar,
     primaryKey,
     integer,
-    boolean
+    boolean,
+    json
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -73,6 +74,7 @@ export const cards = pgTable("card", {
     term: varchar("term", { length: 255 }).notNull(),
     definition: varchar("definition", { length: 2000 }),
     imageUrl: varchar("image_url", { length: 500 }),
+    examples: json("examples"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
