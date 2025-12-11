@@ -10,25 +10,35 @@ export const runtime = 'nodejs';
 export async function GET(request: NextRequest) {
     try {
         const searchParams = request.nextUrl.searchParams;
-        const imageUrl = searchParams.get("url");
+        const rawUrl = searchParams.get("url");
 
-        if (!imageUrl) {
+        if (!rawUrl) {
             return NextResponse.json({ error: "Image URL is required" }, { status: 400 });
+        }
+
+
+        let imageUrl = rawUrl;
+        let pixabayId: string | null = null;
+
+        const idMatch = rawUrl.match(/[?&]pixabayId=([^&]+)/);
+        if (idMatch) {
+            pixabayId = idMatch[1];
         }
 
         const [inserted] = await db.insert(processedImages)
             .values({
-                originalUrl: imageUrl,
+                originalUrl: rawUrl, // Store exactly what was requested
             })
             .onConflictDoNothing()
             .returning();
 
         if (!inserted) {
             const existingImage = await db.query.processedImages.findFirst({
-                where: eq(processedImages.originalUrl, imageUrl),
+                where: eq(processedImages.originalUrl, rawUrl),
             });
 
             if (existingImage?.optimizedUrl) {
+
                 return NextResponse.json({
                     success: true,
                     originalUrl: existingImage.originalUrl,
@@ -37,21 +47,64 @@ export async function GET(request: NextRequest) {
                     width: existingImage.width,
                     height: existingImage.height,
                     cached: true,
-                });
-            } else {
-                return NextResponse.json({
-                    success: true,
-                    originalUrl: imageUrl,
-                    optimizedUrl: null,
-                    recordId: existingImage?.id,
-                    cached: false,
+                }, {
+                    headers: {
+                        "Cache-Control": "public, max-age=31536000, immutable"
+                    }
                 });
             }
         }
 
+        const recordId = inserted?.id || (await db.query.processedImages.findFirst({
+            where: eq(processedImages.originalUrl, rawUrl)
+        }))?.id;
+
+        if (!recordId) throw new Error("Could not retrieve record ID");
+
+
+        let fetchUrl = rawUrl.split("?pixabayId=")[0];
+
         try {
-            const response = await fetch(imageUrl);
-            if (!response.ok) throw new Error(`Failed to fetch image: ${response.statusText}`);
+            let response = await fetch(fetchUrl, {
+                headers: {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+                    "Referer": "https://pixabay.com/",
+                    "Accept": "image/webp,image/apng,image/*,*/*;q=0.8"
+                }
+            });
+
+            if (!response.ok && pixabayId) {
+                console.log(`[Auto-Heal] Original fetch failed (${response.status}). Attempting to recover using Pixabay ID: ${pixabayId}`);
+
+                const apiKey = process.env.PIXABAY_API_KEY;
+                if (apiKey) {
+                    const cleanId = pixabayId.trim();
+                    const pixabayApiUrl = `https://pixabay.com/api/?key=${apiKey}&id=${cleanId}`;
+
+                    const pixabayRes = await fetch(pixabayApiUrl);
+                    if (pixabayRes.ok) {
+                        const data = await pixabayRes.json();
+                        if (data.hits && data.hits.length > 0) {
+                            const newUrl = data.hits[0].largeImageURL; 
+                            console.log(`[Auto-Heal] Recovered new URL: ${newUrl}`);
+                            fetchUrl = newUrl;
+
+                            response = await fetch(fetchUrl, {
+                                headers: {
+                                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+                                    "Referer": "https://pixabay.com/",
+                                    "Accept": "image/webp,image/apng,image/*,*/*;q=0.8"
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+
+            if (!response.ok) {
+                const errorText = await response.text().catch(() => "No error text");
+                throw new Error(`Failed to fetch image: ${response.status} ${response.statusText} - ${errorText}`);
+            }
 
             const arrayBuffer = await response.arrayBuffer();
             const buffer = Buffer.from(arrayBuffer);
@@ -104,18 +157,19 @@ export async function GET(request: NextRequest) {
 
             const uploadedData = uploadResponse[0].data;
 
+         
             const [updatedRecord] = await db.update(processedImages)
                 .set({
                     optimizedUrl: uploadedData.url,
                     width: info.width,
                     height: info.height,
                 })
-                .where(eq(processedImages.id, inserted.id))
+                .where(eq(processedImages.id, recordId))
                 .returning();
 
             return NextResponse.json({
                 success: true,
-                originalUrl: imageUrl,
+                originalUrl: rawUrl,
                 optimizedUrl: uploadedData.url,
                 recordId: updatedRecord.id,
                 width: info.width,
@@ -126,10 +180,14 @@ export async function GET(request: NextRequest) {
                     compressionRatio: `${compressionRatio}%`,
                     format: info.format
                 }
+            }, {
+                headers: {
+                    "Cache-Control": "public, max-age=31536000, immutable"
+                }
             });
 
         } catch (processError) {
-            await db.delete(processedImages).where(eq(processedImages.id, inserted.id));
+            await db.delete(processedImages).where(eq(processedImages.id, recordId));
             throw processError;
         }
 

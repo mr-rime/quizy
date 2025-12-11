@@ -140,7 +140,7 @@ export function ImageSearchModal({ open, onOpenChange, onSelectImage }: ImageSea
                                 <div
                                     key={photo.id}
                                     className="relative aspect-square cursor-pointer rounded-lg overflow-hidden group hover:ring-2 hover:ring-primary transition-all"
-                                    onClick={() => handleSelectImage(photo.url)}
+                                    onClick={() => handleSelectImage(`${photo.url}?pixabayId=${photo.id}`)}
                                 >
                                     <OptimizedImage
                                         src={photo.thumbnail}

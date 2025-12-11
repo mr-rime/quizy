@@ -2,6 +2,7 @@
 
 import Image, { ImageProps } from "next/image";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 import useSWR from "swr";
 
 interface OptimizedImageProps extends Omit<ImageProps, "src"> {
@@ -12,11 +13,15 @@ interface OptimizedImageProps extends Omit<ImageProps, "src"> {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function OptimizedImage({ src, alt, className, noOptimize = false, ...props }: OptimizedImageProps) {
+    const [isLoadingImage, setIsLoadingImage] = useState(true);
+
     const { data } = useSWR(
         !noOptimize && src ? `/api/process-image?url=${encodeURIComponent(src)}` : null,
         fetcher,
         {
             revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            dedupingInterval: 86400000,
             shouldRetryOnError: false,
         }
     );
@@ -28,10 +33,11 @@ export function OptimizedImage({ src, alt, className, noOptimize = false, ...pro
             src={optimizedSrc}
             alt={alt}
             className={cn(
-                "transition-opacity duration-300",
-                "opacity-100 blur-0",
+                "transition-all duration-500",
+                isLoadingImage ? "scale-110 blur-xl grayscale" : "scale-100 blur-0 grayscale-0",
                 className
             )}
+            onLoad={() => setIsLoadingImage(false)}
             unoptimized // because of Vercel's free quota
             {...props}
         />

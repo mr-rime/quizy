@@ -2,8 +2,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
-import { MoreVertical } from "lucide-react";
 import { ProgressWithSet } from "../services/progress";
+import { ProgressDropdown } from "./progress-dropdown";
 
 interface JumpBackInProps {
     progressSessions: ProgressWithSet[];
@@ -40,9 +40,7 @@ export function JumpBackIn({ progressSessions }: JumpBackInProps) {
                                             {progressPercentage}% of questions completed
                                         </p>
                                     </div>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                                        <MoreVertical className="h-4 w-4" />
-                                    </Button>
+                                    <ProgressDropdown progressId={progress.id} />
                                 </div>
 
                                 <Progress value={progressPercentage} className="h-2" />
