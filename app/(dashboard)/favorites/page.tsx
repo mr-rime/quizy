@@ -5,6 +5,7 @@ import { cache } from "react";
 import Link from "next/link";
 import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Flashcard } from "@/features/practice/types";
 
 export const revalidate = 1800;
 
@@ -28,7 +29,7 @@ export default async function FavoritesPage() {
             </div>
 
             {favorites.length > 0 ? (
-                <FlashcardViewer cards={favorites} setId="favorites" userId={userId} initialFavoriteIds={favoriteIds} />
+                <FlashcardViewer cards={favorites as Flashcard[]} setId="favorites" userId={userId} initialFavoriteIds={favoriteIds} />
             ) : (
                 <div className="flex flex-col items-center justify-center min-h-[50vh] gap-6 text-center">
                     <div className="flex items-center justify-center w-20 h-20 rounded-full bg-muted">

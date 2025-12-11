@@ -4,6 +4,7 @@ import { FlashcardViewer } from "@/features/practice/components/flashcard-viewer
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { Flashcard } from "@/features/practice/types";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -32,7 +33,7 @@ export default async function PublicFlashcardsPage({ params }: PageProps) {
                 </div>
             </div>
 
-            <FlashcardViewer cards={set.cards} setId={set.id} userId={set.user.id} />
+            <FlashcardViewer cards={set.cards as Flashcard[]} setId={set.id} userId={set.user.id} />
         </div>
     );
 }

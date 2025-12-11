@@ -5,6 +5,7 @@ import { getFlashcardSet } from "@/features/practice/services/flashcards";
 import { getFavorites } from "@/features/flashcards/services/favorites";
 import { getCurrentUser } from "@/features/user/services/user";
 import { cache } from "react";
+import { Flashcard } from "@/features/practice/types";
 
 export const revalidate = 3600;
 
@@ -50,7 +51,7 @@ export default async function FlashcardsPage({ params }: PageProps) {
             </div>
 
             <FlashcardViewer
-                cards={set.cards}
+                cards={set.cards as Flashcard[]}
                 setId={set.id}
                 userId={userId}
                 initialFavoriteIds={favoriteIds}
