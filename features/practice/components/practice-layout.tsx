@@ -131,10 +131,6 @@ export function PracticeLayout<T>({
                             <Share className="h-4 w-4" />
                             <span className="sm:inline">Share</span>
                         </Button>
-                        <Button variant="outline" className="gap-2 flex-1 sm:flex-initial" onClick={() => setShareModalOpen(true)}>
-                            <Share className="h-4 w-4" />
-                            <span className="sm:inline">Share</span>
-                        </Button>
 
                         {isPublished ? (
                             <Button
