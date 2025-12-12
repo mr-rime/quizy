@@ -88,7 +88,7 @@ export const getFolder = unstable_cache(
     },
     ["folder"],
     {
-        revalidate: 3600,
+        revalidate: 60,
         tags: ["folder"]
     }
 );

@@ -48,7 +48,7 @@ export const getFlashcardSet = unstable_cache(
     },
     ["flashcard-set"],
     {
-        revalidate: 3600,
+        revalidate: 60,
         tags: ["flashcard-set"]
     }
 );

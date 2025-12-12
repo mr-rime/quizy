@@ -6,7 +6,7 @@ import { ArrowLeft, Share, Layers, BrainCircuit, PenTool } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PracticeDropdown } from "./practice-dropdown";
-import { use, useState, useEffect, useTransition } from "react";
+import { use, useState, useEffect, useTransition, Suspense } from "react";
 import { getFlashcardSet } from "../services/flashcards";
 import { ShareModal } from "@/features/share/components/share-modal";
 import { generateShareUrl } from "@/features/share/services/share";
@@ -18,6 +18,7 @@ import { saveSet, unsaveSet } from "@/features/saved-sets/services/saved-sets";
 import { toast } from "sonner";
 import { togglePublishSet } from "@/features/flashcards/services/publish-set";
 import type { CommentWithUser } from "@/types";
+import { Skeleton } from "@/components/skeleton";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -244,13 +245,26 @@ export function PracticeLayout<T>({
             )}
 
             <div className="border-t pt-6">
-                <CommentSection
-                    setId={set.id}
-                    userId={currentUserId}
-                    setOwnerId={set.userId}
-                    isAdmin={isAdmin}
-                    commentsPromise={commentsPromise}
-                />
+                <Suspense
+                    fallback={
+                        <div className="space-y-4">
+                            <Skeleton className="h-6 w-40 rounded" />
+                            <div className="space-y-3">
+                                {[...Array(3)].map((_, i) => (
+                                    <Skeleton key={i} className="h-16 w-full rounded" />
+                                ))}
+                            </div>
+                        </div>
+                    }
+                >
+                    <CommentSection
+                        setId={set.id}
+                        userId={currentUserId}
+                        setOwnerId={set.userId}
+                        isAdmin={isAdmin}
+                        commentsPromise={commentsPromise}
+                    />
+                </Suspense>
             </div>
 
             <ShareModal

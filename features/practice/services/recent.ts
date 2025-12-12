@@ -16,7 +16,7 @@ export const getRecentSets = unstable_cache(
     },
     ["recent-sets"],
     {
-        revalidate: 3600,
+        revalidate: 60,
         tags: ["recent-sets"]
     }
 );
