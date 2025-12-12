@@ -1,12 +1,12 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Image as ImageIcon, Trash, GripVertical, X, Plus, Sparkles } from 'lucide-react'
+import { Image as ImageIcon, Trash, GripVertical, X, Plus, Sparkles, UploadCloud } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { useState, memo } from 'react'
+import { useState, memo, type ChangeEvent } from 'react'
 import { ImageSearchModal } from './image-search-modal'
 
 import { FlashcardFormData } from './flashcard-form'
@@ -23,6 +23,7 @@ function FlashCardItemComponent({ id, index, remove, itemsCount }: FlashCardItem
     const { register, formState: { errors }, setValue, watch } = useFormContext<FlashcardFormData>();
 
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const imageUrl = watch(`flashcards.${index}.image`);
 
     const {
@@ -47,6 +48,37 @@ function FlashCardItemComponent({ id, index, remove, itemsCount }: FlashCardItem
 
     const handleRemoveImage = () => {
         setValue(`flashcards.${index}.image`, '', { shouldValidate: true });
+    };
+
+    const handleUploadLocalImage = async (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        try {
+            setIsUploading(true);
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const res = await fetch('/api/upload-flashcard-image', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!res.ok) {
+                console.error('Failed to upload image');
+                return;
+            }
+
+            const data = await res.json();
+            if (data?.success && data?.url) {
+                setValue(`flashcards.${index}.image`, data.url, { shouldValidate: true });
+            }
+        } catch (error) {
+            console.error('Error uploading image', error);
+        } finally {
+            setIsUploading(false);
+            event.target.value = '';
+        }
     };
 
     return (
@@ -84,7 +116,7 @@ function FlashCardItemComponent({ id, index, remove, itemsCount }: FlashCardItem
                         </p>
                     </div>
 
-                    <div className="w-1/9 flex items-start pt-1">
+                    <div className="w-1/9 flex flex-col items-start gap-2 pt-1">
                         {imageUrl ? (
                             <div className="relative group w-full">
                                 <OptimizedImage
@@ -111,6 +143,33 @@ function FlashCardItemComponent({ id, index, remove, itemsCount }: FlashCardItem
                                 <ImageIcon className="text-muted-foreground group-hover:text-primary transition-colors" size={32} />
                             </div>
                         )}
+
+                        <div className="flex flex-col gap-1 w-full">
+                            <label className="w-full">
+                                <span className="sr-only">Upload image</span>
+                                <div className="flex items-center justify-center gap-1 rounded-md border border-dashed px-2 py-1 text-xs cursor-pointer hover:bg-accent">
+                                    <UploadCloud className="h-3 w-3" />
+                                    <span>{isUploading ? 'Uploading...' : 'Upload'}</span>
+                                </div>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleUploadLocalImage}
+                                    disabled={isUploading}
+                                />
+                            </label>
+
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-2 text-[11px]"
+                                onClick={() => setIsImageModalOpen(true)}
+                            >
+                                <ImageIcon className="h-3 w-3 mr-1" /> Search
+                            </Button>
+                        </div>
                     </div>
                 </CardContent>
 
