@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
 
         const byteArray = new Uint8Array(optimizedBuffer);
 
-        const utapi = new UTApi();
+        const utapi = new UTApi({ token: process.env.UPLOADTHING_TOKEN?.trim() });
         const utFile = new UTFile([byteArray], "flashcard-image.webp", { type: "image/webp" });
 
         const uploadResponse = await utapi.uploadFiles([utFile]);
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({
             success: true,
-            url: uploadedData.url,
+            url: uploadedData.ufsUrl,
         });
     } catch (error) {
         console.error("Error uploading flashcard image:", error);
