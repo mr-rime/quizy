@@ -15,8 +15,19 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 export function OptimizedImage({ src, alt, className, noOptimize = false, ...props }: OptimizedImageProps) {
     const [isLoadingImage, setIsLoadingImage] = useState(true);
 
+    const isUploadThingUrl = (() => {
+        try {
+            const parsed = new URL(src);
+            return parsed.hostname === "utfs.io";
+        } catch {
+            return src.includes("utfs.io");
+        }
+    })();
+
+    const shouldOptimize = !noOptimize && src && !isUploadThingUrl;
+
     const { data } = useSWR(
-        !noOptimize && src ? `/api/process-image?url=${encodeURIComponent(src)}` : null,
+        shouldOptimize ? `/api/process-image?url=${encodeURIComponent(src)}` : null,
         fetcher,
         {
             revalidateOnFocus: false,
