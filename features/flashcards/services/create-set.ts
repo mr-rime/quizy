@@ -46,9 +46,11 @@ export async function createFlashcardSet(data: CreateFlashcardSetInput) {
         revalidateTag("flashcard-sets", "max");
         revalidateTag("flashcard-set", "max");
         revalidateTag("recent-sets", "max");
+        revalidateTag("discover-sets", "max");
+        revalidateTag("public-sets", "max");
+        revalidateTag("user-profile", "max");
         revalidatePath("/latest");
         revalidatePath("/library");
-        revalidatePath("/");
         revalidatePath("/");
 
         return { success: true, id: newSetId };

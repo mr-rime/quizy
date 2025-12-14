@@ -63,6 +63,10 @@ export async function updateFlashcardSet(data: UpdateFlashcardSetInput) {
         revalidateTag("flashcard-sets", "max");
         revalidateTag("flashcard-set", "max");
         revalidateTag("recent-sets", "max");
+        revalidateTag("discover-sets", "max");
+        revalidateTag("public-sets", "max");
+        revalidateTag("saved-sets", "max");
+        revalidateTag("user-profile", "max");
         revalidatePath("/latest");
         revalidatePath("/library");
         revalidatePath(`/practice/${data.setId}`);

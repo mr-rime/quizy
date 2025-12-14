@@ -54,7 +54,7 @@ export function LibraryFolders({ folders }: LibraryFoldersProps) {
                     <p className="text-muted-foreground mb-6 max-w-sm">
                         You haven&apos;t created any folders yet. Organize your flashcard sets by creating folders!
                     </p>
-                    <Button size="lg" className="rounded-full px-8" onClick={() => setIsModalOpen(true)}>
+                    <Button size="lg" className="rounded-full px-8 " onClick={() => setIsModalOpen(true)}>
                         Create Folder
                     </Button>
                 </div>

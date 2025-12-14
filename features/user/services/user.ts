@@ -50,7 +50,7 @@ const getCurrentUserCached = unstable_cache(
     ["current-user"],
     {
         revalidate: 300,
-        tags: ["user"]
+        tags: ["user", "current-user"]
     }
 );
 

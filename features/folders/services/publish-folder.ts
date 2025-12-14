@@ -40,8 +40,10 @@ export async function togglePublishFolder(folderId: string) {
 
         revalidatePath(`/folders/${folderId}`);
         revalidatePath("/folders");
+        revalidatePath("/discover");
         revalidateTag("folders", "max");
         revalidateTag("folder", "max");
+        revalidateTag("discover-folders", "max");
 
         return {
             success: true,

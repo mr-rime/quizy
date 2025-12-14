@@ -99,10 +99,11 @@ export async function updateFolder(id: string, data: UpdateFolderSchema) {
     await db.update(folders)
         .set(data)
         .where(and(eq(folders.id, id), eq(folders.userId, userId)));
-    revalidatePath(`/folders/${id}`);
     revalidatePath("/folders");
+    revalidatePath(`/folders/${id}`);
     revalidateTag("folder", "max");
     revalidateTag("folders", "max");
+    revalidateTag("discover-folders", "max");
 }
 
 export async function deleteFolder(id: string) {
@@ -111,6 +112,7 @@ export async function deleteFolder(id: string) {
     revalidatePath("/folders");
     revalidateTag("folder", "max");
     revalidateTag("folders", "max");
+    revalidateTag("discover-folders", "max");
 }
 
 export async function addSetToFolder(folderId: string, setId: string) {
@@ -129,6 +131,7 @@ export async function addSetToFolder(folderId: string, setId: string) {
     revalidatePath("/library");
     revalidateTag("folder", "max");
     revalidateTag("folders", "max");
+    revalidateTag("discover-folders", "max");
 }
 
 export async function removeSetFromFolder(folderId: string, setId: string) {
@@ -145,4 +148,5 @@ export async function removeSetFromFolder(folderId: string, setId: string) {
     revalidatePath("/library");
     revalidateTag("folder", "max");
     revalidateTag("folders", "max");
+    revalidateTag("discover-folders", "max");
 }

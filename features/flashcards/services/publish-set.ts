@@ -44,6 +44,10 @@ export async function togglePublishSet(setId: string) {
         revalidatePath("/discover");
         revalidateTag("flashcard-sets", "max");
         revalidateTag("flashcard-set", "max");
+        revalidateTag("discover-sets", "max");
+        revalidateTag("public-sets", "max");
+        revalidateTag("saved-sets", "max");
+        revalidateTag("user-profile", "max");
 
         return {
             success: true,

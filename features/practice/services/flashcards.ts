@@ -2,7 +2,7 @@
 
 import { db } from "@/db/drizzle";
 import { flashcardSets, folders, folderSets } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, ilike } from "drizzle-orm";
 import { getCurrentUser, getUserId } from "@/features/user/services/user";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
@@ -104,8 +104,32 @@ export async function deleteFlashcardSet(id: string) {
     revalidateTag("flashcard-sets", "max");
     revalidateTag("flashcard-set", "max");
     revalidateTag("recent-sets", "max");
+    revalidateTag("discover-sets", "max");
+    revalidateTag("public-sets", "max");
+    revalidateTag("saved-sets", "max");
+    revalidateTag("favorites", "max");
+    revalidateTag("user-profile", "max");
 
     revalidatePath("/", "layout");
 
     redirect("/latest");
+}
+
+export async function searchUserFlashcardSets(query: string = "", limit: number = 50) {
+    const userId = await getUserId();
+    if (!userId) return [];
+
+    const sets = await db.query.flashcardSets.findMany({
+        where: and(
+            eq(flashcardSets.userId, userId),
+            ilike(flashcardSets.title, `%${query}%`)
+        ),
+        with: {
+            cards: true,
+            user: true,
+        },
+        orderBy: (sets, { desc }) => [desc(sets.createdAt)],
+        limit: limit,
+    });
+    return sets;
 }

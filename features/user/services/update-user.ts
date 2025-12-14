@@ -114,6 +114,7 @@ export async function updateUsername(username: string) {
 
         revalidateTag("user", "max");
         revalidateTag("current-user", "max");
+        revalidateTag("user-profile", "max");
 
         return { success: true };
     } catch (error) {

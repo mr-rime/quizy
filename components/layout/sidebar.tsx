@@ -5,6 +5,7 @@ import { JSX, use, useState } from "react";
 import { usePathname } from "next/navigation";
 import { FolderDialog } from "@/features/folders/components/create-folder-button";
 import { Folder as FolderType } from "@/types";
+import { Button } from "../ui/button";
 
 type LinkComponentProps = Parameters<typeof Link>[0];
 
@@ -15,7 +16,7 @@ type LinkType = {
 };
 
 const links: LinkType[] = [
-    { name: "Home", href: "/", icon: <House size={20} /> },
+    { name: "Home", href: "/latest", icon: <House size={20} /> },
     { name: "Discover", href: "/discover", icon: <Compass size={20} /> },
     { name: "Your Library", href: "/library", icon: <Library size={20} /> },
     { name: "Saved Sets", href: "/saved", icon: <Bookmark size={20} /> },
@@ -98,13 +99,14 @@ export function Sidebar({ foldersPromise, isMobileMenuOpen, onCloseMobileMenu }:
                             );
                         })}
                         <li>
-                            <button
+                            <Button
                                 onClick={() => setIsCreateFolderOpen(true)}
+                                variant={"ghost"}
                                 className="flex items-center gap-3 p-3 w-full rounded-lg text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all duration-200"
                             >
                                 <Plus size={20} />
                                 <span className="text-sm sm:text-base">Create folder</span>
-                            </button>
+                            </Button>
                         </li>
                     </ul>
                 </div>

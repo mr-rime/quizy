@@ -7,9 +7,7 @@ import { getUserId } from "@/features/user/services/user";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { unstable_cache } from "next/cache";
 
-/**
- * Toggle the public/private status of a flashcard set
- */
+
 export async function toggleSetPrivacy(setId: string, isPublic: boolean) {
     const userId = await getUserId();
 
@@ -31,6 +29,8 @@ export async function toggleSetPrivacy(setId: string, isPublic: boolean) {
     revalidateTag("flashcard-set", "max");
     revalidateTag("flashcard-sets", "max");
     revalidateTag("public-sets", "max");
+    revalidateTag("saved-sets", "max");
+    revalidateTag("user-profile", "max");
 
     return { success: true, set: result[0] };
 }
