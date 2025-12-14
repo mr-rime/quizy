@@ -16,6 +16,7 @@ import { ExamplesModal } from "../examples-modal";
 import { OptimizedImage } from "@/components/optimized-image";
 import { saveProgress, getProgressForSet, deleteProgressBySet } from "../../services/progress";
 import { useSpeech } from "../../hooks/use-speech";
+import { useSoundEffects } from "@/shared/hooks/use-sound-effects";
 
 interface Flashcard {
     id: string;
@@ -48,10 +49,9 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
     const [showExamples, setShowExamples] = useState(false);
     const [isLoadingProgress, setIsLoadingProgress] = useState(true);
     const [hasInitialized, setHasInitialized] = useState(false);
-    const { speak } = useSpeech();
 
-    const correctAudio = typeof window !== 'undefined' ? new Audio('/audio/correct-choice.mp3') : null;
-    const incorrectAudio = typeof window !== 'undefined' ? new Audio('/audio/incorrect-choice.mp3') : null;
+    const { speak } = useSpeech();
+    const { playCorrect, playIncorrect } = useSoundEffects();
 
     useEffect(() => {
         if (hasInitialized) return;
@@ -104,9 +104,9 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
         const newScore = correct ? score + 1 : score;
         if (correct) {
             setScore(newScore);
-            correctAudio?.play().catch(err => console.error('Error playing correct sound:', err));
+            playCorrect();
         } else {
-            incorrectAudio?.play().catch(err => console.error('Error playing incorrect sound:', err));
+            playIncorrect();
         }
 
         setTimeout(() => {

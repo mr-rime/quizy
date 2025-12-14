@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import { OptimizedImage } from "@/components/optimized-image";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
+import { useSoundEffects } from "@/shared/hooks/use-sound-effects";
 
 interface Flashcard {
     id: string;
@@ -38,6 +39,8 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
     const [showExamples, setShowExamples] = useState(false);
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
     const mobileInputRef = useRef<HTMLInputElement>(null);
+    const lastFocusedIndex = useRef<number>(0);
+    const { playCorrect, playIncorrect } = useSoundEffects();
 
     const currentCard = cards[currentIndex];
     const nextCard = cards[currentIndex + 1];
@@ -59,6 +62,7 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
                     const firstNonSpace = currentCard.term.split("").findIndex(c => c !== " ");
                     if (firstNonSpace !== -1) {
                         inputRefs.current[firstNonSpace]?.focus()
+                        lastFocusedIndex.current = firstNonSpace;
                     }
                 }
             }, 100);
@@ -72,6 +76,7 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
         }
         if (prevIndex >= 0) {
             inputRefs.current[prevIndex]?.focus();
+            lastFocusedIndex.current = prevIndex;
         }
     };
 
@@ -83,6 +88,7 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
 
         if (nextIndex < answer.length) {
             inputRefs.current[nextIndex]?.focus();
+            lastFocusedIndex.current = nextIndex;
         } else {
             checkAnswer(inputs);
         }
@@ -113,11 +119,41 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
         }
     };
 
-    // Improved Mobile Input Handler
     const handleMobileSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         checkAnswer(inputs);
     };
+
+    const handleBlur = (e: React.FocusEvent, index: number) => {
+        const relatedTarget = e.relatedTarget as HTMLElement;
+
+        if (inputRefs.current.some(ref => ref === relatedTarget)) return;
+
+        if (relatedTarget && (
+            relatedTarget.tagName === 'BUTTON' ||
+            relatedTarget.closest('button') ||
+            relatedTarget.closest('[role="dialog"]')
+        )) return;
+
+        setTimeout(() => {
+            inputRefs.current[index]?.focus();
+        }, 10);
+    };
+
+    const handleMobileBlur = (e: React.FocusEvent) => {
+        const relatedTarget = e.relatedTarget as HTMLElement;
+
+        if (relatedTarget && (
+            relatedTarget.tagName === 'BUTTON' ||
+            relatedTarget.closest('button') ||
+            relatedTarget.closest('[role="dialog"]')
+        )) return;
+
+        setTimeout(() => {
+            mobileInputRef.current?.focus();
+        }, 10);
+    };
+
 
 
     const checkAnswer = (currentInputs: string[]) => {
@@ -125,24 +161,17 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
         if (submission.toLowerCase().trim() === answer.toLowerCase().trim()) {
             handleCorrect();
         } else {
-            // Only show error if length matches or it's a manual submit (which we can't easily distinguish here without extra state, but length check covers auto-submit case)
             if (submission.length >= answer.length) {
                 setInputStatus("incorrect");
-                const audio = new Audio("/audio/incorrect-choice.mp3");
-                audio.play().catch(e => console.error("Audio play failed", e));
+                playIncorrect();
             }
         }
     };
 
     const handleCorrect = () => {
         setInputStatus("correct");
-        const audio = new Audio("/audio/correct-choice.mp3");
-        audio.play().catch(e => console.error("Audio play failed", e));
-        confetti({
-            particleCount: 100,
-            spread: 70,
-            origin: { y: 0.6 }
-        });
+        playCorrect();
+
 
         setTimeout(() => {
             if (currentIndex < cards.length - 1) {
@@ -164,6 +193,7 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
 
             if (!isMobile) {
                 inputRefs.current[firstMismatch + 1]?.focus();
+                lastFocusedIndex.current = firstMismatch + 1;
             } else {
                 mobileInputRef.current?.focus();
             }
@@ -235,6 +265,7 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
                                     autoCorrect="off"
                                     autoComplete="off"
                                     autoCapitalize="off"
+                                    onBlur={handleMobileBlur}
                                 />
                             </motion.div>
                         </form>
@@ -265,6 +296,8 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
                                         ref={el => { inputRefs.current[i] = el }}
                                         onChange={(e) => onInput(i, e)}
                                         onBack={() => handleBack(i)}
+                                        onBlur={(e) => handleBlur(e, i)}
+                                        onFocus={() => { lastFocusedIndex.current = i; }}
                                         disabled={inputStatus === "correct"}
                                     />
                                 </motion.div>
