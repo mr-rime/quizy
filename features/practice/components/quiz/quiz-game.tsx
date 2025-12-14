@@ -186,7 +186,7 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
                     </div>
                 </div>
 
-                <Card className="p-6 sm:p-8 lg:p-12 flex flex-col items-center justify-center text-center gap-3 sm:gap-4 lg:gap-6 relative">
+                <Card className="p-4 sm:p-8 lg:p-12 flex flex-col items-center justify-center text-center gap-3 sm:gap-4 lg:gap-6 relative">
                     <Button
                         variant="ghost"
                         size="icon"
@@ -234,7 +234,7 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
                                 key={option.id}
                                 variant="outline"
                                 className={cn(
-                                    "h-auto min-h-11 py-4 sm:py-5 lg:py-6 text-base sm:text-lg justify-start px-4 sm:px-6 relative overflow-hidden transition-all",
+                                    "h-auto min-h-11 py-3 sm:py-5 lg:py-6 text-sm sm:text-base sm:text-lg justify-start px-3 sm:px-6 relative overflow-hidden transition-all whitespace-normal text-left",
                                     selectedOptionId && isCorrectOption && "border-green-500 bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-950 hover:text-green-700 dark:hover:text-green-300",
                                     selectedOptionId && isSelected && !isCorrect && "border-red-500 bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-700 dark:hover:text-red-300",
                                     !selectedOptionId && "hover:border-primary/50"

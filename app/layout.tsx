@@ -77,9 +77,9 @@ export const metadata: Metadata = {
     },
 
     icons: {
-        icon: "/favicon.ico",
-        shortcut: "/favicon.ico",
-        apple: "/apple-touch-icon.png"
+        icon: "/logo.ico",
+        shortcut: "/logo.ico",
+        apple: "/logo.ico"
     },
 };
 
@@ -102,8 +102,6 @@ export default function RootLayout({
                     {children}
                     <Toaster position="top-right" richColors closeButton />
                 </ThemeProvider>
-
-
             </body>
         </html>
     );

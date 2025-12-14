@@ -64,28 +64,28 @@ export function FolderView({ folder, currentUserId }: FolderViewProps) {
     }
 
     return (
-        <div className="space-y-8">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <div className="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
+        <div className="space-y-6 sm:space-y-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4 w-full sm:w-auto">
+                    <div className="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-lg shrink-0">
                         <Folder className="h-8 w-8" />
                     </div>
-                    <div>
-                        <div className="flex items-center gap-2">
-                            <h1 className="text-2xl font-bold">{folder.title}</h1>
+                    <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <h1 className="text-xl sm:text-2xl font-bold truncate">{folder.title}</h1>
                             {folder.isPublished && (
-                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shrink-0">
                                     <Globe className="h-3 w-3" />
                                     Public
                                 </span>
                             )}
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
                             <span>{folder.folderSets?.length || 0} sets</span>
                             {folder.description && (
                                 <>
                                     <span>•</span>
-                                    <span>{folder.description}</span>
+                                    <span className="truncate max-w-[200px] sm:max-w-none">{folder.description}</span>
                                 </>
                             )}
                             {folder.user && (
@@ -97,7 +97,7 @@ export function FolderView({ folder, currentUserId }: FolderViewProps) {
                         </div>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end sm:justify-start">
                     {isOwner && (
                         <>
                             {folder.isPublished ? (

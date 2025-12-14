@@ -15,8 +15,9 @@ export function LandingHeader() {
                 </div>
                 <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
                     <Link href="#features" className="hover:text-white transition-colors">Features</Link>
-                    <Link href="#how-it-works" className="hover:text-white transition-colors">How it works</Link>
+                    <Link href="#testimonials" className="hover:text-white transition-colors">Testimonials</Link>
                     <Link href="#pricing" className="hover:text-white transition-colors">Pricing</Link>
+                    <Link href="#faq" className="hover:text-white transition-colors">FAQ</Link>
                 </nav>
                 <div className="flex items-center gap-4">
                     <Link href="/login" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors hidden sm:block">

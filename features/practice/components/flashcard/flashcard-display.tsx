@@ -41,7 +41,7 @@ export function FlashcardDisplay({
 
     return (
         <>
-            <div className="w-full max-w-3xl perspective-1000 h-[300px] sm:h-[350px] lg:h-[400px] cursor-pointer group" onClick={onFlip}>
+            <div className="w-full max-w-3xl perspective-1000 h-[280px] sm:h-[350px] lg:h-[400px] cursor-pointer group" onClick={onFlip}>
                 <div className={cn(
                     "relative w-full h-full transition-all duration-500 transform-style-3d shadow-xl rounded-xl",
                     isFlipped ? "rotate-y-180" : ""

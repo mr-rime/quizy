@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Flame, Trophy, Layers } from "lucide-react"
+import { JSX } from "react"
 
 interface QuickStatsProps {
     streak: number
@@ -29,7 +30,7 @@ export function QuickStats({ streak, totalXp, setsCreated }: QuickStatsProps) {
             <StatCard
                 icon={<Layers className="size-5 text-indigo-500" />}
                 label="Sets Created"
-                value={setsCreated}
+                value={setsCreated.toString()}
                 color="bg-indigo-500/10 border-indigo-500/20"
                 delay={0.3}
             />
@@ -37,7 +38,7 @@ export function QuickStats({ streak, totalXp, setsCreated }: QuickStatsProps) {
     )
 }
 
-function StatCard({ icon, label, value, color, delay }: any) {
+function StatCard({ icon, label, value, color, delay }: { icon: JSX.Element, label: string, value: string, color: string, delay: number }) {
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.95 }}

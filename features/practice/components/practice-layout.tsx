@@ -122,15 +122,15 @@ export function PracticeLayout<T>({
                         <ArrowLeft className="h-5 w-5 sm:h-6 sm:w-6" />
                     </Button>
                     <div className="min-w-0">
-                        <h1 className="text-2xl sm:text-3xl font-bold truncate">{title}</h1>
+                        <h1 className="text-2xl sm:text-3xl font-bold break-words">{title}</h1>
                         <p className="text-sm sm:text-base text-muted-foreground">{cardCount} terms</p>
                     </div>
                 </div>
                 {set.userId === currentUserId ? (
                     <div className="flex items-center gap-2 w-full sm:w-auto">
-                        <Button variant="outline" className="gap-2 flex-1 sm:flex-initial" onClick={() => setShareModalOpen(true)}>
+                        <Button variant="outline" className="gap-2 sm:flex-initial" onClick={() => setShareModalOpen(true)}>
                             <Share className="h-4 w-4" />
-                            <span className="sm:inline">Share</span>
+                            <span className="hidden sm:inline">Share</span>
                         </Button>
 
                         {isPublished ? (
@@ -138,6 +138,7 @@ export function PracticeLayout<T>({
                                 variant="secondary"
                                 onClick={handlePublish}
                                 disabled={isPublishing}
+                                className="flex-1"
                             >
                                 {isPublishing ? "Updating..." : "Unpublish"}
                             </Button>
@@ -147,6 +148,7 @@ export function PracticeLayout<T>({
                                     <Button
                                         variant="default"
                                         disabled={isPublishing}
+                                        className="flex-1"
                                     >
                                         {isPublishing ? "Updating..." : "Publish"}
                                     </Button>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useEffectEvent } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { CharacterInput } from "./character-input";
 import { ArrowLeft, Lightbulb, CheckCircle2, XCircle, BookOpen } from "lucide-react";
 import { ExamplesModal } from "./examples-modal";
@@ -10,7 +11,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import { OptimizedImage } from "@/components/optimized-image";
-
+import { useIsMobile } from "@/shared/hooks/use-mobile";
 
 interface Flashcard {
     id: string;
@@ -28,13 +29,16 @@ interface WritingGameProps {
 
 export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
     const router = useRouter();
+    const isMobile = useIsMobile();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [inputs, setInputs] = useState<string[]>([]);
     const [inputStatus, setInputStatus] = useState<"idle" | "correct" | "incorrect">("idle");
     const [showExamples, setShowExamples] = useState(false);
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+    const mobileInputRef = useRef<HTMLInputElement>(null);
 
     const currentCard = cards[currentIndex];
+    const nextCard = cards[currentIndex + 1];
     const answer = currentCard?.term || "";
 
     const setInputsEvent = useEffectEvent(setInputs);
@@ -45,25 +49,38 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
             const initialInputs = currentCard.term.split("").map(char => char === " " ? " " : "");
             setInputsEvent(initialInputs);
             setInputStatusEvent("idle");
+
             setTimeout(() => {
-                const firstNonSpace = currentCard.term.split("").findIndex(c => c !== " ");
-                if (firstNonSpace !== -1) {
-                    inputRefs.current[firstNonSpace]?.focus()
+                if (isMobile) {
+                    mobileInputRef.current?.focus();
+                } else {
+                    const firstNonSpace = currentCard.term.split("").findIndex(c => c !== " ");
+                    if (firstNonSpace !== -1) {
+                        inputRefs.current[firstNonSpace]?.focus()
+                    }
                 }
             }, 100);
         }
-    }, [currentIndex, currentCard]);
-
+    }, [currentIndex, currentCard, isMobile]);
 
     const handleBack = (index: number) => {
-        if (index > 0) {
-            inputRefs.current[index - 1]?.focus();
+        let prevIndex = index - 1;
+        while (prevIndex >= 0 && answer[prevIndex] === " ") {
+            prevIndex--;
+        }
+        if (prevIndex >= 0) {
+            inputRefs.current[prevIndex]?.focus();
         }
     };
 
     const handleForward = (index: number) => {
-        if (index < answer.length - 1) {
-            inputRefs.current[index + 1]?.focus();
+        let nextIndex = index + 1;
+        while (nextIndex < answer.length && answer[nextIndex] === " ") {
+            nextIndex++;
+        }
+
+        if (nextIndex < answer.length) {
+            inputRefs.current[nextIndex]?.focus();
         } else {
             checkAnswer(inputs);
         }
@@ -84,12 +101,30 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
         }
     };
 
+    const onMobileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        const newInputs = val.split("");
+        setInputs(newInputs);
+
+        if (val.length >= answer.length) {
+            checkAnswer(newInputs);
+        }
+    };
+
+    // Improved Mobile Input Handler
+    const handleMobileSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        checkAnswer(inputs);
+    };
+
+
     const checkAnswer = (currentInputs: string[]) => {
         const submission = currentInputs.join("");
-        if (submission.toLowerCase() === answer.toLowerCase()) {
+        if (submission.toLowerCase().trim() === answer.toLowerCase().trim()) {
             handleCorrect();
         } else {
-            if (submission.length === answer.length) {
+            // Only show error if length matches or it's a manual submit (which we can't easily distinguish here without extra state, but length check covers auto-submit case)
+            if (submission.length >= answer.length) {
                 setInputStatus("incorrect");
                 const audio = new Audio("/audio/incorrect-choice.mp3");
                 audio.play().catch(e => console.error("Audio play failed", e));
@@ -118,13 +153,19 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
     };
 
     const giveHint = () => {
-        const firstMismatch = inputs.findIndex((char, i) => char.toLowerCase() !== answer[i].toLowerCase());
+        const firstMismatch = inputs.findIndex((char, i) => char?.toLowerCase() !== answer[i]?.toLowerCase());
 
         if (firstMismatch !== -1) {
             const newInputs = [...inputs];
             newInputs[firstMismatch] = answer[firstMismatch];
             setInputs(newInputs);
-            inputRefs.current[firstMismatch + 1]?.focus();
+
+            if (!isMobile) {
+                inputRefs.current[firstMismatch + 1]?.focus();
+            } else {
+                mobileInputRef.current?.focus();
+            }
+
             if (firstMismatch === answer.length - 1) {
                 checkAnswer(newInputs);
             }
@@ -133,8 +174,14 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
 
     if (!currentCard) return null;
 
+    const mobileInputValue = inputs.join("");
+
     return (
         <div className="flex flex-col items-center justify-center min-h-[80vh] gap-8 p-4 max-w-4xl mx-auto w-full">
+            {nextCard?.imageUrl && (
+                <link rel="preload" as="image" href={nextCard.imageUrl} />
+            )}
+
             <div className="flex items-center gap-4 w-full justify-start">
                 <Button variant="ghost" size="icon" onClick={() => router.back()}>
                     <ArrowLeft className="h-6 w-6" />
@@ -159,33 +206,55 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
                                 className="object-cover "
                                 width={200}
                                 height={200}
+                                preload
                             />
                         </div>
                     ) : null}
                 </div>
 
                 <div className="flex flex-wrap justify-center gap-2 sm:gap-4 my-8">
-                    {answer.split("").map((char, i) => {
-                        if (char === " ") {
-                            return <div key={`${currentIndex}-${i}`} className="w-4 sm:w-8 flex items-center justify-center pointer-events-none"></div>;
-                        }
-                        return (
-                            <div key={`${currentIndex}-${i}`} className={cn(
-                                "transition-transform",
-                                inputStatus === "incorrect" && "animate-shake"
-                            )}>
-                                <CharacterInput
-                                    index={i}
-                                    value={inputs[i]}
-                                    status={inputStatus}
-                                    ref={el => { inputRefs.current[i] = el }}
-                                    onChange={(e) => onInput(i, e)}
-                                    onBack={() => handleBack(i)}
-                                    disabled={inputStatus === "correct"}
-                                />
-                            </div>
-                        );
-                    })}
+                    {isMobile ? (
+                        <form onSubmit={handleMobileSubmit} className="w-full max-w-md px-4">
+                            <Input
+                                ref={mobileInputRef}
+                                value={mobileInputValue}
+                                onChange={onMobileInputChange}
+                                placeholder="Type the answer..."
+                                className={cn(
+                                    "text-center text-lg h-12 transition-all",
+                                    inputStatus === "correct" && "border-green-500 bg-green-50 text-green-700 ring-2 ring-green-500/20",
+                                    inputStatus === "incorrect" && "border-red-500 bg-red-50 text-red-700 ring-2 ring-red-500/20 animate-shake"
+                                )}
+                                disabled={inputStatus === "correct"}
+                                autoCorrect="off"
+                                autoComplete="off"
+                                autoCapitalize="off"
+                            />
+                            
+                        </form>
+                    ) : (
+                        answer.split("").map((char, i) => {
+                            if (char === " ") {
+                                return <div key={`${currentIndex}-${i}`} className="w-4 sm:w-8 flex items-center justify-center pointer-events-none"></div>;
+                            }
+                            return (
+                                <div key={`${currentIndex}-${i}`} className={cn(
+                                    "transition-transform",
+                                    inputStatus === "incorrect" && "animate-shake"
+                                )}>
+                                    <CharacterInput
+                                        index={i}
+                                        value={inputs[i] || ""}
+                                        status={inputStatus}
+                                        ref={el => { inputRefs.current[i] = el }}
+                                        onChange={(e) => onInput(i, e)}
+                                        onBack={() => handleBack(i)}
+                                        disabled={inputStatus === "correct"}
+                                    />
+                                </div>
+                            );
+                        })
+                    )}
                 </div>
 
                 <div className="flex justify-center gap-4">
@@ -219,7 +288,7 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
             </div>
 
             <div className="h-8 flex items-center justify-center">
-                {inputStatus === "incorrect" && (
+                {inputStatus === "incorrect" && !isMobile && (
                     <div className="flex items-center gap-2 text-destructive font-medium animate-in fade-in slide-in-from-bottom-2">
                         <XCircle className="h-5 w-5" />
                         Try again
