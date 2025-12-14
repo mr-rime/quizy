@@ -1,5 +1,7 @@
 "use client"
 
+import { motion, AnimatePresence } from "framer-motion";
+
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -174,8 +176,15 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
     const progress = ((currentIndex) / questions.length) * 100;
 
     return (
-        <>
-            <div className="flex flex-col gap-6 sm:gap-8 max-w-3xl mx-auto">
+        <AnimatePresence mode="wait">
+            <motion.div
+                key={currentIndex}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                className="flex flex-col gap-6 sm:gap-8 max-w-3xl mx-auto"
+            >
                 <div className="flex items-center gap-3 sm:gap-4">
                     <div className="bg-green-600 text-white rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center font-bold text-xs sm:text-sm">
                         {score}
@@ -230,32 +239,53 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
                         const isSelected = selectedOptionId === option.id;
                         const isCorrectOption = option.id === currentQuestion.correctOptionId;
                         return (
-                            <Button
+                            <motion.div
                                 key={option.id}
-                                variant="outline"
-                                className={cn(
-                                    "h-auto min-h-11 py-3 sm:py-5 lg:py-6 text-sm sm:text-base sm:text-lg justify-start px-3 sm:px-6 relative overflow-hidden transition-all whitespace-normal text-left",
-                                    selectedOptionId && isCorrectOption && "border-green-500 bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-950 hover:text-green-700 dark:hover:text-green-300",
-                                    selectedOptionId && isSelected && !isCorrect && "border-red-500 bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-700 dark:hover:text-red-300",
-                                    !selectedOptionId && "hover:border-primary/50"
-                                )}
-                                onClick={() => handleAnswer(option.id)}
-                                disabled={!!selectedOptionId}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                animate={
+                                    isSelected && !isCorrect
+                                        ? { x: [0, -10, 10, -10, 10, 0] }
+                                        : {}
+                                }
+                                transition={{ duration: 0.4 }}
                             >
-                                <span className="mr-3 sm:mr-4 opacity-50 font-mono text-sm sm:text-base">{index + 1}</span>
-                                <span className="flex-1 text-left wrap-break-word">{option.definition || "No definition"}</span>
+                                <Button
+                                    variant="outline"
+                                    className={cn(
+                                        "w-full h-auto min-h-11 py-3 sm:py-5 lg:py-6 text-sm sm:text-base sm:text-lg justify-start px-3 sm:px-6 relative overflow-hidden transition-all whitespace-normal text-left",
+                                        selectedOptionId && isCorrectOption && "border-green-500 bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-950 hover:text-green-700 dark:hover:text-green-300",
+                                        selectedOptionId && isSelected && !isCorrect && "border-red-500 bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-700 dark:hover:text-red-300",
+                                        !selectedOptionId && "hover:border-primary/50"
+                                    )}
+                                    onClick={() => handleAnswer(option.id)}
+                                    disabled={!!selectedOptionId}
+                                >
+                                    <span className="mr-3 sm:mr-4 opacity-50 font-mono text-sm sm:text-base">{index + 1}</span>
+                                    <span className="flex-1 text-left wrap-break-word">{option.definition || "No definition"}</span>
 
-                                {selectedOptionId && isCorrectOption && (
-                                    <CheckCircle className="shrink-0 ml-2 h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
-                                )}
-                                {selectedOptionId && isSelected && !isCorrect && (
-                                    <XCircle className="shrink-0 ml-2 h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
-                                )}
-                            </Button>
+                                    {selectedOptionId && isCorrectOption && (
+                                        <motion.div
+                                            initial={{ scale: 0 }}
+                                            animate={{ scale: 1 }}
+                                        >
+                                            <CheckCircle className="shrink-0 ml-2 h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
+                                        </motion.div>
+                                    )}
+                                    {selectedOptionId && isSelected && !isCorrect && (
+                                        <motion.div
+                                            initial={{ scale: 0 }}
+                                            animate={{ scale: 1 }}
+                                        >
+                                            <XCircle className="shrink-0 ml-2 h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
+                                        </motion.div>
+                                    )}
+                                </Button>
+                            </motion.div>
                         );
                     })}
                 </div>
-            </div>
+            </motion.div>
 
             <ImageZoomModal
                 imageUrl={currentQuestion.card.imageUrl}
@@ -268,6 +298,6 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
                 onOpenChange={setShowExamples}
                 examples={currentQuestion.card.examples || []}
             />
-        </>
+        </AnimatePresence>
     );
 }

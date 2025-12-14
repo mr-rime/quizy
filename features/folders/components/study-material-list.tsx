@@ -1,4 +1,5 @@
 import { FlashcardSet } from "@/types";
+import { motion } from "framer-motion";
 import { StudyMaterialItem } from "./study-material-item";
 import { Skeleton } from "@/components/skeleton";
 
@@ -28,15 +29,35 @@ export function StudyMaterialList({ sets, loading, selectedSets, onToggle }: Stu
     }
 
     return (
-        <div className="space-y-2">
+        <motion.div
+            className="space-y-2"
+            initial="hidden"
+            animate="show"
+            variants={{
+                hidden: { opacity: 0 },
+                show: {
+                    opacity: 1,
+                    transition: {
+                        staggerChildren: 0.05
+                    }
+                }
+            }}
+        >
             {sets.map((set) => (
-                <StudyMaterialItem
+                <motion.div
                     key={set.id}
-                    set={set}
-                    isSelected={selectedSets.has(set.id)}
-                    onToggle={onToggle}
-                />
+                    variants={{
+                        hidden: { opacity: 0, x: -10 },
+                        show: { opacity: 1, x: 0 }
+                    }}
+                >
+                    <StudyMaterialItem
+                        set={set}
+                        isSelected={selectedSets.has(set.id)}
+                        onToggle={onToggle}
+                    />
+                </motion.div>
             ))}
-        </div>
+        </motion.div>
     );
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
+
 import { useState, useEffect, useRef, useEffectEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -215,22 +217,26 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
                 <div className="flex flex-wrap justify-center gap-2 sm:gap-4 my-8">
                     {isMobile ? (
                         <form onSubmit={handleMobileSubmit} className="w-full max-w-md px-4">
-                            <Input
-                                ref={mobileInputRef}
-                                value={mobileInputValue}
-                                onChange={onMobileInputChange}
-                                placeholder="Type the answer..."
-                                className={cn(
-                                    "text-center text-lg h-12 transition-all",
-                                    inputStatus === "correct" && "border-green-500 bg-green-50 text-green-700 ring-2 ring-green-500/20",
-                                    inputStatus === "incorrect" && "border-red-500 bg-red-50 text-red-700 ring-2 ring-red-500/20 animate-shake"
-                                )}
-                                disabled={inputStatus === "correct"}
-                                autoCorrect="off"
-                                autoComplete="off"
-                                autoCapitalize="off"
-                            />
-                            
+                            <motion.div
+                                animate={inputStatus === "incorrect" ? { x: [0, -10, 10, -10, 10, 0] } : {}}
+                                transition={{ duration: 0.4 }}
+                            >
+                                <Input
+                                    ref={mobileInputRef}
+                                    value={mobileInputValue}
+                                    onChange={onMobileInputChange}
+                                    placeholder="Type the answer..."
+                                    className={cn(
+                                        "text-center text-lg h-12 transition-all",
+                                        inputStatus === "correct" && "border-green-500 bg-green-50 text-green-700 ring-2 ring-green-500/20",
+                                        inputStatus === "incorrect" && "border-red-500 bg-red-50 text-red-700 ring-2 ring-red-500/20"
+                                    )}
+                                    disabled={inputStatus === "correct"}
+                                    autoCorrect="off"
+                                    autoComplete="off"
+                                    autoCapitalize="off"
+                                />
+                            </motion.div>
                         </form>
                     ) : (
                         answer.split("").map((char, i) => {
@@ -238,10 +244,20 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
                                 return <div key={`${currentIndex}-${i}`} className="w-4 sm:w-8 flex items-center justify-center pointer-events-none"></div>;
                             }
                             return (
-                                <div key={`${currentIndex}-${i}`} className={cn(
-                                    "transition-transform",
-                                    inputStatus === "incorrect" && "animate-shake"
-                                )}>
+                                <motion.div
+                                    key={`${currentIndex}-${i}`}
+                                    initial={{ scale: 0, opacity: 0 }}
+                                    animate={{
+                                        scale: 1,
+                                        opacity: 1,
+                                        x: inputStatus === "incorrect" ? [0, -5, 5, -5, 5, 0] : 0
+                                    }}
+                                    transition={{
+                                        duration: 0.3,
+                                        delay: i * 0.05,
+                                        x: { duration: 0.4, delay: 0 }
+                                    }}
+                                >
                                     <CharacterInput
                                         index={i}
                                         value={inputs[i] || ""}
@@ -251,7 +267,7 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
                                         onBack={() => handleBack(i)}
                                         disabled={inputStatus === "correct"}
                                     />
-                                </div>
+                                </motion.div>
                             );
                         })
                     )}

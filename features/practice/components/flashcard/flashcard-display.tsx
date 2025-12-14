@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Edit2, Volume2, Star, Lightbulb } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -42,11 +43,17 @@ export function FlashcardDisplay({
     return (
         <>
             <div className="w-full max-w-3xl perspective-1000 h-[280px] sm:h-[350px] lg:h-[400px] cursor-pointer group" onClick={onFlip}>
-                <div className={cn(
-                    "relative w-full h-full transition-all duration-500 transform-style-3d shadow-xl rounded-xl",
-                    isFlipped ? "rotate-y-180" : ""
-                )}>
-                    <Card className="absolute w-full h-full backface-hidden flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 bg-card border-2 hover:border-primary/50 transition-colors">
+                <motion.div
+                    initial={false}
+                    animate={{ rotateY: isFlipped ? 180 : 0 }}
+                    transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
+                    style={{ transformStyle: "preserve-3d" }}
+                    className="relative w-full h-full shadow-xl rounded-xl"
+                >
+                    <Card
+                        className="absolute w-full h-full flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 bg-card border-2 hover:border-primary/50 transition-colors"
+                        style={{ backfaceVisibility: "hidden" }}
+                    >
                         <div className="absolute top-2 sm:top-4 right-2 sm:right-4 flex gap-1 sm:gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
                             {isOwner && (
                                 <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => onEdit()}>
@@ -71,7 +78,10 @@ export function FlashcardDisplay({
                         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center px-2">{card.term}</h2>
                     </Card>
 
-                    <Card className="absolute w-full h-full backface-hidden rotate-y-180 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 bg-card border-2 hover:border-primary/50 transition-colors overflow-y-auto">
+                    <Card
+                        className="absolute w-full h-full flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 bg-card border-2 hover:border-primary/50 transition-colors overflow-y-auto"
+                        style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+                    >
                         <div className="absolute top-2 sm:top-4 right-2 sm:right-4 flex gap-1 sm:gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
                             {isOwner && (
                                 <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => onEdit()}>
@@ -110,20 +120,11 @@ export function FlashcardDisplay({
                             <p className="text-lg sm:text-xl lg:text-2xl text-center text-muted-foreground px-2">{card.definition}</p>
                         </div>
                     </Card>
-                </div>
+                </motion.div>
 
                 <style jsx global>{`
                     .perspective-1000 {
                         perspective: 1000px;
-                    }
-                    .transform-style-3d {
-                        transform-style: preserve-3d;
-                    }
-                    .backface-hidden {
-                        backface-visibility: hidden;
-                    }
-                    .rotate-y-180 {
-                        transform: rotateY(180deg);
                     }
                 `}</style>
             </div>
