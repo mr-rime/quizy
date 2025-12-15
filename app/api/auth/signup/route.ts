@@ -5,6 +5,8 @@ import { getUserByEmail } from "@/features/user/services/user";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { NextRequest, NextResponse } from "next/server";
 import { isRateLimitError, isDatabaseError } from "@/types";
+import { signupSchema } from "@/features/auth/utils/validations";
+import { z } from "zod";
 
 const limiter = createRateLimiter({
     points: 10,
@@ -18,7 +20,9 @@ export async function POST(req: NextRequest) {
     try {
         await limiter.consume(ipAddress);
 
-        const { email, password, username, confirmPassword } = await req.json();
+        const body = await req.json();
+
+        const { email, password, username, confirmPassword } = signupSchema.parse(body);
 
         const userAgent = req.headers.get("user-agent") || undefined;
 
@@ -51,6 +55,13 @@ export async function POST(req: NextRequest) {
 
         return response;
     } catch (err: unknown) {
+        if (err instanceof z.ZodError) {
+            return NextResponse.json(
+                { success: false, error: "Validation failed" },
+                { status: 400 }
+            );
+        }
+
         if (isRateLimitError(err)) {
             const retryAfterSec = Math.ceil(err.msBeforeNext / 1000);
             return NextResponse.json(
