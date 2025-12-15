@@ -37,7 +37,7 @@ export function SingupForm() {
             }
 
             if (result.success) {
-                router.push("/")
+                router.push("/latest")
             }
         })
     };

@@ -29,7 +29,7 @@ export function LoginForm() {
             const res = await fetch("/api/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
+                body: JSON.stringify({ ...data, password: data.password.trim() }),
                 credentials: "include"
             });
 

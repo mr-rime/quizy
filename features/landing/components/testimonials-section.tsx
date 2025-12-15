@@ -22,13 +22,13 @@ export function TestimonialsSection() {
     return (
         <section className="container mx-auto px-4 py-24 md:py-32 relative overflow-hidden">
 
-            <div className="absolute top-1/2 left-0 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[120px] -z-10" />
+            <div className="absolute top-1/2 left-0 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[120px] -z-10 transform-gpu will-change-transform" />
 
-            <motion.div 
+            <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-center max-w-3xl mx-auto mb-20"
+                className="text-center max-w-3xl mx-auto mb-20 will-change-transform"
             >
                 <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-6">
                     Loved by students worldwide.
@@ -38,7 +38,7 @@ export function TestimonialsSection() {
                 </p>
             </motion.div>
 
-            <motion.div 
+            <motion.div
                 variants={container}
                 initial="hidden"
                 whileInView="show"
@@ -90,8 +90,8 @@ function TestimonialCard({ quote, author, role, rating }: { quote: string, autho
     return (
         <motion.div
             variants={item as never}
-            whileHover={{ y: -5, borderColor: "rgba(255,255,255,0.2)" }}
-            className="p-8 rounded-2xl bg-zinc-900/30 border border-white/5 hover:bg-zinc-900 transition-colors"
+            whileHover={{ y: -5 }}
+            className="p-8 rounded-2xl bg-zinc-900/30 border border-white/5 hover:bg-zinc-900 hover:border-white/20 transition-colors duration-300 will-change-transform"
         >
             <div className="flex gap-1 text-yellow-500 mb-4">
                 {[...Array(rating)].map((_, i) => (

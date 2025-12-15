@@ -16,7 +16,8 @@ export async function POST(req: NextRequest) {
     try {
         await limiter.consume(ipAddress);
 
-        const { email, password } = await req.json();
+        let { email, password } = await req.json();
+        password = typeof password === 'string' ? password.trim() : password;
         const userAgent = req.headers.get("user-agent") || undefined;
 
         const { user, session } = await login(email, password, ipAddress, userAgent);

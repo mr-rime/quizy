@@ -26,7 +26,7 @@ export function FeaturesSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.5 }}
-                className="text-center max-w-3xl mx-auto mb-20"
+                className="text-center max-w-3xl mx-auto mb-20 will-change-transform"
             >
                 <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">Everything you need to excel.</h2>
                 <p className="text-lg text-zinc-400">
@@ -80,9 +80,9 @@ function FeatureCard({ icon, title, description }: { icon: React.ReactNode, titl
     return (
         <motion.div
             variants={item as never}
-            className="group p-8 rounded-2xl bg-zinc-900/50 border border-white/5 hover:border-indigo-500/30 hover:bg-zinc-900 transition-colors"
+            className="group p-8 rounded-2xl bg-zinc-900/50 border border-white/5 hover:border-indigo-500/30 hover:bg-zinc-900 transition-colors duration-300 will-change-transform"
         >
-            <div className="size-12 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 mb-6 group-hover:scale-110 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-300">
+            <div className="size-12 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 mb-6 group-hover:scale-110 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-300 ease-out transform-gpu">
                 {icon}
             </div>
             <h3 className="text-xl font-bold mb-3">{title}</h3>

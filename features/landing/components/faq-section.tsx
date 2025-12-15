@@ -12,7 +12,7 @@ export function FAQSection() {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-center mb-16"
+                    className="text-center mb-16 will-change-transform"
                 >
                     <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-6">
                         Frequently Asked Questions
@@ -54,7 +54,7 @@ function FAQItem({ question, answer }: { question: string, answer: string }) {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="border border-white/5 rounded-2xl bg-zinc-900/30 overflow-hidden"
+            className="border border-white/5 rounded-2xl bg-zinc-900/30 overflow-hidden will-change-transform"
         >
             <button
                 onClick={() => setIsOpen(!isOpen)}
@@ -64,6 +64,7 @@ function FAQItem({ question, answer }: { question: string, answer: string }) {
                 <motion.div
                     animate={{ rotate: isOpen ? 180 : 0 }}
                     transition={{ duration: 0.3 }}
+                    className="will-change-transform"
                 >
                     <ChevronDown className="size-5 text-zinc-500" />
                 </motion.div>
@@ -75,6 +76,7 @@ function FAQItem({ question, answer }: { question: string, answer: string }) {
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        className="overflow-hidden"
                     >
                         <div className="px-6 pb-6 text-zinc-400 leading-relaxed border-t border-white/5 pt-4">
                             {answer}

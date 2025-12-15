@@ -25,14 +25,14 @@ export function PricingSection() {
     return (
         <section id="pricing" className="container mx-auto px-4 py-24 md:py-32 relative">
 
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] -z-10" />
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] -z-10 transform-gpu will-change-transform" />
 
             <div className="text-center max-w-3xl mx-auto mb-16">
                 <motion.h2
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-3xl md:text-5xl font-black tracking-tight mb-6 bg-gradient-to-br from-white to-zinc-500 bg-clip-text text-transparent"
+                    className="text-3xl md:text-5xl font-black tracking-tight mb-6 bg-gradient-to-br from-white to-zinc-500 bg-clip-text text-transparent will-change-transform"
                 >
                     Simple, transparent pricing.
                 </motion.h2>
@@ -41,7 +41,7 @@ export function PricingSection() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.1 }}
-                    className="text-lg text-zinc-400 mb-8"
+                    className="text-lg text-zinc-400 mb-8 will-change-transform"
                 >
                     Choose the plan that fits your learning needs.
                 </motion.p>
@@ -50,7 +50,7 @@ export function PricingSection() {
                     initial={{ opacity: 0, scale: 0.9 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
-                    className="inline-flex items-center p-1 rounded-full bg-zinc-900 border border-white/10 mb-8 relative"
+                    className="inline-flex items-center p-1 rounded-full bg-zinc-900 border border-white/10 mb-8 relative will-change-transform"
                 >
                     <button
                         onClick={() => setIsYearly(false)}
@@ -69,7 +69,7 @@ export function PricingSection() {
                     <motion.div
                         animate={{ x: isYearly ? "100%" : "0%" }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        className="absolute left-1 top-1 w-[calc(50%-4px)] h-[calc(100%-8px)] bg-zinc-800 rounded-full shadow-md"
+                        className="absolute left-1 top-1 w-[calc(50%-4px)] h-[calc(100%-8px)] bg-zinc-800 rounded-full shadow-md will-change-transform"
                     />
                 </motion.div>
             </div>
@@ -135,7 +135,7 @@ function PricingCard({ tier, price, period, description, features, notFeatures =
         <motion.div
             variants={item as never}
             whileHover={{ y: -10 }}
-            className={`relative p-8 rounded-3xl border flex flex-col transition-shadow duration-300 ${popular
+            className={`relative p-8 rounded-3xl border flex flex-col transition-shadow duration-300 will-change-transform ${popular
                 ? "bg-zinc-900/80 border-indigo-500/50 shadow-2xl shadow-indigo-500/10 z-10"
                 : "bg-zinc-900/40 border-white/5 hover:border-white/10 hover:shadow-xl"
                 }`}
