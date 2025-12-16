@@ -3,7 +3,7 @@
 import { useEffect, useCallback } from "react";
 import { useFormContext } from "react-hook-form";
 import { FlashcardFormData } from "../components/flashcard-form";
-import { Flashcard } from "@/features/practice/types";
+
 
 export function useSetDraft(setId?: string) {
     const { reset } = useFormContext<FlashcardFormData>();
@@ -17,7 +17,7 @@ export function useSetDraft(setId?: string) {
             try {
                 const parsedDraft = JSON.parse(savedDraft);
                 if (parsedDraft.flashcards) {
-                    parsedDraft.flashcards = parsedDraft.flashcards.map((flashcard: Flashcard) => ({
+                    parsedDraft.flashcards = parsedDraft.flashcards.map((flashcard: FlashcardFormData['flashcards'][number]) => ({
                         ...flashcard,
                         examples: flashcard.examples || []
                     }));
