@@ -12,6 +12,10 @@ const updateCardSchema = z.object({
     id: z.string(),
     term: z.string().min(1),
     definition: z.string().optional(),
+    examples: z.array(z.object({
+        english: z.string(),
+        arabic: z.string()
+    })).optional(),
 });
 
 export async function updateFlashcard(data: z.infer<typeof updateCardSchema>) {
@@ -39,6 +43,7 @@ export async function updateFlashcard(data: z.infer<typeof updateCardSchema>) {
         .set({
             term: validatedData.term,
             definition: validatedData.definition,
+            examples: validatedData.examples,
         })
         .where(eq(cards.id, validatedData.id));
 

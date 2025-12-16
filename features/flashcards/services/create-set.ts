@@ -37,6 +37,7 @@ export async function createFlashcardSet(data: CreateFlashcardSetInput) {
                         term: card.term,
                         definition: card.definition,
                         imageUrl: card.image,
+                        examples: card.examples,
                     }))
                 );
             }

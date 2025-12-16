@@ -13,6 +13,7 @@ import { FlashcardFinish } from "./flashcard-finish";
 import { Skeleton } from "@/components/skeleton";
 import { useSpeech } from "../hooks/use-speech";
 
+import { useRouter } from "next/navigation";
 import { Flashcard } from "../types";
 
 interface FlashcardViewerProps {
@@ -24,6 +25,7 @@ interface FlashcardViewerProps {
 }
 
 export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [], setOwnerId }: FlashcardViewerProps) {
+    const router = useRouter();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
@@ -140,8 +142,10 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [],
             await updateFlashcard({
                 id: currentCard.id,
                 term: data.term,
-                definition: data.definition || undefined
+                definition: data.definition || undefined,
+                examples: data.examples
             });
+            router.refresh();
             setIsEditOpen(false);
             toast.success("Card updated");
         } catch (error) {
@@ -272,6 +276,7 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [],
                 onOpenChange={setIsEditOpen}
                 initialTerm={currentCard.term}
                 initialDefinition={currentCard.definition}
+                initialExamples={(currentCard.examples as { english: string; arabic: string }[]) || []}
                 onSubmit={onSubmit}
             />
         </div>
