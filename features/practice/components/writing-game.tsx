@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { useState, useEffect, useRef, useEffectEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CharacterInput } from "./character-input";
 import { ArrowLeft, Lightbulb, CheckCircle2, XCircle, BookOpen } from "lucide-react";
 import { ExamplesModal } from "./examples-modal";
 import { useRouter } from "next/navigation";
@@ -13,7 +12,6 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import { OptimizedImage } from "@/components/optimized-image";
-import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { useSoundEffects } from "@/shared/hooks/use-sound-effects";
 
 interface Flashcard {
@@ -32,115 +30,46 @@ interface WritingGameProps {
 
 export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
     const router = useRouter();
-    const isMobile = useIsMobile();
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [inputs, setInputs] = useState<string[]>([]);
+    const [inputValue, setInputValue] = useState("");
     const [inputStatus, setInputStatus] = useState<"idle" | "correct" | "incorrect">("idle");
     const [showExamples, setShowExamples] = useState(false);
-    const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-    const mobileInputRef = useRef<HTMLInputElement>(null);
-    const lastFocusedIndex = useRef<number>(0);
+    const inputRef = useRef<HTMLInputElement>(null);
     const { playCorrect, playIncorrect } = useSoundEffects();
 
     const currentCard = cards[currentIndex];
     const nextCard = cards[currentIndex + 1];
     const answer = currentCard?.term || "";
 
-    const setInputsEvent = useEffectEvent(setInputs);
+    const setInputValueEvent = useEffectEvent(setInputValue);
     const setInputStatusEvent = useEffectEvent(setInputStatus);
 
     useEffect(() => {
         if (currentCard) {
-            const initialInputs = currentCard.term.split("").map(char => char === " " ? " " : "");
-            setInputsEvent(initialInputs);
+            setInputValueEvent("");
             setInputStatusEvent("idle");
 
             setTimeout(() => {
-                if (isMobile) {
-                    mobileInputRef.current?.focus();
-                } else {
-                    const firstNonSpace = currentCard.term.split("").findIndex(c => c !== " ");
-                    if (firstNonSpace !== -1) {
-                        inputRefs.current[firstNonSpace]?.focus()
-                        lastFocusedIndex.current = firstNonSpace;
-                    }
-                }
+                inputRef.current?.focus();
             }, 100);
         }
-    }, [currentIndex, currentCard, isMobile]);
+    }, [currentIndex, currentCard]);
 
-    const handleBack = (index: number) => {
-        let prevIndex = index - 1;
-        while (prevIndex >= 0 && answer[prevIndex] === " ") {
-            prevIndex--;
-        }
-        if (prevIndex >= 0) {
-            inputRefs.current[prevIndex]?.focus();
-            lastFocusedIndex.current = prevIndex;
-        }
-    };
-
-    const handleForward = (index: number) => {
-        let nextIndex = index + 1;
-        while (nextIndex < answer.length && answer[nextIndex] === " ") {
-            nextIndex++;
-        }
-
-        if (nextIndex < answer.length) {
-            inputRefs.current[nextIndex]?.focus();
-            lastFocusedIndex.current = nextIndex;
-        } else {
-            checkAnswer(inputs);
-        }
-    };
-
-    const onInput = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value;
-        const newInputs = [...inputs];
-        newInputs[index] = val;
-        setInputs(newInputs);
-
-        if (val) {
-            if (index === answer.length - 1) {
-                checkAnswer(newInputs);
-            } else {
-                handleForward(index);
-            }
-        }
-    };
-
-    const onMobileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const val = e.target.value;
-        const newInputs = val.split("");
-        setInputs(newInputs);
+        setInputValue(val);
 
         if (val.length >= answer.length) {
-            checkAnswer(newInputs);
+            checkSubmission(val);
         }
     };
 
-    const handleMobileSubmit = (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        checkAnswer(inputs);
+        checkSubmission(inputValue);
     };
 
-    const handleBlur = (e: React.FocusEvent, index: number) => {
-        const relatedTarget = e.relatedTarget as HTMLElement;
-
-        if (inputRefs.current.some(ref => ref === relatedTarget)) return;
-
-        if (relatedTarget && (
-            relatedTarget.tagName === 'BUTTON' ||
-            relatedTarget.closest('button') ||
-            relatedTarget.closest('[role="dialog"]')
-        )) return;
-
-        setTimeout(() => {
-            inputRefs.current[index]?.focus();
-        }, 10);
-    };
-
-    const handleMobileBlur = (e: React.FocusEvent) => {
+    const handleBlur = (e: React.FocusEvent) => {
         const relatedTarget = e.relatedTarget as HTMLElement;
 
         if (relatedTarget && (
@@ -150,18 +79,17 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
         )) return;
 
         setTimeout(() => {
-            mobileInputRef.current?.focus();
+            inputRef.current?.focus();
         }, 10);
     };
 
 
 
-    const checkAnswer = (currentInputs: string[]) => {
-        const submission = currentInputs.join("");
-        if (submission.toLowerCase().trim() === answer.toLowerCase().trim()) {
+    const checkSubmission = (value: string) => {
+        if (value.toLowerCase().trim() === answer.toLowerCase().trim()) {
             handleCorrect();
         } else {
-            if (submission.length >= answer.length) {
+            if (value.length >= answer.length) {
                 setInputStatus("incorrect");
                 playIncorrect();
             }
@@ -184,29 +112,33 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
     };
 
     const giveHint = () => {
-        const firstMismatch = inputs.findIndex((char, i) => char?.toLowerCase() !== answer[i]?.toLowerCase());
+        // Find the first index where the input doesn't match the answer
+        let firstMismatch = -1;
+        for (let i = 0; i < answer.length; i++) {
+            if (inputValue[i]?.toLowerCase() !== answer[i]?.toLowerCase()) {
+                firstMismatch = i;
+                break;
+            }
+        }
 
         if (firstMismatch !== -1) {
-            const newInputs = [...inputs];
-            newInputs[firstMismatch] = answer[firstMismatch];
-            setInputs(newInputs);
+            const nextChar = answer[firstMismatch];
+            // If the mismatch is beyond current input length, append it
+            // If it's a wrong character, replace up to that point + correct char? 
+            // Better behavior: just set the input value to the correct prefix + the hint character
+            const correctPrefix = answer.slice(0, firstMismatch);
+            const newValue = correctPrefix + nextChar;
+            setInputValue(newValue);
 
-            if (!isMobile) {
-                inputRefs.current[firstMismatch + 1]?.focus();
-                lastFocusedIndex.current = firstMismatch + 1;
-            } else {
-                mobileInputRef.current?.focus();
-            }
+            inputRef.current?.focus();
 
-            if (firstMismatch === answer.length - 1) {
-                checkAnswer(newInputs);
+            if (newValue.length === answer.length) {
+                checkSubmission(newValue);
             }
         }
     };
 
     if (!currentCard) return null;
-
-    const mobileInputValue = inputs.join("");
 
     return (
         <div className="flex flex-col items-center justify-center min-h-[80vh] gap-8 p-4 max-w-4xl mx-auto w-full">
@@ -245,65 +177,29 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
                 </div>
 
                 <div className="flex flex-wrap justify-center gap-2 sm:gap-4 my-8">
-                    {isMobile ? (
-                        <form onSubmit={handleMobileSubmit} className="w-full max-w-md px-4">
-                            <motion.div
-                                animate={inputStatus === "incorrect" ? { x: [0, -10, 10, -10, 10, 0] } : {}}
-                                transition={{ duration: 0.4 }}
-                            >
-                                <Input
-                                    ref={mobileInputRef}
-                                    value={mobileInputValue}
-                                    onChange={onMobileInputChange}
-                                    placeholder="Type the answer..."
-                                    className={cn(
-                                        "text-center text-lg h-12 transition-all",
-                                        inputStatus === "correct" && "border-green-500 bg-green-50 text-green-700 ring-2 ring-green-500/20",
-                                        inputStatus === "incorrect" && "border-red-500 bg-red-50 text-red-700 ring-2 ring-red-500/20"
-                                    )}
-                                    disabled={inputStatus === "correct"}
-                                    autoCorrect="off"
-                                    autoComplete="off"
-                                    autoCapitalize="off"
-                                    onBlur={handleMobileBlur}
-                                />
-                            </motion.div>
-                        </form>
-                    ) : (
-                        answer.split("").map((char, i) => {
-                            if (char === " ") {
-                                return <div key={`${currentIndex}-${i}`} className="w-4 sm:w-8 flex items-center justify-center pointer-events-none"></div>;
-                            }
-                            return (
-                                <motion.div
-                                    key={`${currentIndex}-${i}`}
-                                    initial={{ scale: 0, opacity: 0 }}
-                                    animate={{
-                                        scale: 1,
-                                        opacity: 1,
-                                        x: inputStatus === "incorrect" ? [0, -5, 5, -5, 5, 0] : 0
-                                    }}
-                                    transition={{
-                                        duration: 0.3,
-                                        delay: i * 0.05,
-                                        x: { duration: 0.4, delay: 0 }
-                                    }}
-                                >
-                                    <CharacterInput
-                                        index={i}
-                                        value={inputs[i] || ""}
-                                        status={inputStatus}
-                                        ref={el => { inputRefs.current[i] = el }}
-                                        onChange={(e) => onInput(i, e)}
-                                        onBack={() => handleBack(i)}
-                                        onBlur={(e) => handleBlur(e, i)}
-                                        onFocus={() => { lastFocusedIndex.current = i; }}
-                                        disabled={inputStatus === "correct"}
-                                    />
-                                </motion.div>
-                            );
-                        })
-                    )}
+                    <form onSubmit={handleSubmit} className="w-full max-w-md px-4">
+                        <motion.div
+                            animate={inputStatus === "incorrect" ? { x: [0, -10, 10, -10, 10, 0] } : {}}
+                            transition={{ duration: 0.4 }}
+                        >
+                            <Input
+                                ref={inputRef}
+                                value={inputValue}
+                                onChange={onInputChange}
+                                placeholder="Type the answer..."
+                                className={cn(
+                                    "text-center text-lg h-12 transition-all",
+                                    inputStatus === "correct" && "border-green-500 bg-green-50 text-green-700 ring-2 ring-green-500/20",
+                                    inputStatus === "incorrect" && "border-red-500 bg-red-50 text-red-700 ring-2 ring-red-500/20"
+                                )}
+                                disabled={inputStatus === "correct"}
+                                autoCorrect="off"
+                                autoComplete="off"
+                                autoCapitalize="off"
+                                onBlur={handleBlur}
+                            />
+                        </motion.div>
+                    </form>
                 </div>
 
                 <div className="flex justify-center gap-4">
@@ -337,7 +233,7 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
             </div>
 
             <div className="h-8 flex items-center justify-center">
-                {inputStatus === "incorrect" && !isMobile && (
+                {inputStatus === "incorrect" && (
                     <div className="flex items-center gap-2 text-destructive font-medium animate-in fade-in slide-in-from-bottom-2">
                         <XCircle className="h-5 w-5" />
                         Try again
