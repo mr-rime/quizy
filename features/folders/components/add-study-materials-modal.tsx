@@ -45,7 +45,7 @@ export function AddStudyMaterialsModal({ open, onOpenChange, folderId, currentSe
     const loadSets = async (query: string) => {
         setLoading(true);
         try {
-            const data = await searchUserFlashcardSets(query, 50);
+            const data = await searchUserFlashcardSets(query, 7);
             setSets(data);
         } catch (error) {
             console.error(error);
