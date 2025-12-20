@@ -40,6 +40,11 @@ export const getFlashcardSet = unstable_cache(
                         username: true,
                         image: true,
                     }
+                },
+                folderSets: {
+                    with: {
+                        folder: true
+                    }
                 }
             },
         });

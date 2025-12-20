@@ -108,7 +108,11 @@ export function PracticeLayout<T>({
         return <p className="text-center py-8 text-muted-foreground">Flashcard set not found.</p>;
     }
 
-    const { id: setId, title, cards, isPublic, isPublished } = set;
+    const { id: setId, title, cards, isPublic, isPublished, folderSets } = set;
+
+    const backLink = folderSets && folderSets.length > 0
+        ? `/folders/${folderSets[0].folder.id}`
+        : "/latest";
 
 
 
@@ -118,7 +122,7 @@ export function PracticeLayout<T>({
         <div className="container mx-auto p-4 sm:p-6 max-w-5xl space-y-6 sm:space-y-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
-                    <Button variant="ghost" size="icon" onClick={() => router.push("/latest")} className="shrink-0">
+                    <Button variant="ghost" size="icon" onClick={() => router.push(backLink)} className="shrink-0">
                         <ArrowLeft className="h-5 w-5 sm:h-6 sm:w-6" />
                     </Button>
                     <div className="min-w-0">
