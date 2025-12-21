@@ -2,9 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Share, Layers, BrainCircuit, PenTool } from "lucide-react";
+import { ArrowLeft, Share, Layers, BrainCircuit, PenTool, SpellCheck } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
 import { PracticeDropdown } from "./practice-dropdown";
 import { use, useState, useEffect, useTransition, Suspense } from "react";
 import { getFlashcardSet } from "../services/flashcards";
@@ -221,6 +222,19 @@ export function PracticeLayout<T>({
                             <div>
                                 <h3 className="font-semibold text-base sm:text-lg">Writing</h3>
                                 <p className="text-xs sm:text-sm text-muted-foreground">Type the answer</p>
+                            </div>
+                        </div>
+                    </Card>
+                </Link>
+                <Link href={`/practice/${setId}/complete-word`}>
+                    <Card className="p-4 sm:p-6 hover:bg-accent transition-colors cursor-pointer flex items-center justify-between group">
+                        <div className="flex items-center gap-3 sm:gap-4">
+                            <div className="p-2 sm:p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                                <SpellCheck className="h-5 w-5 sm:h-6 sm:w-6" />
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-base sm:text-lg">Complete the Word</h3>
+                                <p className="text-xs sm:text-sm text-muted-foreground">Fill in missing letters</p>
                             </div>
                         </div>
                     </Card>
