@@ -322,10 +322,6 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
             </div>
 
             <div className="text-center space-y-6 w-full">
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                    {currentCard.definition || "Complete the word"}
-                </h2>
-
                 <div className="text-5xl font-mono font-bold tracking-widest text-primary mb-8">
                     {partialWordData.partial.split("").map((char, i) => (
                         <span key={i} className={char === "_" ? "text-muted-foreground" : ""}>
