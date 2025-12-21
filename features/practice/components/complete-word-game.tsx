@@ -93,7 +93,7 @@ const ModeSelection = memo(({ onSelectMode }: { onSelectMode: (mode: GameMode) =
                             </div>
                             <h3 className="text-2xl font-bold">Timed Mode</h3>
                             <p className="text-muted-foreground">
-                                30 seconds per word. Challenge yourself with time pressure!
+                                15 seconds per word. Challenge yourself with time pressure!
                             </p>
                         </div>
                     </Card>
@@ -132,8 +132,9 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
     const [inputValue, setInputValue] = useState("");
     const [inputStatus, setInputStatus] = useState<"idle" | "correct" | "incorrect">("idle");
     const [showExamples, setShowExamples] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(30);
+    const [timeLeft, setTimeLeft] = useState(15);
     const [isTimerActive, setIsTimerActive] = useState(false);
+    const [isPaused, setIsPaused] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const { playCorrect, playIncorrect } = useSoundEffects();
@@ -150,7 +151,7 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
     }, [currentCard]);
 
     useEffect(() => {
-        if (mode === "timed" && isTimerActive && timeLeft > 0) {
+        if (mode === "timed" && isTimerActive && timeLeft > 0 && !isPaused) {
             timerRef.current = setTimeout(() => {
                 setTimeLeft(prev => prev - 1);
             }, 1000);
@@ -161,13 +162,24 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
         return () => {
             if (timerRef.current) clearTimeout(timerRef.current);
         };
-    }, [mode, isTimerActive, timeLeft]);
+    }, [mode, isTimerActive, timeLeft, isPaused]);
+
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            setIsPaused(document.hidden);
+        };
+
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        return () => {
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+        };
+    }, []);
 
     useEffect(() => {
         if (currentCard && mode) {
             setInputValue("");
             setInputStatus("idle");
-            setTimeLeft(30);
+            setTimeLeft(15);
             setIsTimerActive(mode === "timed");
 
             setTimeout(() => {
@@ -179,6 +191,7 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
     const handleTimeUp = useCallback(() => {
         setIsTimerActive(false);
         setInputStatus("incorrect");
+        setInputValue(answer);
         playIncorrect();
         toast.error("Time's up!");
 
@@ -190,32 +203,7 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
                 router.push(`/practice/${setId}`);
             }
         }, 2000);
-    }, [currentIndex, shuffledCards.length, playIncorrect, router, setId]);
-
-    const onInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const val = e.target.value;
-        setInputValue(val);
-
-        if (val.length >= answer.length) {
-            checkSubmission(val);
-        }
-    }, [answer.length]);
-
-    const handleSubmit = useCallback((e: React.FormEvent) => {
-        e.preventDefault();
-        checkSubmission(inputValue);
-    }, [inputValue]);
-
-    const checkSubmission = useCallback((value: string) => {
-        if (value.toLowerCase().trim() === answer.toLowerCase().trim()) {
-            handleCorrect();
-        } else {
-            if (value.length >= answer.length) {
-                setInputStatus("incorrect");
-                playIncorrect();
-            }
-        }
-    }, [answer]);
+    }, [currentIndex, shuffledCards.length, playIncorrect, router, setId, answer]);
 
     const handleCorrect = useCallback(() => {
         setInputStatus("correct");
@@ -237,6 +225,33 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
             }
         }, 1500);
     }, [currentIndex, shuffledCards.length, playCorrect, router, setId]);
+
+    const checkSubmission = useCallback((value: string) => {
+        if (value.toLowerCase().trim() === answer.toLowerCase().trim()) {
+            handleCorrect();
+        } else {
+            if (value.length >= answer.length) {
+                setInputStatus("incorrect");
+                playIncorrect();
+            }
+        }
+    }, [answer, handleCorrect, playIncorrect]);
+
+
+    const onInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        setInputValue(val);
+
+        if (val.length >= answer.length) {
+            checkSubmission(val);
+        }
+    }, [answer.length, checkSubmission]);
+
+    const handleSubmit = useCallback((e: React.FormEvent) => {
+        e.preventDefault();
+        checkSubmission(inputValue);
+    }, [inputValue, checkSubmission]);
+
 
     const giveHint = useCallback(() => {
         let firstMismatch = -1;
@@ -323,7 +338,7 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
 
             <div className="text-center space-y-6 w-full">
                 <div className="text-5xl font-mono font-bold tracking-widest text-primary mb-8">
-                    {partialWordData.partial.split("").map((char, i) => (
+                    {(mode === "timed" && timeLeft === 0 ? answer : partialWordData.partial).split("").map((char, i) => (
                         <span key={i} className={char === "_" ? "text-muted-foreground" : ""}>
                             {char}
                         </span>
@@ -361,7 +376,7 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
                                     inputStatus === "correct" && "border-green-500 bg-green-50 text-green-700 ring-2 ring-green-500/20",
                                     inputStatus === "incorrect" && "border-red-500 bg-red-50 text-red-700 ring-2 ring-red-500/20"
                                 )}
-                                disabled={inputStatus === "correct"}
+                                disabled={inputStatus === "correct" || (mode === "timed" && timeLeft === 0)}
                                 autoCorrect="off"
                                 autoComplete="off"
                                 autoCapitalize="off"
@@ -375,7 +390,7 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
                     <Button
                         variant="outline"
                         onClick={giveHint}
-                        disabled={inputStatus === "correct"}
+                        disabled={inputStatus === "correct" || (mode === "timed" && timeLeft === 0)}
                         className="gap-2"
                     >
                         <Lightbulb className="h-4 w-4 text-yellow-500" />
