@@ -139,7 +139,7 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const { playCorrect, playIncorrect } = useSoundEffects();
 
-    const shuffledCards = useMemo(() => shuffleArray(cards), [cards]);
+    const [shuffledCards, setShuffledCards] = useState<Flashcard[]>([]);
 
     const currentCard = shuffledCards[currentIndex];
     const nextCard = shuffledCards[currentIndex + 1];
@@ -291,8 +291,9 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
     }, []);
 
     const handleModeSelect = useCallback((selectedMode: GameMode) => {
+        setShuffledCards(shuffleArray(cards));
         setMode(selectedMode);
-    }, []);
+    }, [cards]);
 
     const handleShowExamples = useCallback(() => {
         setShowExamples(true);
