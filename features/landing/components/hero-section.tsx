@@ -1,123 +1,151 @@
 "use client"
 
 import Link from "next/link"
-import { motion, useScroll, useTransform, useSpring } from "framer-motion"
-import { ArrowRight, Sparkles } from "lucide-react"
+import { motion } from "framer-motion"
+import { ArrowRight, Check } from "lucide-react"
 
 export function HeroSection() {
-    const { scrollY } = useScroll();
-
-    const springConfig = { stiffness: 100, damping: 30, restDelta: 0.001 };
-
-    const y1 = useTransform(scrollY, [0, 500], [0, 200]);
-    const y2 = useTransform(scrollY, [0, 500], [0, -150]);
-
-    const opacityScroll = useTransform(scrollY, [0, 300], [1, 0]);
-
     return (
-        <section className="container mx-auto px-4 py-20 md:py-32 flex flex-col items-center text-center relative overflow-hidden min-h-[90vh] justify-center perspective-1000">
-            <motion.div
-                style={{ y: y1, opacity: opacityScroll }}
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/20 rounded-full blur-[100px] -z-10 will-change-transform"
-            />
-            <motion.div
-                style={{ y: y2 }}
-                className="absolute top-0 right-0 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[80px] -z-10 will-change-transform"
-            />
-            <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[80px] -z-10 transform-gpu" />
+        <section className="container mx-auto px-4 py-20 md:py-32 relative">
+            {/* Subtle grid background */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#27272a_1px,transparent_1px),linear-gradient(to_bottom,#27272a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] -z-10" />
 
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, type: "spring", stiffness: 200, damping: 20 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm md:text-base text-zinc-300 mb-8 backdrop-blur-md shadow-lg shadow-indigo-500/20 will-change-transform"
-            >
-                <Sparkles className="size-4 text-indigo-400 fill-indigo-400" />
-                <span className="font-medium bg-gradient-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent">
-                    The smarter way to study
-                </span>
-            </motion.div>
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center max-w-7xl mx-auto">
+                {/* Left: Content */}
+                <div className="space-y-8">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 text-sm text-zinc-400"
+                    >
+                        <span className="relative flex size-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full size-2 bg-emerald-500"></span>
+                        </span>
+                        Join 10,000+ active learners
+                    </motion.div>
 
-            <motion.h1
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, type: "spring", bounce: 0.4 }}
-                className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter max-w-5xl mx-auto mb-8 relative z-10 will-change-transform"
-            >
-                <span className="bg-gradient-to-b from-white via-white to-zinc-400 bg-clip-text text-transparent block">
-                    Master any subject
-                </span>
-                <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent block mt-2">
-                    with Quizy
-                </span>
-            </motion.h1>
+                    <motion.h1
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.1 }}
+                        className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1]"
+                    >
+                        Learn smarter,
+                        <br />
+                        not harder
+                    </motion.h1>
 
-            <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed font-medium will-change-transform"
-            >
-                Create flashcards, take quizzes, and track your progress.
-                Join thousands of students who use Quizy to ace their exams.
-            </motion.p>
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        className="text-lg text-zinc-400 max-w-lg leading-relaxed"
+                    >
+                        Create interactive flashcards, track your progress, and study more effectively with Quizy's intelligent learning platform.
+                    </motion.p>
 
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.3, type: "spring" }}
-                className="flex flex-col sm:flex-row items-center gap-4 z-10 will-change-transform"
-            >
-                <Link
-                    href="/signup"
-                    className="group h-14 px-8 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold flex items-center gap-2 transition-all shadow-xl shadow-indigo-500/25 relative overflow-hidden"
-                >
-                    <span className="relative z-10 flex items-center gap-2">
-                        Start Learning Free
-                        <ArrowRight className="size-5 group-hover:translate-x-1 transition-transform" />
-                    </span>
-                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 transform-gpu" />
-                </Link>
-                <Link
-                    href="#features"
-                    className="h-14 px-8 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium flex items-center gap-2 transition-all backdrop-blur-sm hover:scale-105 active:scale-95"
-                >
-                    Explore Features
-                </Link>
-            </motion.div>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.3 }}
+                        className="flex flex-col sm:flex-row gap-4"
+                    >
+                        <Link
+                            href="/signup"
+                            className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-black font-semibold rounded-lg hover:bg-zinc-100 transition-colors"
+                        >
+                            Get started free
+                            <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                        <Link
+                            href="#features"
+                            className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-zinc-800 text-white font-medium rounded-lg hover:bg-zinc-900 transition-colors"
+                        >
+                            See how it works
+                        </Link>
+                    </motion.div>
 
-            <motion.div
-                initial={{ x: -100, opacity: 0, rotate: -20 }}
-                animate={{ x: 0, opacity: 1, rotate: -6 }}
-                transition={{ duration: 1, delay: 0.4, type: "spring" }}
-                className="absolute top-1/2 left-10 hidden lg:block -translate-y-1/2 w-64 h-80 bg-zinc-900/40 backdrop-blur-md border border-white/10 rounded-2xl p-4 shadow-2xl will-change-transform"
-                style={{ y: y2 }}
-            >
-                <div className="w-full h-full bg-zinc-800/50 rounded-lg flex flex-col gap-3 p-3">
-                    <div className="w-full h-32 bg-indigo-500/20 rounded-md animate-pulse"></div>
-                    <div className="w-3/4 h-4 bg-white/10 rounded-full"></div>
-                    <div className="w-1/2 h-4 bg-white/10 rounded-full"></div>
-                    <div className="mt-auto w-full h-8 bg-indigo-500/20 rounded-md"></div>
+                    {/* Trust indicators */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.5, delay: 0.4 }}
+                        className="flex items-center gap-6 pt-4 text-sm text-zinc-500"
+                    >
+                        <div className="flex items-center gap-2">
+                            <Check className="size-4 text-emerald-500" />
+                            <span>Free forever</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Check className="size-4 text-emerald-500" />
+                            <span>No credit card</span>
+                        </div>
+                    </motion.div>
                 </div>
-            </motion.div>
 
-            <motion.div
-                initial={{ x: 100, opacity: 0, rotate: 20 }}
-                animate={{ x: 0, opacity: 1, rotate: 6 }}
-                transition={{ duration: 1, delay: 0.5, type: "spring" }}
-                className="absolute top-1/2 right-10 hidden lg:block -translate-y-1/2 w-64 h-80 bg-zinc-900/40 backdrop-blur-md border border-white/10 rounded-2xl p-4 shadow-2xl will-change-transform"
-                style={{ y: y1 }}
-            >
-                <div className="w-full h-full bg-zinc-800/50 rounded-lg flex flex-col gap-3 p-3">
-                    <div className="w-full h-32 bg-purple-500/20 rounded-md animate-pulse"></div>
-                    <div className="w-3/4 h-4 bg-white/10 rounded-full"></div>
-                    <div className="w-1/2 h-4 bg-white/10 rounded-full"></div>
-                    <div className="mt-auto grid grid-cols-2 gap-2">
-                        <div className="h-8 bg-purple-500/20 rounded-md"></div>
-                        <div className="h-8 bg-purple-500/20 rounded-md"></div>
+                {/* Right: Product preview */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.6, delay: 0.3 }}
+                    className="relative lg:h-[600px] hidden lg:block"
+                >
+                    {/* Main card */}
+                    <div className="absolute top-0 right-0 w-80 bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl">
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div className="size-3 rounded-full bg-zinc-700"></div>
+                                <div className="text-xs text-zinc-500 font-mono">15/30</div>
+                            </div>
+                            <div className="h-40 bg-zinc-800 rounded-lg flex items-center justify-center">
+                                <div className="text-center px-4">
+                                    <div className="text-2xl font-bold text-white mb-2">Photosynthesis</div>
+                                    <div className="text-sm text-zinc-400">The process by which plants...</div>
+                                </div>
+                            </div>
+                            <div className="flex gap-2">
+                                <button className="flex-1 py-2 bg-zinc-800 rounded-lg text-sm text-zinc-400 hover:bg-zinc-700 transition-colors">
+                                    Hard
+                                </button>
+                                <button className="flex-1 py-2 bg-white text-black rounded-lg text-sm font-medium hover:bg-zinc-100 transition-colors">
+                                    Got it
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </motion.div>
+
+                    {/* Stats card */}
+                    <div className="absolute top-32 left-0 w-64 bg-zinc-900 border border-zinc-800 rounded-xl p-4 shadow-xl">
+                        <div className="text-xs text-zinc-500 mb-2">This week</div>
+                        <div className="text-2xl font-bold text-white mb-1">142 cards</div>
+                        <div className="text-sm text-emerald-500">+23% from last week</div>
+                        <div className="mt-3 h-12 flex items-end gap-1">
+                            {[40, 65, 45, 80, 60, 90, 75].map((height, i) => (
+                                <div
+                                    key={i}
+                                    className="flex-1 bg-zinc-700 rounded-sm"
+                                    style={{ height: `${height}%` }}
+                                ></div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Achievement badge */}
+                    <div className="absolute bottom-20 right-12 w-48 bg-zinc-900 border border-zinc-800 rounded-xl p-4 shadow-xl">
+                        <div className="flex items-center gap-3">
+                            <div className="size-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-xl">
+                                🔥
+                            </div>
+                            <div>
+                                <div className="text-sm font-semibold text-white">7 day streak!</div>
+                                <div className="text-xs text-zinc-500">Keep it going</div>
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
         </section>
     )
 }
