@@ -9,7 +9,7 @@ export function PricingSection() {
 
     return (
         <section id="pricing" className="container mx-auto px-4 py-24 md:py-32">
-            <div className="max-w-3xl mb-12">
+            <div className="max-w-3xl mb-12 mx-auto text-center">
                 <motion.h2
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -34,7 +34,7 @@ export function PricingSection() {
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
-                className="flex items-center gap-3 mb-12"
+                className="flex items-center justify-center gap-3 mb-12"
             >
                 <button
                     onClick={() => setIsYearly(false)}
@@ -55,38 +55,38 @@ export function PricingSection() {
                 )}
             </motion.div>
 
-            <div className="grid md:grid-cols-3 gap-6 max-w-6xl">
+            <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5 }}
-                    className="p-8 rounded-2xl border border-zinc-800 bg-zinc-900/30"
+                    className="p-8 rounded-2xl border border-zinc-800 bg-zinc-900/30 text-center flex flex-col items-center"
                 >
-                    <div className="mb-8">
+                    <div className="mb-8 w-full">
                         <h3 className="text-lg font-semibold text-zinc-400 mb-2">Free</h3>
-                        <div className="flex items-baseline gap-1 mb-1">
+                        <div className="flex items-baseline justify-center gap-1 mb-1">
                             <span className="text-5xl font-bold text-white">$0</span>
                         </div>
                         <p className="text-sm text-zinc-500">Forever free</p>
                     </div>
 
-                    <ul className="space-y-3 mb-8">
-                        <li className="flex items-start gap-3 text-sm text-zinc-300">
+                    <ul className="space-y-3 mb-8 w-full">
+                        <li className="flex items-start gap-3 text-sm text-zinc-300 justify-center text-left">
                             <Check className="size-5 text-zinc-500 shrink-0 mt-0.5" strokeWidth={2} />
-                            <span>Unlimited flashcards</span>
+                            <span className="w-full text-left max-w-[140px]">Unlimited flashcards</span>
                         </li>
-                        <li className="flex items-start gap-3 text-sm text-zinc-300">
+                        <li className="flex items-start gap-3 text-sm text-zinc-300 justify-center text-left">
                             <Check className="size-5 text-zinc-500 shrink-0 mt-0.5" strokeWidth={2} />
-                            <span>Basic quizzes</span>
+                            <span className="w-full text-left max-w-[140px]">Basic quizzes</span>
                         </li>
-                        <li className="flex items-start gap-3 text-sm text-zinc-300">
+                        <li className="flex items-start gap-3 text-sm text-zinc-300 justify-center text-left">
                             <Check className="size-5 text-zinc-500 shrink-0 mt-0.5" strokeWidth={2} />
-                            <span>Public decks access</span>
+                            <span className="w-full text-left max-w-[140px]">Public decks access</span>
                         </li>
-                        <li className="flex items-start gap-3 text-sm text-zinc-300">
+                        <li className="flex items-start gap-3 text-sm text-zinc-300 justify-center text-left">
                             <Check className="size-5 text-zinc-500 shrink-0 mt-0.5" strokeWidth={2} />
-                            <span>Mobile app</span>
+                            <span className="w-full text-left max-w-[140px]">Mobile app</span>
                         </li>
                     </ul>
 
@@ -101,15 +101,15 @@ export function PricingSection() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: 0.1 }}
-                    className="p-8 rounded-2xl border-2 border-white bg-white text-black relative"
+                    className="p-8 rounded-2xl border-2 border-white bg-white text-black relative text-center flex flex-col items-center"
                 >
-                    <div className="absolute -top-3 left-8 px-3 py-1 bg-black text-white text-xs font-semibold rounded-full">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-black text-white text-xs font-semibold rounded-full">
                         MOST POPULAR
                     </div>
 
-                    <div className="mb-8">
+                    <div className="mb-8 w-full">
                         <h3 className="text-lg font-semibold text-zinc-600 mb-2">Pro</h3>
-                        <div className="flex items-baseline gap-1 mb-1">
+                        <div className="flex items-baseline justify-center gap-1 mb-1">
                             <span className="text-5xl font-bold">{isYearly ? "$8" : "$10"}</span>
                             <span className="text-zinc-600">/month</span>
                         </div>
@@ -118,26 +118,26 @@ export function PricingSection() {
                         </p>
                     </div>
 
-                    <ul className="space-y-3 mb-8">
-                        <li className="flex items-start gap-3 text-sm">
+                    <ul className="space-y-3 mb-8 w-full">
+                        <li className="flex items-start gap-3 text-sm justify-center text-left">
                             <Check className="size-5 shrink-0 mt-0.5" strokeWidth={2} />
-                            <span>Everything in Free</span>
+                            <span className="w-full text-left max-w-[140px]">Everything in Free</span>
                         </li>
-                        <li className="flex items-start gap-3 text-sm">
+                        <li className="flex items-start gap-3 text-sm justify-center text-left">
                             <Check className="size-5 shrink-0 mt-0.5" strokeWidth={2} />
-                            <span>Unlimited AI generation</span>
+                            <span className="w-full text-left max-w-[140px]">Unlimited AI generation</span>
                         </li>
-                        <li className="flex items-start gap-3 text-sm">
+                        <li className="flex items-start gap-3 text-sm justify-center text-left">
                             <Check className="size-5 shrink-0 mt-0.5" strokeWidth={2} />
-                            <span>Advanced analytics</span>
+                            <span className="w-full text-left max-w-[140px]">Advanced analytics</span>
                         </li>
-                        <li className="flex items-start gap-3 text-sm">
+                        <li className="flex items-start gap-3 text-sm justify-center text-left">
                             <Check className="size-5 shrink-0 mt-0.5" strokeWidth={2} />
-                            <span>Spaced repetition</span>
+                            <span className="w-full text-left max-w-[140px]">Spaced repetition</span>
                         </li>
-                        <li className="flex items-start gap-3 text-sm">
+                        <li className="flex items-start gap-3 text-sm justify-center text-left">
                             <Check className="size-5 shrink-0 mt-0.5" strokeWidth={2} />
-                            <span>Priority support</span>
+                            <span className="w-full text-left max-w-[140px]">Priority support</span>
                         </li>
                     </ul>
 
@@ -151,36 +151,36 @@ export function PricingSection() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: 0.2 }}
-                    className="p-8 rounded-2xl border border-zinc-800 bg-zinc-900/30"
+                    className="p-8 rounded-2xl border border-zinc-800 bg-zinc-900/30 text-center flex flex-col items-center"
                 >
-                    <div className="mb-8">
+                    <div className="mb-8 w-full">
                         <h3 className="text-lg font-semibold text-zinc-400 mb-2">Team</h3>
-                        <div className="flex items-baseline gap-1 mb-1">
+                        <div className="flex items-baseline justify-center gap-1 mb-1">
                             <span className="text-5xl font-bold text-white">{isYearly ? "$16" : "$20"}</span>
                         </div>
                         <p className="text-sm text-zinc-500">Per user/month</p>
                     </div>
 
-                    <ul className="space-y-3 mb-8">
-                        <li className="flex items-start gap-3 text-sm text-zinc-300">
+                    <ul className="space-y-3 mb-8 w-full">
+                        <li className="flex items-start gap-3 text-sm text-zinc-300 justify-center text-left">
                             <Check className="size-5 text-zinc-500 shrink-0 mt-0.5" strokeWidth={2} />
-                            <span>Everything in Pro</span>
+                            <span className="w-full text-left max-w-[140px]">Everything in Pro</span>
                         </li>
-                        <li className="flex items-start gap-3 text-sm text-zinc-300">
+                        <li className="flex items-start gap-3 text-sm text-zinc-300 justify-center text-left">
                             <Check className="size-5 text-zinc-500 shrink-0 mt-0.5" strokeWidth={2} />
-                            <span>Shared workspaces</span>
+                            <span className="w-full text-left max-w-[140px]">Shared workspaces</span>
                         </li>
-                        <li className="flex items-start gap-3 text-sm text-zinc-300">
+                        <li className="flex items-start gap-3 text-sm text-zinc-300 justify-center text-left">
                             <Check className="size-5 text-zinc-500 shrink-0 mt-0.5" strokeWidth={2} />
-                            <span>Admin controls</span>
+                            <span className="w-full text-left max-w-[140px]">Admin controls</span>
                         </li>
-                        <li className="flex items-start gap-3 text-sm text-zinc-300">
+                        <li className="flex items-start gap-3 text-sm text-zinc-300 justify-center text-left">
                             <Check className="size-5 text-zinc-500 shrink-0 mt-0.5" strokeWidth={2} />
-                            <span>Collaborative editing</span>
+                            <span className="w-full text-left max-w-[140px]">Collaborative editing</span>
                         </li>
-                        <li className="flex items-start gap-3 text-sm text-zinc-300">
+                        <li className="flex items-start gap-3 text-sm text-zinc-300 justify-center text-left">
                             <Check className="size-5 text-zinc-500 shrink-0 mt-0.5" strokeWidth={2} />
-                            <span>Team analytics</span>
+                            <span className="w-full text-left max-w-[140px]">Team analytics</span>
                         </li>
                     </ul>
 

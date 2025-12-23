@@ -10,7 +10,7 @@ export function TestimonialsSection() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="max-w-3xl mb-16"
+                className="max-w-3xl mb-16 mx-auto text-center"
             >
                 <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-4">
                     Trusted by thousands of learners
@@ -20,15 +20,15 @@ export function TestimonialsSection() {
                 </p>
             </motion.div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5 }}
-                    className="p-6 rounded-xl border border-zinc-800 bg-zinc-900/30"
+                    className="p-6 rounded-xl border border-zinc-800 bg-zinc-900/30 text-center flex flex-col items-center"
                 >
-                    <div className="flex gap-1 text-amber-500 mb-4">
+                    <div className="flex gap-1 text-amber-500 mb-4 justify-center">
                         {[...Array(5)].map((_, i) => (
                             <Star key={i} className="size-4 fill-amber-500" />
                         ))}
@@ -36,7 +36,7 @@ export function TestimonialsSection() {
                     <p className="text-zinc-300 leading-relaxed mb-4">
                         "Quizy helped me ace my medical board exams. The spaced repetition feature is a game changer."
                     </p>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-center gap-2">
                         <div className="size-10 rounded-full bg-zinc-800 flex items-center justify-center text-white font-semibold text-sm">
                             SJ
                         </div>
@@ -52,9 +52,9 @@ export function TestimonialsSection() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: 0.1 }}
-                    className="p-6 rounded-xl border border-zinc-800 bg-zinc-900/30"
+                    className="p-6 rounded-xl border border-zinc-800 bg-zinc-900/30 text-center flex flex-col items-center"
                 >
-                    <div className="flex gap-1 text-amber-500 mb-4">
+                    <div className="flex gap-1 text-amber-500 mb-4 justify-center">
                         {[...Array(5)].map((_, i) => (
                             <Star key={i} className="size-4 fill-amber-500" />
                         ))}
@@ -62,7 +62,7 @@ export function TestimonialsSection() {
                     <p className="text-zinc-300 leading-relaxed mb-4">
                         "I used to struggle with organizing my study notes. Now I just generate flashcards instantly. Amazing."
                     </p>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-center gap-2">
                         <div className="size-10 rounded-full bg-zinc-800 flex items-center justify-center text-white font-semibold text-sm">
                             MC
                         </div>
@@ -78,9 +78,9 @@ export function TestimonialsSection() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: 0.2 }}
-                    className="p-6 rounded-xl border border-zinc-800 bg-zinc-900/30"
+                    className="p-6 rounded-xl border border-zinc-800 bg-zinc-900/30 text-center flex flex-col items-center"
                 >
-                    <div className="flex gap-1 text-amber-500 mb-4">
+                    <div className="flex gap-1 text-amber-500 mb-4 justify-center">
                         {[...Array(5)].map((_, i) => (
                             <Star key={i} className="size-4 fill-amber-500" />
                         ))}
@@ -88,7 +88,7 @@ export function TestimonialsSection() {
                     <p className="text-zinc-300 leading-relaxed mb-4">
                         "The best study app I've used. Clean interface, no distractions, and it actually works."
                     </p>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-center gap-2">
                         <div className="size-10 rounded-full bg-zinc-800 flex items-center justify-center text-white font-semibold text-sm">
                             EW
                         </div>
@@ -104,9 +104,9 @@ export function TestimonialsSection() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: 0.3 }}
-                    className="p-6 rounded-xl border border-zinc-800 bg-zinc-900/30 md:col-span-2 lg:col-span-1"
+                    className="p-6 rounded-xl border border-zinc-800 bg-zinc-900/30 md:col-span-2 lg:col-span-1 text-center flex flex-col items-center"
                 >
-                    <div className="flex gap-1 text-amber-500 mb-4">
+                    <div className="flex gap-1 text-amber-500 mb-4 justify-center">
                         {[...Array(4)].map((_, i) => (
                             <Star key={i} className="size-4 fill-amber-500" />
                         ))}
@@ -115,7 +115,7 @@ export function TestimonialsSection() {
                     <p className="text-zinc-300 leading-relaxed mb-4">
                         "Team collaboration features made our group projects so much easier to manage."
                     </p>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-center gap-2">
                         <div className="size-10 rounded-full bg-zinc-800 flex items-center justify-center text-white font-semibold text-sm">
                             DR
                         </div>
@@ -131,9 +131,9 @@ export function TestimonialsSection() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: 0.4 }}
-                    className="p-6 rounded-xl border border-zinc-800 bg-zinc-900/30"
+                    className="p-6 rounded-xl border border-zinc-800 bg-zinc-900/30 text-center flex flex-col items-center"
                 >
-                    <div className="flex gap-1 text-amber-500 mb-4">
+                    <div className="flex gap-1 text-amber-500 mb-4 justify-center">
                         {[...Array(5)].map((_, i) => (
                             <Star key={i} className="size-4 fill-amber-500" />
                         ))}
@@ -141,7 +141,7 @@ export function TestimonialsSection() {
                     <p className="text-zinc-300 leading-relaxed mb-4">
                         "I learned a new language in 3 months using the flashcards. Highly recommend!"
                     </p>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-center gap-2">
                         <div className="size-10 rounded-full bg-zinc-800 flex items-center justify-center text-white font-semibold text-sm">
                             LP
                         </div>
@@ -157,9 +157,9 @@ export function TestimonialsSection() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: 0.5 }}
-                    className="p-6 rounded-xl border border-zinc-800 bg-zinc-900/30"
+                    className="p-6 rounded-xl border border-zinc-800 bg-zinc-900/30 text-center flex flex-col items-center"
                 >
-                    <div className="flex gap-1 text-amber-500 mb-4">
+                    <div className="flex gap-1 text-amber-500 mb-4 justify-center">
                         {[...Array(5)].map((_, i) => (
                             <Star key={i} className="size-4 fill-amber-500" />
                         ))}
@@ -167,7 +167,7 @@ export function TestimonialsSection() {
                     <p className="text-zinc-300 leading-relaxed mb-4">
                         "Worth every penny for the Pro plan. The analytics help me focus on my weak spots."
                     </p>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-center gap-2">
                         <div className="size-10 rounded-full bg-zinc-800 flex items-center justify-center text-white font-semibold text-sm">
                             JT
                         </div>
