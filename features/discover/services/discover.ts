@@ -2,12 +2,17 @@
 
 import { db } from "@/db/drizzle";
 import { flashcardSets, users, folders } from "@/db/schema";
-import { eq, desc, ilike, or, sql } from "drizzle-orm";
+import { eq, desc, ilike, or, sql, and } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
 export const getPublicSets = unstable_cache(
     async (searchQuery?: string, limit = 20, offset = 0) => {
-        const whereConditions = [eq(flashcardSets.isPublished, true)];
+        const whereConditions = [
+            and(
+                eq(flashcardSets.isPublished, true),
+                eq(flashcardSets.isPublic, true)
+            )
+        ];
 
         if (searchQuery && searchQuery.trim()) {
             whereConditions.push(
@@ -54,7 +59,12 @@ export async function searchPublicSets(query: string) {
 
 export const getPublicFolders = unstable_cache(
     async (searchQuery?: string, limit = 20, offset = 0) => {
-        const whereConditions = [eq(folders.isPublished, true)];
+        const whereConditions = [
+            and(
+                eq(folders.isPublished, true),
+                eq(folders.isPublic, true)
+            )
+        ];
 
         if (searchQuery && searchQuery.trim()) {
             whereConditions.push(
