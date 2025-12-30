@@ -5,7 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFlashcardSet } from "@/features/practice/services/flashcards";
 import { cache } from "react";
-import { getUserId } from "@/features/user/services/user";
+import { getCurrentUser } from "@/features/user/services/user";
 import { Flashcard } from "@/features/practice/types";
 
 interface PageProps {
@@ -20,7 +20,8 @@ const getData = cache(async (id: string, userId: string) => {
 
 export default async function QuizzesPage({ params }: PageProps) {
     const { id } = await params;
-    const userId = await getUserId();
+    const user = await getCurrentUser();
+    const userId = user?.id || "";
     const set = await getData(id, userId);
 
     if (!set) {
@@ -41,7 +42,12 @@ export default async function QuizzesPage({ params }: PageProps) {
                 </div>
             </div>
 
-            <QuizGame cards={set.cards as Flashcard[]} setId={set.id} userId={userId} />
+            <QuizGame
+                cards={set.cards as Flashcard[]}
+                setId={set.id}
+                userId={userId}
+                playAudioOnProgress={user?.playAudioOnProgress}
+            />
         </div>
     );
 }

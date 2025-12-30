@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import { OptimizedImage } from "@/components/optimized-image";
 import { useSoundEffects } from "@/shared/hooks/use-sound-effects";
+import { useAutoPlayAudio } from "@/features/practice/hooks/use-auto-play-audio";
 
 interface Flashcard {
     id: string;
@@ -26,9 +27,10 @@ interface WritingGameProps {
     cards: Flashcard[];
     setId: string;
     setTitle: string;
+    playAudioOnProgress?: boolean;
 }
 
-export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
+export function WritingGame({ cards, setId, setTitle, playAudioOnProgress = false }: WritingGameProps) {
     const router = useRouter();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [inputValue, setInputValue] = useState("");
@@ -40,6 +42,8 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
     const currentCard = cards[currentIndex];
     const nextCard = cards[currentIndex + 1];
     const answer = currentCard?.term || "";
+
+    const { playIfEnabled } = useAutoPlayAudio(playAudioOnProgress, nextCard?.term || "");
 
     const setInputValueEvent = useEffectEvent(setInputValue);
     const setInputStatusEvent = useEffectEvent(setInputStatus);
@@ -103,6 +107,7 @@ export function WritingGame({ cards, setId, setTitle }: WritingGameProps) {
 
         setTimeout(() => {
             if (currentIndex < cards.length - 1) {
+                playIfEnabled();
                 setCurrentIndex(prev => prev + 1);
             } else {
                 toast.success("Set completed!");

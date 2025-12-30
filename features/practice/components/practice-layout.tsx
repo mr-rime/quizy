@@ -111,8 +111,10 @@ export function PracticeLayout<T>({
 
     const { id: setId, title, cards, isPublic, isPublished, folderSets } = set;
 
-    const backLink = folderSets && folderSets.length > 0
-        ? `/folders/${folderSets[0].folder.id}`
+    const firstFolder = folderSets?.[0]?.folder;
+    const canViewFolder = firstFolder && (firstFolder.isPublic || firstFolder.userId === currentUserId);
+    const backLink = canViewFolder
+        ? `/folders/${firstFolder.id}`
         : "/latest";
 
 
@@ -128,7 +130,7 @@ export function PracticeLayout<T>({
                     </Button>
                     <div className="min-w-0">
                         <h1 className="text-2xl sm:text-3xl font-bold break-words">{title}</h1>
-                        <p className="text-sm sm:text-base text-muted-foreground">{cardCount} terms</p>
+                        <p className="text-sm sm:text-base text-muted-foreground">{cardCount} {cardCount === 1 ? "term" : "terms"}</p>
                     </div>
                 </div>
                 {set.userId === currentUserId ? (

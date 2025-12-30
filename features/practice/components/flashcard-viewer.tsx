@@ -12,6 +12,7 @@ import { saveProgress, getProgressForSet, deleteProgressBySet } from "../service
 import { FlashcardFinish } from "./flashcard-finish";
 import { Skeleton } from "@/components/skeleton";
 import { useSpeech } from "../hooks/use-speech";
+import { useAutoPlayAudio } from "../hooks/use-auto-play-audio";
 
 import { useRouter } from "next/navigation";
 import { Flashcard } from "../types";
@@ -22,9 +23,10 @@ interface FlashcardViewerProps {
     userId: string;
     initialFavoriteIds?: string[];
     setOwnerId?: string;
+    playAudioOnProgress?: boolean;
 }
 
-export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [], setOwnerId }: FlashcardViewerProps) {
+export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [], setOwnerId, playAudioOnProgress = false }: FlashcardViewerProps) {
     const router = useRouter();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
@@ -34,6 +36,13 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [],
     const [isFinished, setIsFinished] = useState(false);
 
     const [lastNavigationTime, setLastNavigationTime] = useState(0);
+
+    const currentCard = cards[currentIndex];
+    const { playIfEnabled } = useAutoPlayAudio(playAudioOnProgress, currentCard?.term || "");
+
+    useEffect(() => {
+        playIfEnabled();
+    }, [currentIndex, playIfEnabled]);
 
 
 
@@ -211,7 +220,7 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [],
         );
     }
 
-    const currentCard = cards[currentIndex];
+
 
 
     const restartPractice = () => {

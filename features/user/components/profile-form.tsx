@@ -8,15 +8,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { updateUserEmail, updateUsername, updatePassword } from "../services/update-user";
+import { updateAudioPreference } from "../services/update-preferences";
 import { updateEmailSchema, updateUsernameSchema, updatePasswordSchema, UpdateEmailSchema, UpdateUsernameSchema, UpdatePasswordSchema } from "../utils/validations";
-import { User, Mail, Lock } from "lucide-react";
+import { User, Mail, Lock, Settings } from "lucide-react";
 
 interface ProfileFormProps {
     user: {
         email: string;
         username: string;
+        playAudioOnProgress?: boolean;
     };
 }
 
@@ -24,6 +27,8 @@ export function ProfileForm({ user }: ProfileFormProps) {
     const [isLoadingEmail, setIsLoadingEmail] = useState(false);
     const [isLoadingUsername, setIsLoadingUsername] = useState(false);
     const [isLoadingPassword, setIsLoadingPassword] = useState(false);
+    const [playAudioOnProgress, setPlayAudioOnProgress] = useState(user.playAudioOnProgress ?? false);
+    const [isLoadingPreference, setIsLoadingPreference] = useState(false);
 
     const emailForm = useForm<UpdateEmailSchema>({
         resolver: zodResolver(updateEmailSchema),
@@ -103,9 +108,10 @@ export function ProfileForm({ user }: ProfileFormProps) {
     return (
         <div className="max-w-2xl mx-auto">
             <Tabs defaultValue="profile" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="profile">Profile Info</TabsTrigger>
                     <TabsTrigger value="password">Change Password</TabsTrigger>
+                    <TabsTrigger value="preferences">Preferences</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="profile" className="space-y-6 mt-6">
@@ -221,6 +227,50 @@ export function ProfileForm({ user }: ProfileFormProps) {
                                 {isLoadingPassword ? "Updating..." : "Change Password"}
                             </Button>
                         </form>
+                    </Card>
+                </TabsContent>
+
+                <TabsContent value="preferences" className="mt-6">
+                    <Card className="p-6">
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-2 mb-4">
+                                <Settings className="h-5 w-5 text-muted-foreground" />
+                                <h3 className="text-lg font-semibold">Practice Preferences</h3>
+                            </div>
+
+                            <div className="flex items-center justify-between space-x-4">
+                                <div className="flex-1 space-y-1">
+                                    <Label htmlFor="audio-playback" className="text-base font-medium">
+                                        Play audio on next card
+                                    </Label>
+                                    <p className="text-sm text-muted-foreground">
+                                        Automatically play the term's audio when you move to the next card in practice games
+                                    </p>
+                                </div>
+                                <Switch
+                                    id="audio-playback"
+                                    checked={playAudioOnProgress}
+                                    onCheckedChange={async (checked) => {
+                                        setIsLoadingPreference(true);
+                                        try {
+                                            const result = await updateAudioPreference(checked);
+                                            if (result.success) {
+                                                setPlayAudioOnProgress(checked);
+                                                toast.success(checked ? "Audio playback enabled" : "Audio playback disabled");
+                                            } else {
+                                                toast.error("Failed to update preference");
+                                            }
+                                        } catch (error) {
+                                            console.error(error);
+                                            toast.error("An error occurred");
+                                        } finally {
+                                            setIsLoadingPreference(false);
+                                        }
+                                    }}
+                                    disabled={isLoadingPreference}
+                                />
+                            </div>
+                        </div>
                     </Card>
                 </TabsContent>
             </Tabs>

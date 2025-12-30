@@ -5,6 +5,7 @@ export type User = {
     password?: string | null;
     image?: string | null;
     role?: string;
+    playAudioOnProgress?: boolean;
     createdAt: Date;
     updatedAt: Date;
 };

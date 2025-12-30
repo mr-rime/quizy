@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import { OptimizedImage } from "@/components/optimized-image";
 import { useSoundEffects } from "@/shared/hooks/use-sound-effects";
+import { useAutoPlayAudio } from "@/features/practice/hooks/use-auto-play-audio";
 import { Card } from "@/components/ui/card";
 
 interface Flashcard {
@@ -26,6 +27,7 @@ interface CompleteWordGameProps {
     cards: Flashcard[];
     setId: string;
     setTitle: string;
+    playAudioOnProgress?: boolean;
 }
 
 type GameMode = "timed" | "untimed" | null;
@@ -125,7 +127,7 @@ const ModeSelection = memo(({ onSelectMode }: { onSelectMode: (mode: GameMode) =
 
 ModeSelection.displayName = "ModeSelection";
 
-export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, setTitle }: CompleteWordGameProps) {
+export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, setTitle, playAudioOnProgress = false }: CompleteWordGameProps) {
     const router = useRouter();
     const [mode, setMode] = useState<GameMode>(null);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -144,6 +146,8 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
     const currentCard = shuffledCards[currentIndex];
     const nextCard = shuffledCards[currentIndex + 1];
     const answer = currentCard?.term || "";
+
+    const { playIfEnabled } = useAutoPlayAudio(playAudioOnProgress, nextCard?.term || "");
 
     const partialWordData = useMemo(() => {
         if (!currentCard) return { partial: "", hiddenIndices: [] };
@@ -197,13 +201,15 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
 
         setTimeout(() => {
             if (currentIndex < shuffledCards.length - 1) {
+                // Play audio for the next card before moving
+                playIfEnabled();
                 setCurrentIndex(prev => prev + 1);
             } else {
                 toast.success("Set completed!");
                 router.push(`/practice/${setId}`);
             }
         }, 2000);
-    }, [currentIndex, shuffledCards.length, playIncorrect, router, setId, answer]);
+    }, [currentIndex, shuffledCards.length, playIncorrect, router, setId, answer, playIfEnabled]);
 
     const handleCorrect = useCallback(() => {
         setInputStatus("correct");
@@ -218,13 +224,15 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
 
         setTimeout(() => {
             if (currentIndex < shuffledCards.length - 1) {
+                // Play audio for the next card before moving
+                playIfEnabled();
                 setCurrentIndex(prev => prev + 1);
             } else {
                 toast.success("Set completed!");
                 router.push(`/practice/${setId}`);
             }
         }, 1500);
-    }, [currentIndex, shuffledCards.length, playCorrect, router, setId]);
+    }, [currentIndex, shuffledCards.length, playCorrect, router, setId, playIfEnabled]);
 
     const checkSubmission = useCallback((value: string) => {
         if (value.toLowerCase().trim() === answer.toLowerCase().trim()) {

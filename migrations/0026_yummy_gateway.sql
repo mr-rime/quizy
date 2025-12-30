@@ -1,0 +1,1 @@
+ALTER TABLE "user" ADD COLUMN "play_audio_on_progress" boolean DEFAULT false NOT NULL;

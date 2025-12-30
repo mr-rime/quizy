@@ -17,6 +17,7 @@ import { OptimizedImage } from "@/components/optimized-image";
 import { saveProgress, getProgressForSet, deleteProgressBySet } from "../../services/progress";
 import { useSpeech } from "../../hooks/use-speech";
 import { useSoundEffects } from "@/shared/hooks/use-sound-effects";
+import { useAutoPlayAudio } from "@/features/practice/hooks/use-auto-play-audio";
 
 interface Flashcard {
     id: string;
@@ -30,6 +31,7 @@ interface QuizGameProps {
     cards: Flashcard[];
     setId: string;
     userId: string;
+    playAudioOnProgress?: boolean;
 }
 
 interface Question {
@@ -38,7 +40,7 @@ interface Question {
     correctOptionId: string;
 }
 
-export function QuizGame({ cards, setId, userId }: QuizGameProps) {
+export function QuizGame({ cards, setId, userId, playAudioOnProgress = false }: QuizGameProps) {
     const [questions, setQuestions] = useState<Question[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
@@ -52,6 +54,9 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
 
     const { speak } = useSpeech();
     const { playCorrect, playIncorrect } = useSoundEffects();
+
+    const nextQuestion = questions[currentIndex + 1];
+    const { playIfEnabled } = useAutoPlayAudio(playAudioOnProgress, nextQuestion?.card.term || "");
 
     useEffect(() => {
         if (hasInitialized) return;
@@ -113,6 +118,7 @@ export function QuizGame({ cards, setId, userId }: QuizGameProps) {
             if (currentIndex < questions.length - 1) {
                 const nextIndex = currentIndex + 1;
 
+                playIfEnabled();
                 setCurrentIndex(nextIndex);
                 setSelectedOptionId(null);
                 setIsCorrect(null);

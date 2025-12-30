@@ -2,7 +2,7 @@ import { WritingGame } from "@/features/practice/components/writing-game";
 import { notFound } from "next/navigation";
 import { getFlashcardSet } from "@/features/practice/services/flashcards";
 import { cache } from "react";
-import { getUserId } from "@/features/user/services/user";
+import { getCurrentUser } from "@/features/user/services/user";
 import { Flashcard } from "@/features/practice/types";
 
 interface PageProps {
@@ -17,7 +17,8 @@ const getData = cache(async (id: string, userId: string) => {
 
 export default async function WritingPage({ params }: PageProps) {
     const { id } = await params;
-    const userId = await getUserId();
+    const user = await getCurrentUser();
+    const userId = user?.id || "";
     const set = await getData(id, userId);
 
     if (!set) {
@@ -26,7 +27,12 @@ export default async function WritingPage({ params }: PageProps) {
 
     return (
         <div className="container mx-auto p-6 max-w-5xl space-y-8">
-            <WritingGame cards={set.cards as Flashcard[]} setId={set.id} setTitle={set.title} />
+            <WritingGame
+                cards={set.cards as Flashcard[]}
+                setId={set.id}
+                setTitle={set.title}
+                playAudioOnProgress={user?.playAudioOnProgress}
+            />
         </div>
     );
 }

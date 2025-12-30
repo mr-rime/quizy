@@ -35,6 +35,7 @@ const getFlashcardsData = cache(async (id: string) => {
 export default async function FlashcardsPage({ params }: PageProps) {
     const { id } = await params;
     const { set, favoriteIds, userId } = await getFlashcardsData(id);
+    const user = await getCurrentUser();
 
     if (!set) {
         notFound();
@@ -56,6 +57,7 @@ export default async function FlashcardsPage({ params }: PageProps) {
                 userId={userId}
                 initialFavoriteIds={favoriteIds}
                 setOwnerId={set.userId}
+                playAudioOnProgress={user?.playAudioOnProgress}
             />
         </div>
     );

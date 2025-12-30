@@ -27,6 +27,7 @@ export const users = pgTable("user", {
     password: varchar("password", { length: 255 }),
     image: text("image"),
     role: varchar("role", { length: 20 }).notNull().default("user"),
+    playAudioOnProgress: boolean("play_audio_on_progress").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
