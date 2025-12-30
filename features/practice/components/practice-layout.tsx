@@ -111,7 +111,7 @@ export function PracticeLayout<T>({
 
     const { id: setId, title, cards, isPublic, isPublished, folderSets } = set;
 
-    const firstFolder = folderSets?.[0]?.folder;
+    const firstFolder = set.folderSets?.[0]?.folder;
     const canViewFolder = firstFolder && (firstFolder.isPublic || firstFolder.userId === currentUserId);
     const backLink = canViewFolder
         ? `/folders/${firstFolder.id}`
@@ -119,7 +119,7 @@ export function PracticeLayout<T>({
 
 
 
-    const cardCount = cards.length;
+    const cardCount = set.cards.length;
 
     return (
         <div className="container mx-auto p-4 sm:p-6 max-w-5xl space-y-6 sm:space-y-8">
@@ -129,7 +129,7 @@ export function PracticeLayout<T>({
                         <ArrowLeft className="h-5 w-5 sm:h-6 sm:w-6" />
                     </Button>
                     <div className="min-w-0">
-                        <h1 className="text-2xl sm:text-3xl font-bold break-words">{title}</h1>
+                        <h1 className="text-2xl sm:text-3xl font-bold break-words">{set.title}</h1>
                         <p className="text-sm sm:text-base text-muted-foreground">{cardCount} {cardCount === 1 ? "term" : "terms"}</p>
                     </div>
                 </div>
@@ -140,7 +140,7 @@ export function PracticeLayout<T>({
                             <span className="hidden sm:inline">Share</span>
                         </Button>
 
-                        {isPublished ? (
+                        {set.isPublic ? (
                             <Button
                                 variant="secondary"
                                 onClick={handlePublish}
@@ -174,7 +174,7 @@ export function PracticeLayout<T>({
                                 </AlertDialogContent>
                             </AlertDialog>
                         )}
-                        <PracticeDropdown setId={setId} />
+                        <PracticeDropdown setId={set.id} />
                     </div>
                 ) : set.userId !== currentUserId && (
                     <Button
@@ -189,7 +189,7 @@ export function PracticeLayout<T>({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <Link href={`/practice/${setId}/flashcards`}>
+                <Link href={`/practice/${set.id}/flashcards`}>
                     <Card className="p-4 sm:p-6 hover:bg-accent transition-colors cursor-pointer flex items-center justify-between group">
                         <div className="flex items-center gap-3 sm:gap-4">
                             <div className="p-2 sm:p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
@@ -202,7 +202,7 @@ export function PracticeLayout<T>({
                         </div>
                     </Card>
                 </Link>
-                <Link href={`/practice/${setId}/quizes`}>
+                <Link href={`/practice/${set.id}/quizes`}>
                     <Card className="p-4 sm:p-6 hover:bg-accent transition-colors cursor-pointer flex items-center justify-between group">
                         <div className="flex items-center gap-3 sm:gap-4">
                             <div className="p-2 sm:p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
@@ -215,7 +215,7 @@ export function PracticeLayout<T>({
                         </div>
                     </Card>
                 </Link>
-                <Link href={`/practice/${setId}/writing`}>
+                <Link href={`/practice/${set.id}/writing`}>
                     <Card className="p-4 sm:p-6 hover:bg-accent transition-colors cursor-pointer flex items-center justify-between group">
                         <div className="flex items-center gap-3 sm:gap-4">
                             <div className="p-2 sm:p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
@@ -228,7 +228,7 @@ export function PracticeLayout<T>({
                         </div>
                     </Card>
                 </Link>
-                <Link href={`/practice/${setId}/complete-word`}>
+                <Link href={`/practice/${set.id}/complete-word`}>
                     <Card className="p-4 sm:p-6 hover:bg-accent transition-colors cursor-pointer flex items-center justify-between group">
                         <div className="flex items-center gap-3 sm:gap-4">
                             <div className="p-2 sm:p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
@@ -292,8 +292,8 @@ export function PracticeLayout<T>({
             <ShareModal
                 open={shareModalOpen}
                 onOpenChange={setShareModalOpen}
-                setId={setId}
-                isPublic={isPublic ?? false}
+                setId={set.id}
+                isPublic={set.isPublic ?? false}
                 shareUrl={shareUrl}
             />
         </div>

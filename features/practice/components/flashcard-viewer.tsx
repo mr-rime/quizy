@@ -41,8 +41,10 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [],
     const { playIfEnabled } = useAutoPlayAudio(playAudioOnProgress, currentCard?.term || "");
 
     useEffect(() => {
-        playIfEnabled();
-    }, [currentIndex, playIfEnabled]);
+        if (!isLoadingProgress) {
+            playIfEnabled();
+        }
+    }, [currentIndex, playIfEnabled, isLoadingProgress]);
 
 
 
