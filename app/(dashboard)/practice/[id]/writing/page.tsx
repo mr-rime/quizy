@@ -31,7 +31,7 @@ export default async function WritingPage({ params }: PageProps) {
                 cards={set.cards as Flashcard[]}
                 setId={set.id}
                 setTitle={set.title}
-                playAudioOnProgress={user?.playAudioOnProgress}
+
             />
         </div>
     );
