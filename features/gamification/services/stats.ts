@@ -5,12 +5,21 @@ import { userStats } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-export async function getUserStats(userId: string) {
-    const stats = await db.query.userStats.findFirst({
-        where: eq(userStats.userId, userId),
-    });
-    return stats;
-}
+import { unstable_cache } from "next/cache";
+
+export const getUserStats = unstable_cache(
+    async (userId: string) => {
+        const stats = await db.query.userStats.findFirst({
+            where: eq(userStats.userId, userId),
+        });
+        return stats;
+    },
+    ["user-stats"],
+    {
+        revalidate: 60,
+        tags: ["stats"]
+    }
+);
 
 export async function initializeUserStats(userId: string) {
     await db.insert(userStats).values({

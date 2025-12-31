@@ -1,9 +1,8 @@
 "use server";
-
 import { db } from "@/db/drizzle";
 import { practiceProgress } from "@/db/schema";
 import { eq, and, desc } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, unstable_cache } from "next/cache";
 
 export interface SaveProgressData {
     userId: string;
@@ -28,32 +27,39 @@ export interface ProgressWithSet {
 }
 
 
-export async function getActiveProgress(userId: string): Promise<ProgressWithSet[]> {
-    const progress = await db.query.practiceProgress.findMany({
-        where: eq(practiceProgress.userId, userId),
-        orderBy: [desc(practiceProgress.updatedAt)],
-        with: {
-            set: {
-                columns: {
-                    title: true,
+export const getActiveProgress = unstable_cache(
+    async (userId: string): Promise<ProgressWithSet[]> => {
+        const progress = await db.query.practiceProgress.findMany({
+            where: eq(practiceProgress.userId, userId),
+            orderBy: [desc(practiceProgress.updatedAt)],
+            with: {
+                set: {
+                    columns: {
+                        title: true,
+                    },
                 },
             },
-        },
-    });
+        });
 
-    return progress.map((p) => ({
-        id: p.id,
-        userId: p.userId,
-        setId: p.setId,
-        setTitle: p.set.title,
-        mode: p.mode,
-        currentIndex: p.currentIndex,
-        totalQuestions: p.totalQuestions,
-        score: p.score,
-        createdAt: p.createdAt,
-        updatedAt: p.updatedAt,
-    }));
-}
+        return progress.map((p) => ({
+            id: p.id,
+            userId: p.userId,
+            setId: p.setId,
+            setTitle: p.set.title,
+            mode: p.mode,
+            currentIndex: p.currentIndex,
+            totalQuestions: p.totalQuestions,
+            score: p.score,
+            createdAt: p.createdAt,
+            updatedAt: p.updatedAt,
+        }));
+    },
+    ["active-progress"],
+    {
+        revalidate: 60,
+        tags: ["progress"]
+    }
+);
 
 
 export async function getProgressForSet(
