@@ -14,6 +14,8 @@ export type FlashcardFormData = {
     title: string;
     description?: string;
     isPublic?: boolean;
+    sourceLanguage?: string;
+    targetLanguage?: string;
     flashcards: {
         id?: string;
         term: string;
@@ -43,6 +45,8 @@ export function FlashcardForm({ setId, initialData }: FlashcardFormProps = {}) {
             title: "",
             description: "",
             isPublic: false,
+            sourceLanguage: "en",
+            targetLanguage: "ar",
             flashcards: [{
                 id: "1",
                 term: "",
@@ -60,6 +64,8 @@ export function FlashcardForm({ setId, initialData }: FlashcardFormProps = {}) {
                     const formData = {
                         ...data,
                         isPublic: data.isPublic ?? false,
+                        sourceLanguage: data.sourceLanguage ?? "en",
+                        targetLanguage: data.targetLanguage ?? "ar",
                     };
 
                     const result = setId
