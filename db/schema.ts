@@ -7,7 +7,8 @@ import {
     primaryKey,
     integer,
     boolean,
-    json
+    json,
+    pgEnum
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -18,7 +19,7 @@ export const processedImages = pgTable("processed_image", {
     width: integer("width"),
     height: integer("height"),
     createdAt: timestamp("created_at").defaultNow(),
-});
+}).enableRLS();
 
 export const users = pgTable("user", {
     id: uuid("id").defaultRandom().primaryKey(),
@@ -32,7 +33,7 @@ export const users = pgTable("user", {
     updatedAt: timestamp("updated_at")
         .defaultNow()
         .$onUpdate(() => new Date()),
-});
+}).enableRLS();
 
 export const sessions = pgTable("session", {
     id: uuid("id").defaultRandom().primaryKey(),
@@ -47,13 +48,16 @@ export const sessions = pgTable("session", {
     updatedAt: timestamp("updated_at")
         .defaultNow()
         .$onUpdate(() => new Date()),
-});
+}).enableRLS();
 
+
+export const categoryEnum = pgEnum("category", ["english", "other"]);
 
 export const flashcardSets = pgTable("flashcard_set", {
     id: uuid("id").defaultRandom().primaryKey(),
     title: varchar("title", { length: 100 }).notNull(),
     description: varchar("description", { length: 500 }),
+    category: categoryEnum("category").notNull().default("english"),
     isPublic: boolean("is_public").notNull().default(false),
     isPublished: boolean("is_published").notNull().default(false),
     likeCount: integer("like_count").notNull().default(0),
@@ -64,7 +68,7 @@ export const flashcardSets = pgTable("flashcard_set", {
     updatedAt: timestamp("updated_at")
         .defaultNow()
         .$onUpdate(() => new Date()),
-});
+}).enableRLS();
 
 
 export const cards = pgTable("card", {
@@ -76,11 +80,12 @@ export const cards = pgTable("card", {
     definition: varchar("definition", { length: 2000 }),
     imageUrl: varchar("image_url", { length: 500 }),
     examples: json("examples"),
+    wordType: varchar("word_type", { length: 50 }),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
         .$onUpdate(() => new Date()),
-});
+}).enableRLS();
 
 export const folders = pgTable("folder", {
     id: uuid("id").defaultRandom().primaryKey(),
@@ -95,7 +100,7 @@ export const folders = pgTable("folder", {
     updatedAt: timestamp("updated_at")
         .defaultNow()
         .$onUpdate(() => new Date()),
-});
+}).enableRLS();
 
 export const folderSets = pgTable("folder_set", {
     folderId: uuid("folder_id")
@@ -106,7 +111,7 @@ export const folderSets = pgTable("folder_set", {
         .references(() => flashcardSets.id, { onDelete: "cascade" }),
 }, (t) => ({
     pk: primaryKey({ columns: [t.folderId, t.setId] }),
-}));
+})).enableRLS();
 
 export const savedSets = pgTable("saved_set", {
     id: uuid("id").defaultRandom().primaryKey(),
@@ -117,7 +122,7 @@ export const savedSets = pgTable("saved_set", {
         .notNull()
         .references(() => flashcardSets.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").defaultNow(),
-});
+}).enableRLS();
 
 export const setComments = pgTable("set_comment", {
     id: uuid("id").defaultRandom().primaryKey(),
@@ -133,7 +138,7 @@ export const setComments = pgTable("set_comment", {
     updatedAt: timestamp("updated_at")
         .defaultNow()
         .$onUpdate(() => new Date()),
-});
+}).enableRLS();
 
 export const setLikes = pgTable("set_like", {
     userId: uuid("user_id")
@@ -145,7 +150,7 @@ export const setLikes = pgTable("set_like", {
     createdAt: timestamp("created_at").defaultNow(),
 }, (t) => ({
     pk: primaryKey({ columns: [t.userId, t.setId] }),
-}));
+})).enableRLS();
 
 export const setJoins = pgTable("set_join", {
     userId: uuid("user_id")
@@ -161,7 +166,7 @@ export const setJoins = pgTable("set_join", {
         .$onUpdate(() => new Date()),
 }, (t) => ({
     pk: primaryKey({ columns: [t.userId, t.setId] }),
-}));
+})).enableRLS();
 
 
 export const userRelations = relations(users, ({ many, one }) => ({
@@ -287,7 +292,7 @@ export const favorites = pgTable("favorite", {
         .notNull()
         .references(() => cards.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").defaultNow(),
-});
+}).enableRLS();
 
 export const favoriteRelations = relations(favorites, ({ one }) => ({
     user: one(users, {
@@ -316,7 +321,7 @@ export const practiceProgress = pgTable("practice_progress", {
     updatedAt: timestamp("updated_at")
         .defaultNow()
         .$onUpdate(() => new Date()),
-});
+}).enableRLS();
 
 export const practiceProgressRelations = relations(practiceProgress, ({ one }) => ({
     user: one(users, {
@@ -343,7 +348,7 @@ export const userStats = pgTable("user_stats", {
     updatedAt: timestamp("updated_at")
         .defaultNow()
         .$onUpdate(() => new Date()),
-});
+}).enableRLS();
 
 export const achievements = pgTable("achievement", {
     id: varchar("id", { length: 50 }).primaryKey(),
@@ -352,7 +357,7 @@ export const achievements = pgTable("achievement", {
     icon: varchar("icon", { length: 50 }).notNull(),
     requiredValue: integer("required_value").notNull(),
     category: varchar("category", { length: 20 }).notNull(),
-});
+}).enableRLS();
 
 export const userAchievements = pgTable("user_achievement", {
     id: uuid("id").defaultRandom().primaryKey(),
@@ -361,7 +366,7 @@ export const userAchievements = pgTable("user_achievement", {
     achievementId: varchar("achievement_id", { length: 50 }).notNull()
         .references(() => achievements.id, { onDelete: "cascade" }),
     unlockedAt: timestamp("unlocked_at").defaultNow(),
-});
+}).enableRLS();
 
 export const userStatsRelations = relations(userStats, ({ one }) => ({
     user: one(users, {

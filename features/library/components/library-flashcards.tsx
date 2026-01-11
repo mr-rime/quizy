@@ -3,6 +3,7 @@ import { FlashcardSet } from "@/types";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Layers } from "lucide-react";
+import { CreateSetButton } from "@/features/flashcards/components/create-set-button";
 
 interface LibraryFlashcardsProps {
     sets: FlashcardSet[];
@@ -105,11 +106,7 @@ export function LibraryFlashcards({ sets }: LibraryFlashcardsProps) {
                     <p className="text-muted-foreground mb-6 max-w-sm">
                         You haven&apos;t created any flashcard sets yet. Start building your collection now!
                     </p>
-                    <Link href="/create-set">
-                        <Button size="lg" className="rounded-full px-8">
-                            Create New Set
-                        </Button>
-                    </Link>
+                    <CreateSetButton className="rounded-full px-8" />
                 </div>
             )}
         </div>

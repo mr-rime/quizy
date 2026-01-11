@@ -21,6 +21,7 @@ interface Flashcard {
     definition: string | null;
     imageUrl: string | null;
     examples?: { english: string; arabic: string }[] | null;
+    wordType?: string | null;
 }
 
 interface CompleteWordGameProps {
@@ -353,6 +354,12 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
                         </span>
                     ))}
                 </div>
+
+                {currentCard.wordType && (
+                    <div className="text-xl font-serif text-muted-foreground italic mb-4">
+                        ({currentCard.wordType})
+                    </div>
+                )}
 
                 <div className="h-[200px] w-full flex items-center justify-center">
                     {currentCard.imageUrl ? (

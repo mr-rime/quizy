@@ -25,6 +25,7 @@ interface Flashcard {
     definition: string | null;
     imageUrl: string | null;
     examples?: { english: string; arabic: string }[] | null;
+    wordType?: string | null;
 }
 
 interface QuizGameProps {
@@ -225,6 +226,11 @@ export function QuizGame({ cards, setId, userId, playAudioOnProgress = false }: 
                     )}
                     <div className="text-xs sm:text-sm text-muted-foreground uppercase tracking-wider">Term</div>
                     <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold px-2">{currentQuestion.card.term}</h2>
+                    {currentQuestion.card.wordType && (
+                        <div className="text-lg sm:text-xl font-serif text-muted-foreground italic mt-2">
+                            ({currentQuestion.card.wordType})
+                        </div>
+                    )}
                     {currentQuestion.card.imageUrl && (
                         <div className="relative w-full max-w-md max-h-32 sm:max-h-40 lg:max-h-48 flex items-center justify-center mt-2">
                             <OptimizedImage

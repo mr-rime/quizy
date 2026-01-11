@@ -26,6 +26,7 @@ export async function createFlashcardSet(data: CreateFlashcardSetInput) {
             const [newSet] = await tx.insert(flashcardSets).values({
                 title: validatedData.title,
                 description: validatedData.description,
+                category: validatedData.category,
                 isPublic: validatedData.isPublic ?? false,
                 userId: session.userId,
             }).returning({ id: flashcardSets.id });
@@ -38,6 +39,7 @@ export async function createFlashcardSet(data: CreateFlashcardSetInput) {
                         definition: card.definition,
                         imageUrl: card.image,
                         examples: card.examples,
+                        wordType: card.wordType,
                     }))
                 );
             }
