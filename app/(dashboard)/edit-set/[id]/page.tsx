@@ -20,6 +20,7 @@ export default async function EditSetPage({ params }: PageProps) {
     const initialData = {
         title: set.title,
         description: set.description || "",
+        category: set.category as "english" | "other",
         flashcards: set.cards.map((card) => ({
             id: card.id,
             term: card.term,

@@ -10,7 +10,6 @@ import { ExamplesModal } from "./examples-modal";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import confetti from "canvas-confetti";
 import { OptimizedImage } from "@/components/optimized-image";
 import { useSoundEffects } from "@/shared/hooks/use-sound-effects";
 import { useAutoPlayAudio } from "@/features/practice/hooks/use-auto-play-audio";
@@ -21,6 +20,7 @@ interface Flashcard {
     definition: string | null;
     imageUrl: string | null;
     examples?: { english: string; arabic: string }[] | null;
+    wordType?: string | null;
 }
 
 interface WritingGameProps {
@@ -128,9 +128,6 @@ export function WritingGame({ cards, setId, setTitle, playAudioOnProgress = fals
 
         if (firstMismatch !== -1) {
             const nextChar = answer[firstMismatch];
-            // If the mismatch is beyond current input length, append it
-            // If it's a wrong character, replace up to that point + correct char? 
-            // Better behavior: just set the input value to the correct prefix + the hint character
             const correctPrefix = answer.slice(0, firstMismatch);
             const newValue = correctPrefix + nextChar;
             setInputValue(newValue);
@@ -165,6 +162,11 @@ export function WritingGame({ cards, setId, setTitle, playAudioOnProgress = fals
                 <h2 className="text-3xl font-bold bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                     {currentCard.definition || "What's the term?"}
                 </h2>
+                {currentCard.wordType && (
+                    <div className="text-xl font-serif text-muted-foreground italic mt-2">
+                        ({currentCard.wordType})
+                    </div>
+                )}
 
                 <div className="h-[200px] w-full flex items-center justify-center">
                     {currentCard.imageUrl ? (

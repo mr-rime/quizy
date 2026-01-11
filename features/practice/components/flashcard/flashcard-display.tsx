@@ -76,6 +76,11 @@ export function FlashcardDisplay({
                             Term
                         </div>
                         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center px-2">{card.term}</h2>
+                        {card.wordType && (
+                            <span className="text-sm sm:text-base text-muted-foreground mt-2 italic font-serif">
+                                ({card.wordType})
+                            </span>
+                        )}
                     </Card>
 
                     <Card

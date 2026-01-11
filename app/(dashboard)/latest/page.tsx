@@ -10,25 +10,24 @@ import { LatestSets } from "./components/latest-sets";
 import { DashboardSkeleton } from "@/features/flashcards/components/dashboard-skeleton";
 import { Skeleton } from "@/components/skeleton";
 
+const ActivitySkeleton = () => (
+    <div className="w-full h-40 bg-card rounded-2xl border border-border/50 animate-pulse" />
+);
+
+const StatsSkeleton = () => (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-24 w-full rounded-xl" />
+        ))}
+    </div>
+);
+
 export default async function LatestPage() {
     const cookieStore = await cookies();
     const token = cookieStore.get("session_token")?.value;
     const session = await getSessionCookie(token);
     const userId = session?.userId || "";
     const user = await getCurrentUser();
-
-    // Skeletons for different sections
-    const ActivitySkeleton = () => (
-        <div className="w-full h-40 bg-card rounded-2xl border border-border/50 animate-pulse" />
-    );
-
-    const StatsSkeleton = () => (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-24 w-full rounded-xl" />
-            ))}
-        </div>
-    );
 
     return (
         <DashboardShell>

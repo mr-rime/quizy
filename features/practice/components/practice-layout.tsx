@@ -109,7 +109,7 @@ export function PracticeLayout<T>({
         return <p className="text-center py-8 text-muted-foreground">Flashcard set not found.</p>;
     }
 
-    const { id: setId, title, cards, isPublic, isPublished, folderSets } = set;
+
 
     const firstFolder = set.folderSets?.[0]?.folder;
     const canViewFolder = firstFolder && (firstFolder.isPublic || firstFolder.userId === currentUserId);

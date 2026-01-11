@@ -13,6 +13,7 @@ import { createFlashcardSet } from "../services/create-set";
 export type FlashcardFormData = {
     title: string;
     description?: string;
+    category: "english" | "other";
     isPublic?: boolean;
     sourceLanguage?: string;
     targetLanguage?: string;
@@ -21,6 +22,7 @@ export type FlashcardFormData = {
         term: string;
         definition: string;
         image?: string;
+        wordType?: string;
         examples?: { english: string; arabic: string }[];
     }[];
 }
@@ -32,18 +34,20 @@ import { updateFlashcardSet } from "../services/update-set";
 interface FlashcardFormProps {
     setId?: string;
     initialData?: FlashcardFormData;
+    defaultCategory?: "english" | "other";
 }
 
 import { useSetDraft } from "../hooks/use-set-draft";
 import { AutoSaveDraft } from "./auto-save-draft";
 
 
-export function FlashcardForm({ setId, initialData }: FlashcardFormProps = {}) {
+export function FlashcardForm({ setId, initialData, defaultCategory = "other" }: FlashcardFormProps = {}) {
     const methods = useForm<FlashcardFormData>({
         resolver: zodResolver(createFlashcardSetSchema),
         defaultValues: initialData || {
             title: "",
             description: "",
+            category: defaultCategory,
             isPublic: false,
             sourceLanguage: "en",
             targetLanguage: "ar",
@@ -63,6 +67,7 @@ export function FlashcardForm({ setId, initialData }: FlashcardFormProps = {}) {
                 try {
                     const formData = {
                         ...data,
+                        category: data.category,
                         isPublic: data.isPublic ?? false,
                         sourceLanguage: data.sourceLanguage ?? "en",
                         targetLanguage: data.targetLanguage ?? "ar",
@@ -83,7 +88,7 @@ export function FlashcardForm({ setId, initialData }: FlashcardFormProps = {}) {
                     console.error(error);
                     return null;
                 }
-            }} />
+            }} defaultCategory={defaultCategory} />
         </FormProvider>
     )
 }
@@ -94,8 +99,8 @@ type SetOperationResult = {
     error?: string;
 };
 
-function FlashcardFormContent({ setId, onSubmitProp }: { setId?: string, onSubmitProp: (data: FlashcardFormData) => Promise<SetOperationResult | null> }) {
-    const { handleSubmit } = useFormContext<FlashcardFormData>();
+function FlashcardFormContent({ setId, onSubmitProp, defaultCategory }: { setId?: string, onSubmitProp: (data: FlashcardFormData) => Promise<SetOperationResult | null>, defaultCategory?: "english" | "other" }) {
+    const { handleSubmit, register } = useFormContext<FlashcardFormData>();
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
     const { clearDraft } = useSetDraft(setId);
@@ -111,8 +116,11 @@ function FlashcardFormContent({ setId, onSubmitProp }: { setId?: string, onSubmi
         });
     };
 
+    console.log("defaultCategory", defaultCategory);
+
     return (
-        <form id="create-set-form" onSubmit={handleSubmit(onSubmit)}>
+        <form id="create-set-form" onSubmit={handleSubmit(onSubmit, (errors) => console.log("Form errors:", errors))}>
+            <input type="hidden" {...register("category")} />
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8 sm:mb-10">
                 <h2 className="text-xl sm:text-2xl font-medium">{setId ? "Edit flashcard set" : "Create a new flashcard set"}</h2>
                 <Button type="submit" disabled={isPending} className="w-full sm:w-auto">

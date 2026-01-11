@@ -9,9 +9,10 @@ import { Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { FlashcardSet } from "@/types";
 import { StudyMaterialList } from "./study-material-list";
-import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/lib/hooks/use-debounce";
+
+import { TopicSelectionModal } from "@/features/flashcards/components/topic-selection-modal";
 
 interface AddStudyMaterialsModalProps {
     open: boolean;
@@ -25,6 +26,7 @@ export function AddStudyMaterialsModal({ open, onOpenChange, folderId, currentSe
     const [loading, setLoading] = useState(false);
     const [selectedSets, setSelectedSets] = useState<Set<string>>(new Set(currentSetIds));
     const [searchQuery, setSearchQuery] = useState("");
+    const [openTopicModal, setOpenTopicModal] = useState(false);
 
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
@@ -91,11 +93,9 @@ export function AddStudyMaterialsModal({ open, onOpenChange, folderId, currentSe
                     <div className="flex flex-col gap-4 mb-4">
                         <div className="flex justify-between items-center">
                             <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Flashcard sets</h3>
-                            <Button variant="ghost" asChild className="text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20">
-                                <Link href={"/create-set"}>
-                                    <Plus className="h-4 w-4" />
-                                    Create new
-                                </Link>
+                            <Button variant="ghost" onClick={() => setOpenTopicModal(true)} className="text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                                <Plus className="h-4 w-4" />
+                                Create new
                             </Button>
                         </div>
                         <div className="relative">
@@ -123,6 +123,11 @@ export function AddStudyMaterialsModal({ open, onOpenChange, folderId, currentSe
                     </Button>
                 </div>
             </DialogContent>
+
+            <TopicSelectionModal
+                open={openTopicModal}
+                onOpenChange={setOpenTopicModal}
+            />
         </Dialog>
     );
 }

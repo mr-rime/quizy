@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Layers } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { LatestSetsHeader } from "./latest-sets-client";
+import { CreateSetButton } from "@/features/flashcards/components/create-set-button";
 
 interface LatestSetsProps {
     userId: string;
@@ -14,6 +16,7 @@ export async function LatestSets({ userId }: LatestSetsProps) {
 
     return (
         <>
+            <LatestSetsHeader />
             <h2 className="text-lg sm:text-xl font-medium mb-5">Recents</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 w-full">
@@ -41,11 +44,7 @@ export async function LatestSets({ userId }: LatestSetsProps) {
                         <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 max-w-sm">
                             You haven&apos;t created or practiced any sets yet. Start by creating your first flashcard set!
                         </p>
-                        <Link href="/create-set">
-                            <Button size="lg" className="rounded-full px-6 sm:px-8 bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20">
-                                Create New Set
-                            </Button>
-                        </Link>
+                        <CreateSetButton className="rounded-full px-6 sm:px-8 bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20" />
                     </div>
                 )}
             </div>

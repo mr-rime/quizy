@@ -43,7 +43,7 @@ export function HeroSection() {
                         transition={{ duration: 0.5, delay: 0.2 }}
                         className="text-lg text-zinc-400 max-w-lg leading-relaxed"
                     >
-                        Create interactive flashcards, track your progress, and study more effectively with Quizy's intelligent learning platform.
+                        Create interactive flashcards, track your progress, and study more effectively with Quizy&apos;s intelligent learning platform.
                     </motion.p>
 
                     <motion.div

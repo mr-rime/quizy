@@ -40,6 +40,7 @@ export async function updateFlashcardSet(data: UpdateFlashcardSetInput) {
                 .set({
                     title: validatedData.title,
                     description: validatedData.description,
+                    category: validatedData.category,
                     isPublic: validatedData.isPublic ?? false,
                 })
                 .where(eq(flashcardSets.id, data.setId));
@@ -55,6 +56,7 @@ export async function updateFlashcardSet(data: UpdateFlashcardSetInput) {
                         definition: card.definition,
                         imageUrl: card.image,
                         examples: card.examples,
+                        wordType: card.wordType,
                     }))
                 );
             }

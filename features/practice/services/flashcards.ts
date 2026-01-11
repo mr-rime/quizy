@@ -59,7 +59,7 @@ export const getFlashcardSet = unstable_cache(
 );
 
 export const getFlashcardSets = unstable_cache(
-    async (userId: string) => {
+    async (userId: string, limit: number = 20, offset: number = 0) => {
         if (!userId) return [];
 
         const sets = await db.query.flashcardSets.findMany({
@@ -69,6 +69,8 @@ export const getFlashcardSets = unstable_cache(
                 user: true,
             },
             orderBy: (sets, { desc }) => [desc(sets.createdAt)],
+            limit: limit,
+            offset: offset,
         });
         return sets;
     },

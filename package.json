@@ -10,7 +10,8 @@
     "db:migrate": "npx drizzle-kit migrate",
     "db:push": "npx drizzle-kit push",
     "lint": "eslint",
-    "lint:fix": "eslint --fix"
+    "lint:fix": "eslint --fix",
+    "enrich-cards": "tsx scripts/enrich-cards.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
