@@ -26,13 +26,14 @@ export default async function EditSetPage({ params }: PageProps) {
             term: card.term,
             definition: card.definition || "",
             image: card.imageUrl || "",
+            wordType: card.wordType || "",
             examples: (card.examples as { english: string; arabic: string }[]) || [],
         })),
     };
 
     return (
         <div>
-            <FlashcardForm key={id} setId={id} initialData={initialData} />
+            <FlashcardForm key={id} setId={id} initialData={initialData} defaultCategory={set.category as "english" | "other"} />
         </div>
     );
 }

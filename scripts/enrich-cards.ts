@@ -31,6 +31,7 @@ interface BilingualExample {
 }
 
 interface EnrichmentResult {
+    isValid?: boolean;
     examples?: BilingualExample[];
     wordType?: string;
 }
@@ -95,7 +96,13 @@ async function enrichCardWithAI(term: string, definition: string | null): Promis
 You are an expert Arabic linguist and translator specializing in educational content.
 
 TASK:
-Create 3 high-quality bilingual English-Arabic examples and identify the word type for the term: "${term}"${definition ? ` (Context/Meaning: ${definition})` : ''}.
+Analyze the term "${term}"${definition ? ` (Context/Meaning: ${definition})` : ''}.
+First, determine if this is a valid English word or phrase that has a meaningful definition.
+
+If it is NOT a valid/meaningless word (e.g. nonsense, random characters, typos, or not English), return:
+{ "isValid": false }
+
+If it IS a valid word, create 3 high-quality bilingual English-Arabic examples and identify the word type.
 
 STRICT REQUIREMENTS:
 1. **English Examples**: Must be natural, complete sentences containing the exact word "${term}". Do NOT use synonyms.
@@ -105,6 +112,7 @@ STRICT REQUIREMENTS:
 
 JSON FORMAT:
 {
+  "isValid": true,
   "wordType": "Type (e.g., Noun)",
   "examples": [
     { "english": "English sentence 1", "arabic": "Arabic translation 1" },
@@ -126,12 +134,18 @@ JSON FORMAT:
         try {
             const parsed = JSON.parse(jsonMatch[0]);
 
+            if (parsed.isValid === false) {
+                console.warn(`⚠️ Invalid word for "${term}"`);
+                return { isValid: false };
+            }
+
             if (!parsed.examples || !Array.isArray(parsed.examples) || parsed.examples.length === 0) {
                 console.warn(`⚠️ Invalid JSON structure for "${term}"`);
                 return {};
             }
 
             return {
+                isValid: true,
                 examples: parsed.examples,
                 wordType: parsed.wordType || null,
             };
@@ -215,6 +229,10 @@ async function enrichCards() {
             while (retry <= MAX_RETRIES) {
                 enrichment = await enrichCardWithAI(card.term, card.definition);
 
+                if (enrichment.isValid === false) {
+                    break;
+                }
+
                 if (enrichment.examples && enrichment.examples.length > 0 && enrichment.wordType) {
                     break;
                 }
@@ -224,6 +242,12 @@ async function enrichCards() {
                     await sleep(3000);
                 }
                 retry++;
+            }
+
+            if (enrichment.isValid === false) {
+                console.log(`   🚫 Invalid/Meaningless word. Skipping.`);
+                skippedCount++;
+                continue;
             }
 
             if (!enrichment.examples?.length || !enrichment.wordType) {
