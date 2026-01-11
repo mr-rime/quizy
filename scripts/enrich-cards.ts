@@ -23,13 +23,7 @@ console.log('\n');
 const queryClient = postgres(process.env.DATABASE_URL!);
 const db = drizzle(queryClient);
 
-interface CardData {
-    id: string;
-    term: string;
-    definition: string | null;
-    examples: any;
-    wordType: string | null;
-}
+
 
 interface BilingualExample {
     english: string;
@@ -91,8 +85,8 @@ async function queryHuggingFace(prompt: string, retries = 5): Promise<string> {
         const data = await response.json();
         return data.choices[0].message.content;
 
-    } catch (error: any) {
-        throw new Error(`HF API Error: ${error.message || error}`);
+    } catch (error: Error | unknown) {
+        throw new Error(`HF API Error: ${error instanceof Error ? error.message : String(error)}`);
     }
 }
 
@@ -141,7 +135,7 @@ JSON FORMAT:
                 examples: parsed.examples,
                 wordType: parsed.wordType || null,
             };
-        } catch (parseErr) {
+        } catch {
             console.warn(`⚠️ JSON parse error for "${term}"`);
             return {};
         }

@@ -1,9 +1,11 @@
+"use client";
+
 import { LibraryItemCard } from "./library-item-card";
 import { FlashcardSet } from "@/types";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Layers } from "lucide-react";
+import { Layers, Loader2 } from "lucide-react";
 import { CreateSetButton } from "@/features/flashcards/components/create-set-button";
+import { useState, useRef, useCallback } from "react";
+import { getLibrarySetsAction } from "../actions";
 
 interface LibraryFlashcardsProps {
     sets: FlashcardSet[];
@@ -11,8 +13,51 @@ interface LibraryFlashcardsProps {
 
 const date = Date.now()
 
-export function LibraryFlashcards({ sets }: LibraryFlashcardsProps) {
-    const sortedItems = [...sets]
+export function LibraryFlashcards({ sets: initialSets }: LibraryFlashcardsProps) {
+    const [items, setItems] = useState<FlashcardSet[]>(initialSets);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+    const observer = useRef<IntersectionObserver | null>(null);
+
+    const loadMoreItems = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const { sets: newSets, nextPage } = await getLibrarySetsAction(page);
+
+            if (newSets.length > 0) {
+                setItems(prev => {
+                    const existingIds = new Set(prev.map(s => s.id));
+                    const uniqueNewSets = newSets.filter(s => !existingIds.has(s.id));
+                    return [...prev, ...uniqueNewSets];
+                });
+                setPage(prev => prev + 1);
+            }
+
+            if (!nextPage) {
+                setHasMore(false);
+            }
+        } catch (error) {
+            console.error("Failed to load more sets:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [page]);
+
+    const lastElementRef = useCallback((node: HTMLDivElement | null) => {
+        if (isLoading) return;
+        if (observer.current) observer.current.disconnect();
+
+        observer.current = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting && hasMore) {
+                loadMoreItems();
+            }
+        });
+
+        if (node) observer.current.observe(node);
+    }, [isLoading, hasMore, loadMoreItems]);
+
+    const sortedItems = [...items]
         .filter((item): item is FlashcardSet & { createdAt: string } => !!item.createdAt)
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
@@ -36,7 +81,7 @@ export function LibraryFlashcards({ sets }: LibraryFlashcardsProps) {
     });
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 pb-8">
             {recentItems.length > 0 && (
                 <section>
                     <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">In the past hour</h3>
@@ -81,23 +126,46 @@ export function LibraryFlashcards({ sets }: LibraryFlashcardsProps) {
                 <section>
                     <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Older</h3>
                     <div className="grid gap-4">
-                        {olderItems.map(item => (
-                            <LibraryItemCard
-                                key={item.id}
-                                item={{
-                                    id: item.id,
-                                    title: item.title,
-                                    termCount: item.cards?.length || 0,
-                                    createdAt: item.createdAt!,
-                                    type: 'set'
-                                }}
-                            />
-                        ))}
+                        {olderItems.map((item, index) => {
+                            if (index === olderItems.length - 1) {
+                                return (
+                                    <div ref={lastElementRef} key={item.id}>
+                                        <LibraryItemCard
+                                            item={{
+                                                id: item.id,
+                                                title: item.title,
+                                                termCount: item.cards?.length || 0,
+                                                createdAt: item.createdAt!,
+                                                type: 'set'
+                                            }}
+                                        />
+                                    </div>
+                                )
+                            }
+                            return (
+                                <LibraryItemCard
+                                    key={item.id}
+                                    item={{
+                                        id: item.id,
+                                        title: item.title,
+                                        termCount: item.cards?.length || 0,
+                                        createdAt: item.createdAt!,
+                                        type: 'set'
+                                    }}
+                                />
+                            )
+                        })}
                     </div>
                 </section>
             )}
 
-            {sets.length === 0 && (
+            {isLoading && (
+                <div className="flex justify-center py-4">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+            )}
+
+            {items.length === 0 && !isLoading && (
                 <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
                     <div className="rounded-full bg-muted p-6 mb-6">
                         <Layers className="h-12 w-12 text-muted-foreground" />

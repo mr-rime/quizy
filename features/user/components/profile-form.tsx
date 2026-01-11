@@ -244,7 +244,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
                                         Play audio on next card
                                     </Label>
                                     <p className="text-sm text-muted-foreground">
-                                        Automatically play the term's audio when you move to the next card in practice games
+                                        Automatically play the term&apos;s audio when you move to the next card in practice games
                                     </p>
                                 </div>
                                 <Switch

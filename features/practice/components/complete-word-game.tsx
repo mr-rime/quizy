@@ -128,46 +128,30 @@ const ModeSelection = memo(({ onSelectMode }: { onSelectMode: (mode: GameMode) =
 
 ModeSelection.displayName = "ModeSelection";
 
-export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, setTitle, playAudioOnProgress = false }: CompleteWordGameProps) {
-    const router = useRouter();
-    const [mode, setMode] = useState<GameMode>(null);
-    const [currentIndex, setCurrentIndex] = useState(0);
+const ActiveGameCard = memo(({
+    card,
+    mode,
+    onNext,
+}: {
+    card: Flashcard;
+    mode: "timed" | "untimed";
+    onNext: () => void;
+}) => {
     const [inputValue, setInputValue] = useState("");
     const [inputStatus, setInputStatus] = useState<"idle" | "correct" | "incorrect">("idle");
     const [showExamples, setShowExamples] = useState(false);
     const [timeLeft, setTimeLeft] = useState(15);
-    const [isTimerActive, setIsTimerActive] = useState(false);
+    const [isTimerActive, setIsTimerActive] = useState(mode === "timed");
     const [isPaused, setIsPaused] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const { playCorrect, playIncorrect } = useSoundEffects();
 
-    const [shuffledCards, setShuffledCards] = useState<Flashcard[]>([]);
-
-    const currentCard = shuffledCards[currentIndex];
-    const nextCard = shuffledCards[currentIndex + 1];
-    const answer = currentCard?.term || "";
-
-    const { playIfEnabled } = useAutoPlayAudio(playAudioOnProgress, nextCard?.term || "");
+    const answer = card.term;
 
     const partialWordData = useMemo(() => {
-        if (!currentCard) return { partial: "", hiddenIndices: [] };
-        return createPartialWord(currentCard.term);
-    }, [currentCard]);
-
-    useEffect(() => {
-        if (mode === "timed" && isTimerActive && timeLeft > 0 && !isPaused) {
-            timerRef.current = setTimeout(() => {
-                setTimeLeft(prev => prev - 1);
-            }, 1000);
-        } else if (timeLeft === 0 && mode === "timed") {
-            handleTimeUp();
-        }
-
-        return () => {
-            if (timerRef.current) clearTimeout(timerRef.current);
-        };
-    }, [mode, isTimerActive, timeLeft, isPaused]);
+        return createPartialWord(card.term);
+    }, [card.term]);
 
     useEffect(() => {
         const handleVisibilityChange = () => {
@@ -181,17 +165,11 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
     }, []);
 
     useEffect(() => {
-        if (currentCard && mode) {
-            setInputValue("");
-            setInputStatus("idle");
-            setTimeLeft(15);
-            setIsTimerActive(mode === "timed");
-
-            setTimeout(() => {
-                inputRef.current?.focus();
-            }, 100);
-        }
-    }, [currentIndex, currentCard, mode]);
+        const timer = setTimeout(() => {
+            inputRef.current?.focus();
+        }, 100);
+        return () => clearTimeout(timer);
+    }, []);
 
     const handleTimeUp = useCallback(() => {
         setIsTimerActive(false);
@@ -201,16 +179,9 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
         toast.error("Time's up!");
 
         setTimeout(() => {
-            if (currentIndex < shuffledCards.length - 1) {
-                // Play audio for the next card before moving
-                playIfEnabled();
-                setCurrentIndex(prev => prev + 1);
-            } else {
-                toast.success("Set completed!");
-                router.push(`/practice/${setId}`);
-            }
+            onNext();
         }, 2000);
-    }, [currentIndex, shuffledCards.length, playIncorrect, router, setId, answer, playIfEnabled]);
+    }, [answer, playIncorrect, onNext]);
 
     const handleCorrect = useCallback(() => {
         setInputStatus("correct");
@@ -224,16 +195,9 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
         });
 
         setTimeout(() => {
-            if (currentIndex < shuffledCards.length - 1) {
-                // Play audio for the next card before moving
-                playIfEnabled();
-                setCurrentIndex(prev => prev + 1);
-            } else {
-                toast.success("Set completed!");
-                router.push(`/practice/${setId}`);
-            }
+            onNext();
         }, 1500);
-    }, [currentIndex, shuffledCards.length, playCorrect, router, setId, playIfEnabled]);
+    }, [playCorrect, onNext]);
 
     const checkSubmission = useCallback((value: string) => {
         if (value.toLowerCase().trim() === answer.toLowerCase().trim()) {
@@ -245,7 +209,6 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
             }
         }
     }, [answer, handleCorrect, playIncorrect]);
-
 
     const onInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value;
@@ -260,7 +223,6 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
         e.preventDefault();
         checkSubmission(inputValue);
     }, [inputValue, checkSubmission]);
-
 
     const giveHint = useCallback(() => {
         let firstMismatch = -1;
@@ -287,7 +249,6 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
 
     const handleBlur = useCallback((e: React.FocusEvent) => {
         const relatedTarget = e.relatedTarget as HTMLElement;
-
         if (relatedTarget && (
             relatedTarget.tagName === 'BUTTON' ||
             relatedTarget.closest('button') ||
@@ -299,11 +260,6 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
         }, 10);
     }, []);
 
-    const handleModeSelect = useCallback((selectedMode: GameMode) => {
-        setShuffledCards(shuffleArray(cards));
-        setMode(selectedMode);
-    }, [cards]);
-
     const handleShowExamples = useCallback(() => {
         setShowExamples(true);
     }, []);
@@ -312,29 +268,24 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
         setShowExamples(open);
     }, []);
 
-    if (!mode) {
-        return <ModeSelection onSelectMode={handleModeSelect} />;
-    }
+    // Timer effect
+    useEffect(() => {
+        if (mode === "timed" && isTimerActive && timeLeft > 0 && !isPaused) {
+            timerRef.current = setTimeout(() => {
+                setTimeLeft(prev => prev - 1);
+            }, 1000);
+        } else if (timeLeft === 0 && mode === "timed" && isTimerActive) {
+            timerRef.current = setTimeout(handleTimeUp, 0);
+        }
 
-    if (!currentCard) return null;
+        return () => {
+            if (timerRef.current) clearTimeout(timerRef.current);
+        };
+    }, [mode, isTimerActive, timeLeft, isPaused, handleTimeUp]);
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-[80vh] gap-8 p-4 max-w-4xl mx-auto w-full">
-            {nextCard?.imageUrl && (
-                <link rel="preload" as="image" href={nextCard.imageUrl} />
-            )}
-
-            <div className="flex items-center gap-4 w-full justify-between">
-                <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={() => router.back()}>
-                        <ArrowLeft className="h-6 w-6" />
-                    </Button>
-                    <div className="text-left">
-                        <h1 className="text-3xl font-bold">Complete: {setTitle}</h1>
-                        <p className="text-muted-foreground">{currentIndex + 1} / {shuffledCards.length} terms</p>
-                    </div>
-                </div>
-
+        <div className="flex flex-col items-center justify-center w-full gap-8">
+            <div className="flex items-center gap-4 w-full justify-end">
                 {mode === "timed" && (
                     <div className={cn(
                         "flex items-center gap-2 px-4 py-2 rounded-lg border-2 font-bold text-lg transition-colors",
@@ -355,17 +306,17 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
                     ))}
                 </div>
 
-                {currentCard.wordType && (
+                {card.wordType && (
                     <div className="text-xl font-serif text-muted-foreground italic mb-4">
-                        ({currentCard.wordType})
+                        ({card.wordType})
                     </div>
                 )}
 
                 <div className="h-[200px] w-full flex items-center justify-center">
-                    {currentCard.imageUrl ? (
+                    {card.imageUrl ? (
                         <div className="relative w-full max-w-md mx-auto aspect-video rounded-lg overflow-hidden border flex justify-center items-center h-full">
                             <OptimizedImage
-                                src={currentCard.imageUrl}
+                                src={card.imageUrl}
                                 alt="Hint"
                                 className="object-cover"
                                 width={200}
@@ -413,7 +364,7 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
                         Hint
                     </Button>
 
-                    {currentCard.examples && currentCard.examples.length > 0 && (
+                    {card.examples && card.examples.length > 0 && (
                         <Button
                             variant="outline"
                             onClick={handleShowExamples}
@@ -428,7 +379,7 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
                 <ExamplesModal
                     open={showExamples}
                     onOpenChange={handleHideExamples}
-                    examples={currentCard.examples || []}
+                    examples={card.examples || []}
                 />
             </div>
 
@@ -446,6 +397,67 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
                     </div>
                 )}
             </div>
+        </div>
+    );
+});
+ActiveGameCard.displayName = "ActiveGameCard";
+
+export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, setTitle, playAudioOnProgress = false }: CompleteWordGameProps) {
+    const router = useRouter();
+    const [mode, setMode] = useState<GameMode>(null);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [shuffledCards, setShuffledCards] = useState<Flashcard[]>([]);
+
+    const currentCard = shuffledCards[currentIndex];
+    const nextCard = shuffledCards[currentIndex + 1];
+
+    const { playIfEnabled } = useAutoPlayAudio(playAudioOnProgress, nextCard?.term || "");
+
+    const handleModeSelect = useCallback((selectedMode: GameMode) => {
+        setShuffledCards(shuffleArray(cards));
+        setMode(selectedMode);
+    }, [cards]);
+
+    const handleNext = useCallback(() => {
+        if (currentIndex < shuffledCards.length - 1) {
+            playIfEnabled();
+            setCurrentIndex(prev => prev + 1);
+        } else {
+            toast.success("Set completed!");
+            router.push(`/practice/${setId}`);
+        }
+    }, [currentIndex, shuffledCards.length, playIfEnabled, router, setId]);
+
+    if (!mode) {
+        return <ModeSelection onSelectMode={handleModeSelect} />;
+    }
+
+    if (!currentCard) return null;
+
+    return (
+        <div className="flex flex-col items-center justify-center min-h-[80vh] gap-8 p-4 max-w-4xl mx-auto w-full">
+            {nextCard?.imageUrl && (
+                <link rel="preload" as="image" href={nextCard.imageUrl} />
+            )}
+
+            <div className="flex items-center gap-4 w-full justify-between">
+                <div className="flex items-center gap-4">
+                    <Button variant="ghost" size="icon" onClick={() => router.back()}>
+                        <ArrowLeft className="h-6 w-6" />
+                    </Button>
+                    <div className="text-left">
+                        <h1 className="text-3xl font-bold">Complete: {setTitle}</h1>
+                        <p className="text-muted-foreground">{currentIndex + 1} / {shuffledCards.length} terms</p>
+                    </div>
+                </div>
+            </div>
+
+            <ActiveGameCard
+                key={currentCard.id}
+                card={currentCard}
+                mode={mode}
+                onNext={handleNext}
+            />
         </div>
     );
 });

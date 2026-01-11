@@ -34,7 +34,7 @@ export function TestimonialsSection() {
                         ))}
                     </div>
                     <p className="text-zinc-300 leading-relaxed mb-4">
-                        "Quizy helped me ace my medical board exams. The spaced repetition feature is a game changer."
+                        &quot;Quizy helped me ace my medical board exams. The spaced repetition feature is a game changer.&quot;
                     </p>
                     <div className="flex flex-col items-center gap-2">
                         <div className="size-10 rounded-full bg-zinc-800 flex items-center justify-center text-white font-semibold text-sm">
@@ -60,7 +60,7 @@ export function TestimonialsSection() {
                         ))}
                     </div>
                     <p className="text-zinc-300 leading-relaxed mb-4">
-                        "I used to struggle with organizing my study notes. Now I just generate flashcards instantly. Amazing."
+                        &quot;I used to struggle with organizing my study notes. Now I just generate flashcards instantly. Amazing.&quot;
                     </p>
                     <div className="flex flex-col items-center gap-2">
                         <div className="size-10 rounded-full bg-zinc-800 flex items-center justify-center text-white font-semibold text-sm">
@@ -86,7 +86,7 @@ export function TestimonialsSection() {
                         ))}
                     </div>
                     <p className="text-zinc-300 leading-relaxed mb-4">
-                        "The best study app I've used. Clean interface, no distractions, and it actually works."
+                        &quot;The best study app I&apos;ve used. Clean interface, no distractions, and it actually works.&quot;
                     </p>
                     <div className="flex flex-col items-center gap-2">
                         <div className="size-10 rounded-full bg-zinc-800 flex items-center justify-center text-white font-semibold text-sm">
@@ -113,7 +113,7 @@ export function TestimonialsSection() {
                         <Star className="size-4 text-amber-500" />
                     </div>
                     <p className="text-zinc-300 leading-relaxed mb-4">
-                        "Team collaboration features made our group projects so much easier to manage."
+                        &quot;Team collaboration features made our group projects so much easier to manage.&quot;
                     </p>
                     <div className="flex flex-col items-center gap-2">
                         <div className="size-10 rounded-full bg-zinc-800 flex items-center justify-center text-white font-semibold text-sm">
@@ -139,7 +139,7 @@ export function TestimonialsSection() {
                         ))}
                     </div>
                     <p className="text-zinc-300 leading-relaxed mb-4">
-                        "I learned a new language in 3 months using the flashcards. Highly recommend!"
+                        &quot;I learned a new language in 3 months using the flashcards. Highly recommend!&quot;
                     </p>
                     <div className="flex flex-col items-center gap-2">
                         <div className="size-10 rounded-full bg-zinc-800 flex items-center justify-center text-white font-semibold text-sm">
@@ -165,7 +165,7 @@ export function TestimonialsSection() {
                         ))}
                     </div>
                     <p className="text-zinc-300 leading-relaxed mb-4">
-                        "Worth every penny for the Pro plan. The analytics help me focus on my weak spots."
+                        &quot;Worth every penny for the Pro plan. The analytics help me focus on my weak spots.&quot;
                     </p>
                     <div className="flex flex-col items-center gap-2">
                         <div className="size-10 rounded-full bg-zinc-800 flex items-center justify-center text-white font-semibold text-sm">

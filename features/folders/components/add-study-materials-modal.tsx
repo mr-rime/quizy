@@ -9,7 +9,6 @@ import { Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { FlashcardSet } from "@/types";
 import { StudyMaterialList } from "./study-material-list";
-import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 

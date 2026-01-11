@@ -26,7 +26,7 @@ export type FlashcardFormData = {
 }
 
 import { Button } from "@/components/ui/button";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { updateFlashcardSet } from "../services/update-set";
 
 interface FlashcardFormProps {
