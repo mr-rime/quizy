@@ -11,6 +11,7 @@ import { ImageSearchModal } from './image-search-modal'
 
 import { FlashcardFormData } from './flashcard-form'
 import { OptimizedImage } from '@/components/optimized-image'
+import { SUPPORTED_LANGUAGES } from '@/shared/constants/languages'
 import { useSearchParams } from 'next/navigation';
 
 type FlashCardItemProps = {
@@ -231,14 +232,16 @@ function FlashCardItemComponent({ id, index, remove, itemsCount }: FlashCardItem
                             <div key={exIndex} className="flex flex-col md:flex-row gap-3 items-start group/example">
                                 <div className="w-full md:flex-1 space-y-1">
                                     <Input
-                                        placeholder="English example..."
+                                        placeholder={`${SUPPORTED_LANGUAGES.find(l => l.code === (watch("sourceLanguage") || "en"))?.name} example...`}
                                         className="h-8 text-sm"
                                         {...register(`flashcards.${index}.examples.${exIndex}.english`)}
                                         onBlur={(e) => {
                                             const text = e.target.value;
                                             if (text && !watch(`flashcards.${index}.examples.${exIndex}.arabic`)) {
                                                 setValue(`flashcards.${index}.examples.${exIndex}.arabic`, "Translating...", { shouldValidate: true });
-                                                fetch(`/api/translate?text=${encodeURIComponent(text)}`)
+                                                const targetLang = watch("targetLanguage") || "ar";
+                                                const sourceLang = watch("sourceLanguage") || "en";
+                                                fetch(`/api/translate?text=${encodeURIComponent(text)}&lang=${targetLang}&source=${sourceLang}`)
                                                     .then(res => res.json())
                                                     .then(data => {
                                                         if (data.translatedText) {
@@ -254,7 +257,7 @@ function FlashCardItemComponent({ id, index, remove, itemsCount }: FlashCardItem
                                 </div>
                                 <div className="w-full md:flex-1 space-y-1 relative">
                                     <Input
-                                        placeholder="Arabic translation..."
+                                        placeholder={`${SUPPORTED_LANGUAGES.find(l => l.code === (watch("targetLanguage") || "ar"))?.name} translation...`}
                                         className="h-8 text-sm text-right font-arabic"
                                         dir="rtl"
                                         {...register(`flashcards.${index}.examples.${exIndex}.arabic`)}

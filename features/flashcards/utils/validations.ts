@@ -9,6 +9,8 @@ export const createFlashcardSetSchema = z.object({
         .optional(),
     category: z.enum(["english", "other"]),
     isPublic: z.boolean().optional().default(false),
+    sourceLanguage: z.string().default("en"),
+    targetLanguage: z.string().default("ar"),
     flashcards: z.array(z.object({
         term: z.string()
             .min(1, "Term is required")

@@ -15,6 +15,8 @@ export type FlashcardFormData = {
     description?: string;
     category: "english" | "other";
     isPublic?: boolean;
+    sourceLanguage?: string;
+    targetLanguage?: string;
     flashcards: {
         id?: string;
         term: string;
@@ -47,6 +49,8 @@ export function FlashcardForm({ setId, initialData, defaultCategory = "other" }:
             description: "",
             category: defaultCategory,
             isPublic: false,
+            sourceLanguage: "en",
+            targetLanguage: "ar",
             flashcards: [{
                 id: "1",
                 term: "",
@@ -65,6 +69,8 @@ export function FlashcardForm({ setId, initialData, defaultCategory = "other" }:
                         ...data,
                         category: data.category,
                         isPublic: data.isPublic ?? false,
+                        sourceLanguage: data.sourceLanguage ?? "en",
+                        targetLanguage: data.targetLanguage ?? "ar",
                     };
 
                     const result = setId
