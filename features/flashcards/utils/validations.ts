@@ -25,16 +25,4 @@ export const createFlashcardSetSchema = z.object({
             arabic: z.string()
         })).optional(),
     }))
-}).superRefine((data, ctx) => {
-    if (data.category === "english") {
-        data.flashcards.forEach((card, index) => {
-            if (!card.wordType) {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    message: "Type is required",
-                    path: ["flashcards", index, "wordType"]
-                });
-            }
-        });
-    }
 });
