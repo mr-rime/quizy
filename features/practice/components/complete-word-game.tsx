@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Lightbulb, CheckCircle2, XCircle, BookOpen, Timer, Infinity } from "lucide-react";
+import { ArrowLeft, Lightbulb, CheckCircle2, XCircle, BookOpen, Timer, Infinity, Loader2 } from "lucide-react";
 import { ExamplesModal } from "./examples-modal";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import { OptimizedImage } from "@/components/optimized-image";
 import { useSoundEffects } from "@/shared/hooks/use-sound-effects";
 import { useAutoPlayAudio } from "@/features/practice/hooks/use-auto-play-audio";
 import { Card } from "@/components/ui/card";
+import { LanguageSelector } from "./language-selector";
 
 interface Flashcard {
     id: string;
@@ -29,6 +30,7 @@ interface CompleteWordGameProps {
     setId: string;
     setTitle: string;
     playAudioOnProgress?: boolean;
+    category?: string;
 }
 
 type GameMode = "timed" | "untimed" | null;
@@ -132,10 +134,12 @@ const ActiveGameCard = memo(({
     card,
     mode,
     onNext,
+    category,
 }: {
     card: Flashcard;
     mode: "timed" | "untimed";
     onNext: () => void;
+    category?: string;
 }) => {
     const [inputValue, setInputValue] = useState("");
     const [inputStatus, setInputStatus] = useState<"idle" | "correct" | "incorrect">("idle");
@@ -146,6 +150,9 @@ const ActiveGameCard = memo(({
     const inputRef = useRef<HTMLInputElement>(null);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const { playCorrect, playIncorrect } = useSoundEffects();
+    const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>();
+    const [translatedDefinition, setTranslatedDefinition] = useState<string>("");
+    const [isTranslating, setIsTranslating] = useState(false);
 
     const answer = card.term;
 
@@ -283,9 +290,50 @@ const ActiveGameCard = memo(({
         };
     }, [mode, isTimerActive, timeLeft, isPaused, handleTimeUp]);
 
+    const handleSelectLanguage = async (languageCode: string, languageName: string) => {
+        if (!card.definition) return;
+
+        setSelectedLanguage(languageCode);
+        setIsTranslating(true);
+        setTranslatedDefinition("");
+
+        try {
+            const response = await fetch(
+                `/api/translate?text=${encodeURIComponent(card.definition)}&lang=${languageCode}&source=auto`
+            );
+
+            if (!response.ok) {
+                throw new Error("Translation failed");
+            }
+
+            const data = await response.json();
+            if (data.translatedText) {
+                setTranslatedDefinition(data.translatedText);
+            }
+        } catch (error) {
+            console.error("Translation error:", error);
+            setTranslatedDefinition("Translation failed. Please try again.");
+        } finally {
+            setIsTranslating(false);
+        }
+    };
+
+    // Clear translations when moving to next word
+    useEffect(() => {
+        setSelectedLanguage(undefined);
+        setTranslatedDefinition("");
+        setIsTranslating(false);
+    }, [card.id]);
+
     return (
         <div className="flex flex-col items-center justify-center w-full gap-8">
             <div className="flex items-center gap-4 w-full justify-end">
+                {category === "english" && (
+                    <LanguageSelector
+                        onSelectLanguage={handleSelectLanguage}
+                        selectedLanguage={selectedLanguage}
+                    />
+                )}
                 {mode === "timed" && (
                     <div className={cn(
                         "flex items-center gap-2 px-4 py-2 rounded-lg border-2 font-bold text-lg transition-colors",
@@ -305,6 +353,23 @@ const ActiveGameCard = memo(({
                         </span>
                     ))}
                 </div>
+
+                {card.definition && (
+                    <div className="mb-4">
+                        <p className="text-lg text-muted-foreground">{card.definition}</p>
+                        {isTranslating && (
+                            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mt-2">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <span>Translating...</span>
+                            </div>
+                        )}
+                        {!isTranslating && translatedDefinition && (
+                            <div className="text-base text-muted-foreground italic mt-2">
+                                {translatedDefinition}
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {card.wordType && (
                     <div className="text-xl font-serif text-muted-foreground italic mb-4">
@@ -402,7 +467,7 @@ const ActiveGameCard = memo(({
 });
 ActiveGameCard.displayName = "ActiveGameCard";
 
-export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, setTitle, playAudioOnProgress = false }: CompleteWordGameProps) {
+export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, setTitle, playAudioOnProgress = false, category }: CompleteWordGameProps) {
     const router = useRouter();
     const [mode, setMode] = useState<GameMode>(null);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -457,6 +522,7 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
                 card={currentCard}
                 mode={mode}
                 onNext={handleNext}
+                category={category}
             />
         </div>
     );

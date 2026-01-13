@@ -58,6 +58,7 @@ export default async function FlashcardsPage({ params }: PageProps) {
                 initialFavoriteIds={favoriteIds}
                 setOwnerId={set.userId}
                 playAudioOnProgress={user?.playAudioOnProgress}
+                category={set.category}
             />
         </div>
     );

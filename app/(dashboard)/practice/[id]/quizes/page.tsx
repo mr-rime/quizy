@@ -46,7 +46,7 @@ export default async function QuizzesPage({ params }: PageProps) {
                 cards={set.cards as Flashcard[]}
                 setId={set.id}
                 userId={userId}
-
+                category={set.category}
             />
         </div>
     );

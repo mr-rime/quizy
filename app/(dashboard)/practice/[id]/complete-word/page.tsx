@@ -31,7 +31,7 @@ export default async function CompleteWordPage({ params }: PageProps) {
                 cards={set.cards as Flashcard[]}
                 setId={set.id}
                 setTitle={set.title}
-
+                category={set.category}
             />
         </div>
     );

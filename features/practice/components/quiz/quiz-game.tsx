@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, XCircle, Volume2, BookOpen } from "lucide-react";
+import { CheckCircle, XCircle, Volume2, BookOpen, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import { QuizFinish } from "./quiz-finish";
@@ -18,6 +18,7 @@ import { saveProgress, getProgressForSet, deleteProgressBySet } from "../../serv
 import { useSpeech } from "../../hooks/use-speech";
 import { useSoundEffects } from "@/shared/hooks/use-sound-effects";
 import { useAutoPlayAudio } from "@/features/practice/hooks/use-auto-play-audio";
+import { LanguageSelector } from "../language-selector";
 
 interface Flashcard {
     id: string;
@@ -33,6 +34,7 @@ interface QuizGameProps {
     setId: string;
     userId: string;
     playAudioOnProgress?: boolean;
+    category?: string;
 }
 
 interface Question {
@@ -41,7 +43,7 @@ interface Question {
     correctOptionId: string;
 }
 
-export function QuizGame({ cards, setId, userId, playAudioOnProgress = false }: QuizGameProps) {
+export function QuizGame({ cards, setId, userId, playAudioOnProgress = false, category }: QuizGameProps) {
     const [questions, setQuestions] = useState<Question[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
@@ -52,6 +54,10 @@ export function QuizGame({ cards, setId, userId, playAudioOnProgress = false }: 
     const [showExamples, setShowExamples] = useState(false);
     const [isLoadingProgress, setIsLoadingProgress] = useState(true);
     const [hasInitialized, setHasInitialized] = useState(false);
+    const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>();
+    const [translatedTerm, setTranslatedTerm] = useState<string>("");
+    const [translatedOptions, setTranslatedOptions] = useState<Map<string, string>>(new Map());
+    const [isTranslating, setIsTranslating] = useState(false);
 
     const { speak } = useSpeech();
     const { playCorrect, playIncorrect } = useSoundEffects();
@@ -165,6 +171,56 @@ export function QuizGame({ cards, setId, userId, playAudioOnProgress = false }: 
         setIsZoomOpen(true);
     };
 
+    const handleSelectLanguage = async (languageCode: string, languageName: string) => {
+        setSelectedLanguage(languageCode);
+        setIsTranslating(true);
+        setTranslatedTerm("");
+        setTranslatedOptions(new Map());
+
+        const currentQuestion = questions[currentIndex];
+
+        try {
+            // Translate the term
+            const termResponse = await fetch(
+                `/api/translate?text=${encodeURIComponent(currentQuestion.card.term)}&lang=${languageCode}&source=auto`
+            );
+            if (termResponse.ok) {
+                const termData = await termResponse.json();
+                if (termData.translatedText) {
+                    setTranslatedTerm(termData.translatedText);
+                }
+            }
+
+            // Translate all options
+            const optionTranslations = new Map<string, string>();
+            for (const option of currentQuestion.options) {
+                if (option.definition) {
+                    const response = await fetch(
+                        `/api/translate?text=${encodeURIComponent(option.definition)}&lang=${languageCode}&source=auto`
+                    );
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.translatedText) {
+                            optionTranslations.set(option.id, data.translatedText);
+                        }
+                    }
+                }
+            }
+            setTranslatedOptions(optionTranslations);
+        } catch (error) {
+            console.error("Translation error:", error);
+        } finally {
+            setIsTranslating(false);
+        }
+    };
+
+    useEffect(() => {
+        setSelectedLanguage(undefined);
+        setTranslatedTerm("");
+        setTranslatedOptions(new Map());
+        setIsTranslating(false);
+    }, [currentIndex]);
+
     if (questions.length === 0 || isLoadingProgress) return <QuizSkeleton />;
 
     if (isFinished) {
@@ -224,8 +280,27 @@ export function QuizGame({ cards, setId, userId, playAudioOnProgress = false }: 
                             <BookOpen className="h-5 w-5 sm:h-6 sm:w-6" />
                         </Button>
                     )}
+                    {category === "english" && (
+                        <div className="absolute top-2 sm:top-4 left-14 sm:left-16">
+                            <LanguageSelector
+                                onSelectLanguage={handleSelectLanguage}
+                                selectedLanguage={selectedLanguage}
+                            />
+                        </div>
+                    )}
                     <div className="text-xs sm:text-sm text-muted-foreground uppercase tracking-wider">Term</div>
                     <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold px-2">{currentQuestion.card.term}</h2>
+                    {isTranslating && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <span>Translating...</span>
+                        </div>
+                    )}
+                    {!isTranslating && translatedTerm && (
+                        <div className="text-base sm:text-lg text-muted-foreground italic mt-2">
+                            {translatedTerm}
+                        </div>
+                    )}
                     {currentQuestion.card.wordType && (
                         <div className="text-lg sm:text-xl font-serif text-muted-foreground italic mt-2">
                             ({currentQuestion.card.wordType})
@@ -274,7 +349,14 @@ export function QuizGame({ cards, setId, userId, playAudioOnProgress = false }: 
                                     disabled={!!selectedOptionId}
                                 >
                                     <span className="mr-3 sm:mr-4 opacity-50 font-mono text-sm sm:text-base">{index + 1}</span>
-                                    <span className="flex-1 text-left wrap-break-word">{option.definition || "No definition"}</span>
+                                    <div className="flex-1 text-left">
+                                        <div className="wrap-break-word">{option.definition || "No definition"}</div>
+                                        {translatedOptions.has(option.id) && (
+                                            <div className="text-sm text-muted-foreground italic mt-1">
+                                                {translatedOptions.get(option.id)}
+                                            </div>
+                                        )}
+                                    </div>
 
                                     {selectedOptionId && isCorrectOption && (
                                         <motion.div

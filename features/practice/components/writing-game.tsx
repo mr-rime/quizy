@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useState, useEffect, useRef, useEffectEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Lightbulb, CheckCircle2, XCircle, BookOpen } from "lucide-react";
+import { ArrowLeft, Lightbulb, CheckCircle2, XCircle, BookOpen, Loader2 } from "lucide-react";
 import { ExamplesModal } from "./examples-modal";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { OptimizedImage } from "@/components/optimized-image";
 import { useSoundEffects } from "@/shared/hooks/use-sound-effects";
 import { useAutoPlayAudio } from "@/features/practice/hooks/use-auto-play-audio";
+import { LanguageSelector } from "./language-selector";
 
 interface Flashcard {
     id: string;
@@ -28,9 +29,10 @@ interface WritingGameProps {
     setId: string;
     setTitle: string;
     playAudioOnProgress?: boolean;
+    category?: string;
 }
 
-export function WritingGame({ cards, setId, setTitle, playAudioOnProgress = false }: WritingGameProps) {
+export function WritingGame({ cards, setId, setTitle, playAudioOnProgress = false, category }: WritingGameProps) {
     const router = useRouter();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [inputValue, setInputValue] = useState("");
@@ -38,6 +40,9 @@ export function WritingGame({ cards, setId, setTitle, playAudioOnProgress = fals
     const [showExamples, setShowExamples] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const { playCorrect, playIncorrect } = useSoundEffects();
+    const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>();
+    const [translatedDefinition, setTranslatedDefinition] = useState<string>("");
+    const [isTranslating, setIsTranslating] = useState(false);
 
     const currentCard = cards[currentIndex];
     const nextCard = cards[currentIndex + 1];
@@ -140,6 +145,40 @@ export function WritingGame({ cards, setId, setTitle, playAudioOnProgress = fals
         }
     };
 
+    const handleSelectLanguage = async (languageCode: string, languageName: string) => {
+        if (!currentCard.definition) return;
+
+        setSelectedLanguage(languageCode);
+        setIsTranslating(true);
+        setTranslatedDefinition("");
+
+        try {
+            const response = await fetch(
+                `/api/translate?text=${encodeURIComponent(currentCard.definition)}&lang=${languageCode}&source=auto`
+            );
+
+            if (!response.ok) {
+                throw new Error("Translation failed");
+            }
+
+            const data = await response.json();
+            if (data.translatedText) {
+                setTranslatedDefinition(data.translatedText);
+            }
+        } catch (error) {
+            console.error("Translation error:", error);
+            setTranslatedDefinition("Translation failed. Please try again.");
+        } finally {
+            setIsTranslating(false);
+        }
+    };
+
+    useEffect(() => {
+        setSelectedLanguage(undefined);
+        setTranslatedDefinition("");
+        setIsTranslating(false);
+    }, [currentIndex]);
+
     if (!currentCard) return null;
 
     return (
@@ -159,9 +198,28 @@ export function WritingGame({ cards, setId, setTitle, playAudioOnProgress = fals
             </div>
 
             <div className="text-center space-y-6 w-full">
+                <div className="flex items-center justify-center gap-4">
+                    {category === "english" && (
+                        <LanguageSelector
+                            onSelectLanguage={handleSelectLanguage}
+                            selectedLanguage={selectedLanguage}
+                        />
+                    )}
+                </div>
                 <h2 className="text-3xl font-bold bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                     {currentCard.definition || "What's the term?"}
                 </h2>
+                {isTranslating && (
+                    <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Translating...</span>
+                    </div>
+                )}
+                {!isTranslating && translatedDefinition && (
+                    <div className="text-xl text-muted-foreground italic">
+                        {translatedDefinition}
+                    </div>
+                )}
                 {currentCard.wordType && (
                     <div className="text-xl font-serif text-muted-foreground italic mt-2">
                         ({currentCard.wordType})

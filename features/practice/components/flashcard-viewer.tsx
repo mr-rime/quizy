@@ -24,9 +24,10 @@ interface FlashcardViewerProps {
     initialFavoriteIds?: string[];
     setOwnerId?: string;
     playAudioOnProgress?: boolean;
+    category?: string;
 }
 
-export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [], setOwnerId, playAudioOnProgress = false }: FlashcardViewerProps) {
+export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [], setOwnerId, playAudioOnProgress = false, category }: FlashcardViewerProps) {
     const router = useRouter();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
@@ -268,6 +269,7 @@ export function FlashcardViewer({ cards, setId, userId, initialFavoriteIds = [],
                 isFlipped={isFlipped}
                 isFavorite={isFavorite}
                 isOwner={isOwner}
+                category={category}
                 onFlip={handleFlip}
                 onEdit={openEdit}
                 onSpeak={handleSpeak}
