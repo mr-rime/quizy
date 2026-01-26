@@ -8,17 +8,20 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { createFolderSchema, CreateFolderSchema, UpdateFolderSchema } from "../utils/validations";
 import { getUserId } from "@/features/user/services/user";
 import { unstable_cache } from "next/cache";
+import { isAdmin } from "@/lib/auth-helpers";
 
 
 export async function createFolder(data: CreateFolderSchema) {
     const userId = await getUserId();
     const validated = createFolderSchema.parse(data);
 
+    const admin = await isAdmin(userId);
+
     const existingFolders = await db.query.folders.findMany({
         where: eq(folders.userId, userId),
     });
 
-    if (existingFolders.length >= 4) {
+    if (!admin && existingFolders.length >= 4) {
         throw new Error("You can only create up to 4 folders. Delete an existing folder to create a new one.");
     }
 
