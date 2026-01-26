@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,7 +73,7 @@ const createPartialWord = (word: string): { partial: string; hiddenIndices: numb
 
 const ModeSelection = memo(({ onSelectMode }: { onSelectMode: (mode: GameMode) => void }) => {
     return (
-        <div className="flex flex-col items-center justify-center min-h-[80vh] gap-8 p-4 max-w-4xl mx-auto w-full">
+        <div className="flex flex-col items-center justify-center min-h-[80vh] gap-8 p-4 max-w-4xl mx-auto w-full animate-in fade-in zoom-in duration-500">
             <div className="text-center space-y-4">
                 <h2 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                     Choose Your Mode
@@ -89,10 +89,10 @@ const ModeSelection = memo(({ onSelectMode }: { onSelectMode: (mode: GameMode) =
                     whileTap={{ scale: 0.98 }}
                 >
                     <Card
-                        className="p-8 cursor-pointer hover:bg-accent transition-colors border-2 hover:border-primary"
+                        className="p-8 cursor-pointer hover:bg-accent transition-colors border-2 hover:border-primary h-full"
                         onClick={() => onSelectMode("timed")}
                     >
-                        <div className="flex flex-col items-center gap-4 text-center">
+                        <div className="flex flex-col items-center gap-4 text-center h-full justify-center">
                             <div className="p-4 rounded-full bg-primary/10 text-primary">
                                 <Timer className="h-10 w-10" />
                             </div>
@@ -109,10 +109,10 @@ const ModeSelection = memo(({ onSelectMode }: { onSelectMode: (mode: GameMode) =
                     whileTap={{ scale: 0.98 }}
                 >
                     <Card
-                        className="p-8 cursor-pointer hover:bg-accent transition-colors border-2 hover:border-primary"
+                        className="p-8 cursor-pointer hover:bg-accent transition-colors border-2 hover:border-primary h-full"
                         onClick={() => onSelectMode("untimed")}
                     >
-                        <div className="flex flex-col items-center gap-4 text-center">
+                        <div className="flex flex-col items-center gap-4 text-center h-full justify-center">
                             <div className="p-4 rounded-full bg-primary/10 text-primary">
                                 <Infinity className="h-10 w-10" />
                             </div>
@@ -130,6 +130,52 @@ const ModeSelection = memo(({ onSelectMode }: { onSelectMode: (mode: GameMode) =
 
 ModeSelection.displayName = "ModeSelection";
 
+// Separated Timer Component to prevent re-renders of the parent
+const GameTimer = memo(({
+    duration,
+    onTimeUp,
+    isActive,
+    isPaused
+}: {
+    duration: number;
+    onTimeUp: () => void;
+    isActive: boolean;
+    isPaused: boolean;
+}) => {
+    const [timeLeft, setTimeLeft] = useState(duration);
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+        // Reset timer when duration changes (new card)
+        setTimeLeft(duration);
+    }, [duration]);
+
+    useEffect(() => {
+        if (isActive && timeLeft > 0 && !isPaused) {
+            timerRef.current = setTimeout(() => {
+                setTimeLeft(prev => prev - 1);
+            }, 1000);
+        } else if (timeLeft === 0 && isActive) {
+            onTimeUp();
+        }
+
+        return () => {
+            if (timerRef.current) clearTimeout(timerRef.current);
+        };
+    }, [isActive, timeLeft, isPaused, onTimeUp]);
+
+    return (
+        <div className={cn(
+            "flex items-center gap-2 px-4 py-2 rounded-lg border-2 font-bold text-lg transition-colors",
+            timeLeft <= 5 ? "border-red-500 bg-red-50 text-red-600 animate-pulse" : "border-primary bg-primary/10 text-primary"
+        )}>
+            <Timer className="h-5 w-5" />
+            <span>{timeLeft}s</span>
+        </div>
+    );
+});
+GameTimer.displayName = "GameTimer";
+
 const ActiveGameCard = memo(({
     card,
     mode,
@@ -144,11 +190,9 @@ const ActiveGameCard = memo(({
     const [inputValue, setInputValue] = useState("");
     const [inputStatus, setInputStatus] = useState<"idle" | "correct" | "incorrect">("idle");
     const [showExamples, setShowExamples] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(15);
     const [isTimerActive, setIsTimerActive] = useState(mode === "timed");
     const [isPaused, setIsPaused] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
-    const timerRef = useRef<NodeJS.Timeout | null>(null);
     const { playCorrect, playIncorrect } = useSoundEffects();
     const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>();
     const [translatedDefinition, setTranslatedDefinition] = useState<string>("");
@@ -171,12 +215,13 @@ const ActiveGameCard = memo(({
         };
     }, []);
 
+    // Initial focus only
     useEffect(() => {
         const timer = setTimeout(() => {
             inputRef.current?.focus();
         }, 100);
         return () => clearTimeout(timer);
-    }, []);
+    }, [card.id]);
 
     const handleTimeUp = useCallback(() => {
         setIsTimerActive(false);
@@ -195,11 +240,29 @@ const ActiveGameCard = memo(({
         setIsTimerActive(false);
         playCorrect();
 
-        confetti({
-            particleCount: 50,
-            spread: 60,
-            origin: { y: 0.6 }
-        });
+        const end = Date.now() + 1000;
+        const colors = ['#bb0000', '#ffffff'];
+
+        (function frame() {
+            confetti({
+                particleCount: 2,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 },
+                colors: colors
+            });
+            confetti({
+                particleCount: 2,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 },
+                colors: colors
+            });
+
+            if (Date.now() < end) {
+                requestAnimationFrame(frame);
+            }
+        }());
 
         setTimeout(() => {
             onNext();
@@ -221,10 +284,15 @@ const ActiveGameCard = memo(({
         const val = e.target.value;
         setInputValue(val);
 
+        // Reset status when user starts typing again after error
+        if (inputStatus === "incorrect" && val.length < answer.length) {
+            setInputStatus("idle");
+        }
+
         if (val.length >= answer.length) {
             checkSubmission(val);
         }
-    }, [answer.length, checkSubmission]);
+    }, [answer.length, checkSubmission, inputStatus]);
 
     const handleSubmit = useCallback((e: React.FormEvent) => {
         e.preventDefault();
@@ -240,6 +308,10 @@ const ActiveGameCard = memo(({
             }
         }
 
+        if (firstMismatch === -1 && inputValue.length < answer.length) {
+            firstMismatch = inputValue.length;
+        }
+
         if (firstMismatch !== -1) {
             const nextChar = answer[firstMismatch];
             const correctPrefix = answer.slice(0, firstMismatch);
@@ -253,42 +325,6 @@ const ActiveGameCard = memo(({
             }
         }
     }, [answer, inputValue, checkSubmission]);
-
-    const handleBlur = useCallback((e: React.FocusEvent) => {
-        const relatedTarget = e.relatedTarget as HTMLElement;
-        if (relatedTarget && (
-            relatedTarget.tagName === 'BUTTON' ||
-            relatedTarget.closest('button') ||
-            relatedTarget.closest('[role="dialog"]')
-        )) return;
-
-        setTimeout(() => {
-            inputRef.current?.focus();
-        }, 10);
-    }, []);
-
-    const handleShowExamples = useCallback(() => {
-        setShowExamples(true);
-    }, []);
-
-    const handleHideExamples = useCallback((open: boolean) => {
-        setShowExamples(open);
-    }, []);
-
-    // Timer effect
-    useEffect(() => {
-        if (mode === "timed" && isTimerActive && timeLeft > 0 && !isPaused) {
-            timerRef.current = setTimeout(() => {
-                setTimeLeft(prev => prev - 1);
-            }, 1000);
-        } else if (timeLeft === 0 && mode === "timed" && isTimerActive) {
-            timerRef.current = setTimeout(handleTimeUp, 0);
-        }
-
-        return () => {
-            if (timerRef.current) clearTimeout(timerRef.current);
-        };
-    }, [mode, isTimerActive, timeLeft, isPaused, handleTimeUp]);
 
     const handleSelectLanguage = async (languageCode: string, languageName: string) => {
         if (!card.definition) return;
@@ -323,11 +359,14 @@ const ActiveGameCard = memo(({
         setSelectedLanguage(undefined);
         setTranslatedDefinition("");
         setIsTranslating(false);
-    }, [card.id]);
+        setInputValue("");
+        setInputStatus("idle");
+        setIsTimerActive(mode === "timed");
+    }, [card.id, mode]);
 
     return (
-        <div className="flex flex-col items-center justify-center w-full gap-8">
-            <div className="flex items-center gap-4 w-full justify-end">
+        <div className="flex flex-col items-center w-full max-w-4xl mx-auto min-h-[50vh] justify-start py-4 sm:py-8 animate-in fade-in slide-in-from-right-8 duration-500">
+            <div className="flex items-center gap-4 w-full justify-between sm:justify-end px-4 mb-8">
                 {category === "english" && (
                     <LanguageSelector
                         onSelectLanguage={handleSelectLanguage}
@@ -335,27 +374,36 @@ const ActiveGameCard = memo(({
                     />
                 )}
                 {mode === "timed" && (
-                    <div className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-lg border-2 font-bold text-lg transition-colors",
-                        timeLeft <= 10 ? "border-red-500 bg-red-50 text-red-600" : "border-primary bg-primary/10 text-primary"
-                    )}>
-                        <Timer className="h-5 w-5" />
-                        <span>{timeLeft}s</span>
-                    </div>
+                    <GameTimer
+                        duration={15}
+                        onTimeUp={handleTimeUp}
+                        isActive={isTimerActive}
+                        isPaused={isPaused}
+                    />
                 )}
             </div>
 
-            <div className="text-center space-y-6 w-full">
-                <div className="text-5xl font-mono font-bold tracking-widest text-primary mb-8">
-                    {(mode === "timed" && timeLeft === 0 ? answer : partialWordData.partial).split("").map((char, i) => (
-                        <span key={i} className={char === "_" ? "text-muted-foreground" : ""}>
-                            {char}
-                        </span>
-                    ))}
+            <div className="text-center space-y-6 w-full px-2 sm:px-0">
+                <div className="text-4xl sm:text-6xl font-mono font-bold tracking-widest text-primary mb-8 break-all">
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={card.id + "word"}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            className="flex flex-wrap justify-center gap-1"
+                        >
+                            {(mode === "timed" && !isTimerActive && inputStatus === "incorrect" ? answer : partialWordData.partial).split("").map((char, i) => (
+                                <span key={i} className={char === "_" ? "text-muted-foreground" : ""}>
+                                    {char}
+                                </span>
+                            ))}
+                        </motion.div>
+                    </AnimatePresence>
                 </div>
 
                 {card.definition && (
-                    <div className="mb-4">
+                    <div className="mb-4 px-4">
                         <p className="text-lg text-muted-foreground">{card.definition}</p>
                         {isTranslating && (
                             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mt-2">
@@ -364,7 +412,7 @@ const ActiveGameCard = memo(({
                             </div>
                         )}
                         {!isTranslating && translatedDefinition && (
-                            <div className="text-base text-muted-foreground italic mt-2">
+                            <div className="text-base text-muted-foreground italic mt-2 animate-in fade-in">
                                 {translatedDefinition}
                             </div>
                         )}
@@ -377,22 +425,22 @@ const ActiveGameCard = memo(({
                     </div>
                 )}
 
-                <div className="h-[200px] w-full flex items-center justify-center">
+                <div className="min-h-[200px] w-full flex items-center justify-center mb-6">
                     {card.imageUrl ? (
-                        <div className="relative w-full max-w-md mx-auto aspect-video rounded-lg overflow-hidden border flex justify-center items-center h-full">
+                        <div className="relative w-full max-w-sm mx-auto aspect-video rounded-lg overflow-hidden border bg-muted/20 flex justify-center items-center shadow-sm">
                             <OptimizedImage
                                 src={card.imageUrl}
                                 alt="Hint"
                                 className="object-cover"
-                                width={200}
-                                height={200}
-                                preload
+                                width={400}
+                                height={300}
+                                priority
                             />
                         </div>
                     ) : null}
                 </div>
 
-                <div className="flex flex-wrap justify-center gap-2 sm:gap-4 my-8">
+                <div className="flex flex-wrap justify-center gap-2 sm:gap-4 my-8 w-full">
                     <form onSubmit={handleSubmit} className="w-full max-w-md px-4">
                         <motion.div
                             animate={inputStatus === "incorrect" ? { x: [0, -10, 10, -10, 10, 0] } : {}}
@@ -404,26 +452,26 @@ const ActiveGameCard = memo(({
                                 onChange={onInputChange}
                                 placeholder="Type the complete word..."
                                 className={cn(
-                                    "text-center text-lg h-12 transition-all",
+                                    "text-center text-lg h-14 transition-all shadow-sm",
                                     inputStatus === "correct" && "border-green-500 bg-green-50 text-green-700 ring-2 ring-green-500/20",
                                     inputStatus === "incorrect" && "border-red-500 bg-red-50 text-red-700 ring-2 ring-red-500/20"
                                 )}
-                                disabled={inputStatus === "correct" || (mode === "timed" && timeLeft === 0)}
+                                disabled={inputStatus === "correct" || (mode === "timed" && !isTimerActive && inputStatus === "incorrect")}
                                 autoCorrect="off"
                                 autoComplete="off"
                                 autoCapitalize="off"
-                                onBlur={handleBlur}
+                                enterKeyHint="done"
                             />
                         </motion.div>
                     </form>
                 </div>
 
-                <div className="flex justify-center gap-4">
+                <div className="flex justify-center gap-4 px-4 pb-8">
                     <Button
                         variant="outline"
                         onClick={giveHint}
-                        disabled={inputStatus === "correct" || (mode === "timed" && timeLeft === 0)}
-                        className="gap-2"
+                        disabled={inputStatus === "correct" || (mode === "timed" && !isTimerActive)}
+                        className="gap-2 flex-1 sm:flex-none h-12"
                     >
                         <Lightbulb className="h-4 w-4 text-yellow-500" />
                         Hint
@@ -432,8 +480,8 @@ const ActiveGameCard = memo(({
                     {card.examples && card.examples.length > 0 && (
                         <Button
                             variant="outline"
-                            onClick={handleShowExamples}
-                            className="gap-2"
+                            onClick={() => setShowExamples(true)}
+                            className="gap-2 flex-1 sm:flex-none h-12"
                         >
                             <BookOpen className="h-4 w-4 text-blue-500" />
                             Examples
@@ -443,7 +491,7 @@ const ActiveGameCard = memo(({
 
                 <ExamplesModal
                     open={showExamples}
-                    onOpenChange={handleHideExamples}
+                    onOpenChange={setShowExamples}
                     examples={card.examples || []}
                 />
             </div>
@@ -500,20 +548,23 @@ export const CompleteWordGame = memo(function CompleteWordGame({ cards, setId, s
     if (!currentCard) return null;
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-[80vh] gap-8 p-4 max-w-4xl mx-auto w-full">
+        <div className="flex flex-col items-center justify-start min-h-[100dvh] w-full bg-background">
             {nextCard?.imageUrl && (
                 <link rel="preload" as="image" href={nextCard.imageUrl} />
             )}
 
-            <div className="flex items-center gap-4 w-full justify-between">
-                <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={() => router.back()}>
-                        <ArrowLeft className="h-6 w-6" />
-                    </Button>
-                    <div className="text-left">
-                        <h1 className="text-3xl font-bold">Complete: {setTitle}</h1>
-                        <p className="text-muted-foreground">{currentIndex + 1} / {shuffledCards.length} terms</p>
+            <div className="bg-background/80 backdrop-blur-sm sticky top-0 z-10 w-full border-b">
+                <div className="max-w-4xl mx-auto p-4 flex items-center gap-4 justify-between">
+                    <div className="flex items-center gap-4">
+                        <Button variant="ghost" size="icon" onClick={() => router.back()}>
+                            <ArrowLeft className="h-6 w-6" />
+                        </Button>
+                        <div className="text-left">
+                            <h1 className="text-xl sm:text-3xl font-bold truncate max-w-[200px] sm:max-w-md">{setTitle}</h1>
+                            <p className="text-sm text-muted-foreground">{currentIndex + 1} / {shuffledCards.length} terms</p>
+                        </div>
                     </div>
+                    {/* Placeholder for header actions if needed */}
                 </div>
             </div>
 

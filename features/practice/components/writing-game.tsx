@@ -15,6 +15,8 @@ import { useSoundEffects } from "@/shared/hooks/use-sound-effects";
 import { useAutoPlayAudio } from "@/features/practice/hooks/use-auto-play-audio";
 import { LanguageSelector } from "./language-selector";
 
+const shakeAnimation = { x: [0, -10, 10, -10, 10, 0] };
+
 interface Flashcard {
     id: string;
     term: string;
@@ -66,6 +68,10 @@ export function WritingGame({ cards, setId, setTitle, playAudioOnProgress = fals
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value;
+        if (inputStatus === "incorrect") {
+            setInputStatus("idle");
+        }
+
         setInputValue(val);
 
         if (val.length >= answer.length) {
@@ -122,7 +128,6 @@ export function WritingGame({ cards, setId, setTitle, playAudioOnProgress = fals
     };
 
     const giveHint = () => {
-        // Find the first index where the input doesn't match the answer
         let firstMismatch = -1;
         for (let i = 0; i < answer.length; i++) {
             if (inputValue[i]?.toLowerCase() !== answer[i]?.toLowerCase()) {
@@ -145,7 +150,7 @@ export function WritingGame({ cards, setId, setTitle, playAudioOnProgress = fals
         }
     };
 
-    const handleSelectLanguage = async (languageCode: string, languageName: string) => {
+    const handleSelectLanguage = async (languageCode: string) => {
         if (!currentCard.definition) return;
 
         setSelectedLanguage(languageCode);
@@ -242,9 +247,9 @@ export function WritingGame({ cards, setId, setTitle, playAudioOnProgress = fals
                 </div>
 
                 <div className="flex flex-wrap justify-center gap-2 sm:gap-4 my-8">
-                    <form onSubmit={handleSubmit} className="w-full max-w-md px-4">
+                    <form onSubmit={handleSubmit} className="w-full sm:max-w-md px-0 sm:px-4">
                         <motion.div
-                            animate={inputStatus === "incorrect" ? { x: [0, -10, 10, -10, 10, 0] } : {}}
+                            animate={inputStatus === "incorrect" ? shakeAnimation : undefined}
                             transition={{ duration: 0.4 }}
                         >
                             <Input

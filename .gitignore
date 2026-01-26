@@ -39,3 +39,25 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Agents
+.agent
+.agents
+.claude
+.cursor
+.gemini
+.windsurf
+.cline
+.neovate
+.codex
+.continue
+.crush
+.commandcode
+.factory
+.github
+.goose
+.kiro
+.mcpjam
+.kilocode
+# Skills
+skills

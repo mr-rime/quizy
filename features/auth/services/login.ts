@@ -5,7 +5,7 @@ import { users } from "@/db/schema";
 import { compare } from "bcryptjs";
 import { createSession } from "./session";
 import { eq } from "drizzle-orm";
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export async function login(email: string, password: string, ipAddress?: string, userAgent?: string) {
     const [user] = await db.select().from(users).where(eq(users.email, email));
@@ -28,6 +28,8 @@ export async function login(email: string, password: string, ipAddress?: string,
     revalidateTag("saved-sets", "max");
     revalidateTag("discover-sets", "max");
     revalidateTag("public-sets", "max");
+
+    revalidatePath("/", "layout");
 
     return { user, session };
 }

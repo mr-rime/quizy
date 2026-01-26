@@ -26,7 +26,7 @@ export default async function WritingPage({ params }: PageProps) {
     }
 
     return (
-        <div className="container mx-auto p-6 max-w-5xl space-y-8">
+        <div className="container mx-auto sm:p-6 max-w-5xl space-y-8">
             <WritingGame
                 cards={set.cards as Flashcard[]}
                 setId={set.id}
