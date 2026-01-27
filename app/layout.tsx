@@ -77,9 +77,9 @@ export const metadata: Metadata = {
     },
 
     icons: {
-        icon: "/logo.ico",
-        shortcut: "/logo.ico",
-        apple: "/logo.ico"
+        icon: "/autism.ico",
+        shortcut: "/autism.ico",
+        apple: "/autism.ico"
     },
 };
 

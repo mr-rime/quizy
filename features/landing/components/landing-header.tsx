@@ -1,16 +1,20 @@
 "use client"
 
 import Link from "next/link"
-import { Brain } from "lucide-react"
+import Image from "next/image"
 
 export function LandingHeader() {
     return (
         <header className="fixed top-0 w-full z-50 border-b border-zinc-800 bg-black/80 backdrop-blur-xl">
             <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                 <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight">
-                    <div className="size-8 rounded-lg bg-white flex items-center justify-center">
-                        <Brain className="size-5 text-black" />
-                    </div>
+                    <Image
+                        src="/autism-logo.png"
+                        alt="Quizy Logo"
+                        width={32}
+                        height={32}
+                        className="size-8 rounded-lg"
+                    />
                     <span>Quizy</span>
                 </Link>
                 <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">

@@ -1,16 +1,20 @@
 "use client"
 
 import Link from "next/link"
-import { Brain } from "lucide-react"
+import Image from "next/image"
 
 export function LandingFooter() {
     return (
         <footer className="border-t border-white/10 bg-black py-12">
             <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex items-center gap-2">
-                    <div className="size-6 rounded bg-indigo-600 flex items-center justify-center">
-                        <Brain className="size-3 text-white" />
-                    </div>
+                    <Image
+                        src="/autism-logo.png"
+                        alt="Quizy Logo"
+                        width={24}
+                        height={24}
+                        className="size-6 rounded"
+                    />
                     <span className="font-bold text-lg">Quizy</span>
                 </div>
                 <div className="text-sm text-zinc-500">
