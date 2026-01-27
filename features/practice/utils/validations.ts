@@ -6,7 +6,7 @@ export const editFlashcardSchema = z.object({
     examples: z.array(z.object({
         english: z.string(),
         arabic: z.string()
-    })).optional(),
+    }).catchall(z.string())).optional(),
 });
 
 export type EditFlashcardSchema = z.infer<typeof editFlashcardSchema>;

@@ -28,12 +28,14 @@ const db = drizzle(queryClient);
 interface BilingualExample {
     english: string;
     arabic: string;
+    egyptian?: string;
 }
 
 interface EnrichmentResult {
     isValid?: boolean;
     examples?: BilingualExample[];
     wordType?: string;
+    definition?: string;
 }
 
 async function queryHuggingFace(prompt: string, retries = 5): Promise<string> {
@@ -96,28 +98,40 @@ async function enrichCardWithAI(term: string, definition: string | null): Promis
 You are an expert Arabic linguist and translator specializing in educational content.
 
 TASK:
-Analyze the term "${term}"${definition ? ` (Context/Meaning: ${definition})` : ''}.
-First, determine if this is a valid English word or phrase that has a meaningful definition.
+Analyze the term "${term}"${definition ? ` (Current definition: ${definition})` : ''}.
+First, determine if this is a valid English word or phrase.
 
-If it is NOT a valid/meaningless word (e.g. nonsense, random characters, typos, or not English), return:
+If it is NOT a valid/meaningless word, return:
 { "isValid": false }
 
-If it IS a valid word, create 3 high-quality bilingual English-Arabic examples and identify the word type.
+If it IS a valid word, do the following:
+
+1. Provide the Arabic word as a short text:
+   - The first word must be the standard Modern Standard Arabic (MSA) form commonly used in writing or dictionaries.
+   - The second word must be the spoken Egyptian Arabic word commonly used in daily conversation.
+   - Separate the two words with a comma, no extra explanation or parenthesis.
+   - Example: "يحب, بيحب"
+
+2. Create 3 bilingual examples:
+   - English sentence using the exact word "${term}".
+   - Arabic sentence in Modern Standard Arabic (MSA).
+   - Egyptian Arabic version of the sentence.
+
+3. Identify the grammatical category (e.g., Noun, Verb, Adjective, Phrasal Verb, Idiom).
 
 STRICT REQUIREMENTS:
-1. **English Examples**: Must be natural, complete sentences containing the exact word "${term}". Do NOT use synonyms.
-2. **Arabic Examples**: Must be natural, grammatically correct Modern Standard Arabic (MSA). Do NOT use literal translations if they sound unnatural.
-3. **Word Type**: Identify the grammatical category of "${term}" (e.g., Noun, Verb, Adjective, Phrasal Verb, Idiom).
-4. **Output Format**: Return ONLY valid JSON. No markdown, no conversational text.
+- Return ONLY valid JSON, no extra text.
+- The definition field must be: MSA word, Egyptian word (comma-separated).
 
 JSON FORMAT:
 {
   "isValid": true,
-  "wordType": "Type (e.g., Noun)",
+  "wordType": "Type (e.g., Verb)",
+  "definition": "MSA word, Egyptian word",
   "examples": [
-    { "english": "English sentence 1", "arabic": "Arabic translation 1" },
-    { "english": "English sentence 2", "arabic": "Arabic translation 2" },
-    { "english": "English sentence 3", "arabic": "Arabic translation 3" }
+    { "english": "English sentence 1", "arabic": "MSA sentence 1", "egyptian": "Egyptian sentence 1" },
+    { "english": "English sentence 2", "arabic": "MSA sentence 2", "egyptian": "Egyptian sentence 2" },
+    { "english": "English sentence 3", "arabic": "MSA sentence 3", "egyptian": "Egyptian sentence 3" }
   ]
 }
 `;
@@ -148,6 +162,7 @@ JSON FORMAT:
                 isValid: true,
                 examples: parsed.examples,
                 wordType: parsed.wordType || null,
+                definition: parsed.definition || definition || null,
             };
         } catch {
             console.warn(`⚠️ JSON parse error for "${term}"`);
@@ -159,6 +174,9 @@ JSON FORMAT:
         return {};
     }
 }
+
+
+
 
 function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -263,12 +281,19 @@ async function enrichCards() {
             if (!card.wordType) {
                 updateData.wordType = enrichment.wordType;
             }
+            if (enrichment.definition) {
+                updateData.definition = enrichment.definition;
+            }
 
             if (!DRY_RUN && Object.keys(updateData).length > 0) {
                 try {
                     await db.update(cards).set(updateData).where(eq(cards.id, card.id));
                     console.log(`   ✅ Saved! Word Type: ${enrichment.wordType}`);
-                    console.log(`      Ex: ${enrichment.examples[0].english} -> ${enrichment.examples[0].arabic}`);
+                    console.log(`      Definition: ${enrichment.definition}`);
+                    enrichment.examples.forEach((ex, i) => {
+                        console.log(`      Ex ${i + 1}: ${ex.english} -> ${ex.arabic} (${ex.egyptian || ''})`);
+                    });
+
                     enrichedCount++;
                 } catch (err) {
                     console.error(`   ❌ Database error:`, err instanceof Error ? err.message : String(err));
@@ -277,7 +302,10 @@ async function enrichCards() {
             } else if (DRY_RUN) {
                 console.log(`   📝 [DRY RUN] Would save:`);
                 console.log(`      Word Type: ${enrichment.wordType}`);
-                console.log(`      Ex 1: ${enrichment.examples[0].english} -> ${enrichment.examples[0].arabic}`);
+                console.log(`      Definition: ${enrichment.definition}`);
+                enrichment.examples.forEach((ex, i) => {
+                    console.log(`      Ex ${i + 1}: ${ex.english} -> ${ex.arabic}`);
+                });
                 enrichedCount++;
             } else {
                 console.log(`   ⏭️  Nothing to update (fields already present).`);

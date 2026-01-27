@@ -107,6 +107,24 @@ const ExampleRow = ({
                     </div>
                 </div>
             </div>
+
+            <div className="flex-1 space-y-2 relative">
+                <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground block text-right">
+                        Egyptian Arabic
+                    </Label>
+                    <div className="relative">
+                        <Input
+                            placeholder="Egyptian translation..."
+                            className="h-9 text-sm text-right font-arabic pr-8 border-amber-500/20 focus:border-amber-500/50"
+                            dir="rtl"
+                            {...register(`examples.${index}.egyptian`)}
+                        />
+                        <Sparkles className="absolute right-2 top-2.5 text-amber-500/50 pointer-events-none" size={14} />
+                    </div>
+                </div>
+            </div>
+
             <Button
                 type="button"
                 variant="ghost"
