@@ -228,57 +228,89 @@ function FlashCardItemComponent({ id, index, remove, itemsCount }: FlashCardItem
                     </div>
 
                     <div className="space-y-3">
-                        {watch(`flashcards.${index}.examples`)?.map((_, exIndex: number) => (
-                            <div key={exIndex} className="flex flex-col md:flex-row gap-3 items-start group/example">
-                                <div className="w-full md:flex-1 space-y-1">
-                                    <Input
-                                        placeholder={`${SUPPORTED_LANGUAGES.find(l => l.code === (watch("sourceLanguage") || "en"))?.name} example...`}
-                                        className="h-8 text-sm"
-                                        {...register(`flashcards.${index}.examples.${exIndex}.english`)}
-                                        onBlur={(e) => {
-                                            const text = e.target.value;
-                                            if (text && !watch(`flashcards.${index}.examples.${exIndex}.arabic`)) {
-                                                setValue(`flashcards.${index}.examples.${exIndex}.arabic`, "Translating...", { shouldValidate: true });
-                                                const targetLang = watch("targetLanguage") || "ar";
-                                                const sourceLang = watch("sourceLanguage") || "en";
-                                                fetch(`/api/translate?text=${encodeURIComponent(text)}&lang=${targetLang}&source=${sourceLang}`)
-                                                    .then(res => res.json())
-                                                    .then(data => {
-                                                        if (data.translatedText) {
-                                                            setValue(`flashcards.${index}.examples.${exIndex}.arabic`, data.translatedText, { shouldValidate: true });
-                                                        }
-                                                    })
-                                                    .catch(() => {
-                                                        setValue(`flashcards.${index}.examples.${exIndex}.arabic`, "", { shouldValidate: true });
-                                                    });
-                                            }
+                        {watch(`flashcards.${index}.examples`)?.map((_, exIndex: number) => {
+                            const example = watch(`flashcards.${index}.examples.${exIndex}`);
+                            return (
+                                <div key={exIndex} className="bg-muted/30 p-3 rounded-lg space-y-3 relative group/example">
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="absolute right-2 top-2 h-6 w-6 text-muted-foreground hover:text-red-500 opacity-0 group-hover/example:opacity-100 transition-opacity z-10"
+                                        onClick={() => {
+                                            const currentExamples = watch(`flashcards.${index}.examples`) || [];
+                                            const newExamples = currentExamples.filter((_: any, i: number) => i !== exIndex);
+                                            setValue(`flashcards.${index}.examples`, newExamples, { shouldValidate: true });
                                         }}
-                                    />
+                                    >
+                                        <Trash size={14} />
+                                    </Button>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pr-8">
+                                        <div className="space-y-1">
+                                            <Label className="text-xs text-muted-foreground">English</Label>
+                                            <Input
+                                                placeholder="English example..."
+                                                className="h-8 text-sm"
+                                                {...register(`flashcards.${index}.examples.${exIndex}.english`)}
+                                                onBlur={(e) => {
+                                                    const text = e.target.value;
+                                                    if (text && !watch(`flashcards.${index}.examples.${exIndex}.arabic`)) {
+                                                        setValue(`flashcards.${index}.examples.${exIndex}.arabic`, "Translating...", { shouldValidate: true });
+                                                        const targetLang = watch("targetLanguage") || "ar";
+                                                        const sourceLang = watch("sourceLanguage") || "en";
+                                                        fetch(`/api/translate?text=${encodeURIComponent(text)}&lang=${targetLang}&source=${sourceLang}`)
+                                                            .then(res => res.json())
+                                                            .then(data => {
+                                                                if (data.translatedText) {
+                                                                    setValue(`flashcards.${index}.examples.${exIndex}.arabic`, data.translatedText, { shouldValidate: true });
+                                                                }
+                                                            })
+                                                            .catch(() => {
+                                                                setValue(`flashcards.${index}.examples.${exIndex}.arabic`, "", { shouldValidate: true });
+                                                            });
+                                                    }
+                                                }}
+                                            />
+                                        </div>
+                                        <div className="space-y-1 relative">
+                                            <Label className="text-xs text-muted-foreground block text-right">Standard Arabic</Label>
+                                            <div className="relative">
+                                                <Input
+                                                    placeholder="Arabic translation..."
+                                                    className="h-8 text-sm text-right font-arabic"
+                                                    dir="rtl"
+                                                    {...register(`flashcards.${index}.examples.${exIndex}.arabic`)}
+                                                />
+                                                <Sparkles className="absolute left-2 top-2 text-yellow-500/50 pointer-events-none" size={12} />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-1 relative md:col-start-2">
+                                            <Label className="text-xs text-muted-foreground block text-right">Egyptian Arabic</Label>
+                                            <div className="relative">
+                                                <Input
+                                                    placeholder="Egyptian translation..."
+                                                    className="h-8 text-sm text-right font-arabic border-amber-500/20 focus:border-amber-500/50"
+                                                    dir="rtl"
+                                                    {...register(`flashcards.${index}.examples.${exIndex}.egyptian`)}
+                                                />
+                                                <Sparkles className="absolute left-2 top-2 text-amber-500/50 pointer-events-none" size={12} />
+                                            </div>
+                                        </div>
+
+                                        {example && Object.keys(example).filter(k => !['english', 'arabic', 'egyptian'].includes(k)).map((key) => (
+                                            <div key={key} className="space-y-1 md:col-span-2 border-t pt-2 mt-2">
+                                                <Label className="text-xs text-muted-foreground capitalize">{key}</Label>
+                                                <Input
+                                                    className="h-8 text-sm"
+                                                    {...register(`flashcards.${index}.examples.${exIndex}.${key}`)}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                                <div className="w-full md:flex-1 space-y-1 relative">
-                                    <Input
-                                        placeholder={`${SUPPORTED_LANGUAGES.find(l => l.code === (watch("targetLanguage") || "ar"))?.name} translation...`}
-                                        className="h-8 text-sm text-right font-arabic"
-                                        dir="rtl"
-                                        {...register(`flashcards.${index}.examples.${exIndex}.arabic`)}
-                                    />
-                                    <Sparkles className="absolute left-2 top-2 text-yellow-500/50 pointer-events-none" size={12} />
-                                </div>
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 text-muted-foreground hover:text-red-500 opacity-0 group-hover/example:opacity-100 transition-opacity"
-                                    onClick={() => {
-                                        const currentExamples = watch(`flashcards.${index}.examples`) || [];
-                                        const newExamples = currentExamples.filter((_, i: number) => i !== exIndex);
-                                        setValue(`flashcards.${index}.examples`, newExamples);
-                                    }}
-                                >
-                                    <Trash size={14} />
-                                </Button>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             </Card>

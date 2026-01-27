@@ -23,7 +23,7 @@ export type FlashcardFormData = {
         definition: string;
         image?: string;
         wordType?: string;
-        examples?: { english: string; arabic: string }[];
+        examples?: { english: string; arabic: string;[key: string]: string }[];
     }[];
 }
 

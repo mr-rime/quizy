@@ -23,6 +23,6 @@ export const createFlashcardSetSchema = z.object({
         examples: z.array(z.object({
             english: z.string(),
             arabic: z.string()
-        })).optional(),
+        }).catchall(z.string())).optional(),
     }))
 });
