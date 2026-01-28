@@ -94,6 +94,12 @@ async function queryHuggingFace(prompt: string, retries = 5): Promise<string> {
 }
 
 async function enrichCardWithAI(term: string, definition: string | null): Promise<EnrichmentResult> {
+    // Preprocess existing definition to remove duplicates and trim spaces
+    if (definition) {
+        const uniqueWords = Array.from(new Set(definition.split(',').map(w => w.trim())));
+        definition = uniqueWords.join(', ');
+    }
+
     const prompt = `
 You are an expert Arabic linguist and translator specializing in educational content.
 
@@ -106,9 +112,9 @@ If it is NOT a valid/meaningless word, return:
 
 If it IS a valid word, do the following:
 
-1. Provide the Arabic word as a short text:
-   - The first word must be the standard Modern Standard Arabic (MSA) form commonly used in writing or dictionaries.
-   - The second word must be the spoken Egyptian Arabic word commonly used in daily conversation.
+1. Provide exactly two Arabic words as a short text:
+   - First word: standard Modern Standard Arabic (MSA) form commonly used in writing or dictionaries.
+   - Second word: spoken Egyptian Arabic word commonly used in daily conversation.
    - Separate the two words with a comma, no extra explanation or parenthesis.
    - Example: "يحب, بيحب"
 
@@ -119,15 +125,21 @@ If it IS a valid word, do the following:
 
 3. Identify the grammatical category (e.g., Noun, Verb, Adjective, Phrasal Verb, Idiom).
 
+4. If there is an existing definition provided ("${definition}"):
+   - Append the new Arabic words **only if they are not already included anywhere** in the existing definition.
+   - Ensure that each Arabic word (MSA and Egyptian) appears only once.
+   - The final definition should be: "existing definition + any new words", without any duplicates.
+
 STRICT REQUIREMENTS:
 - Return ONLY valid JSON, no extra text.
-- The definition field must be: MSA word, Egyptian word (comma-separated).
+- The definition field must include both the existing definition (if present) and the new Arabic translation, without duplicates.
+- Provide exactly two Arabic words for the translation.
 
 JSON FORMAT:
 {
   "isValid": true,
   "wordType": "Type (e.g., Verb)",
-  "definition": "MSA word, Egyptian word",
+  "definition": "existing definition + MSA word, Egyptian word",
   "examples": [
     { "english": "English sentence 1", "arabic": "MSA sentence 1", "egyptian": "Egyptian sentence 1" },
     { "english": "English sentence 2", "arabic": "MSA sentence 2", "egyptian": "Egyptian sentence 2" },
@@ -158,11 +170,17 @@ JSON FORMAT:
                 return {};
             }
 
+            let finalDefinition = parsed.definition || definition || null;
+            if (finalDefinition) {
+                const uniqueWords = Array.from(new Set(finalDefinition.split(',').map((w: string) => w.trim())));
+                finalDefinition = uniqueWords.join(', ');
+            }
+
             return {
                 isValid: true,
                 examples: parsed.examples,
                 wordType: parsed.wordType || null,
-                definition: parsed.definition || definition || null,
+                definition: finalDefinition,
             };
         } catch {
             console.warn(`⚠️ JSON parse error for "${term}"`);
@@ -174,6 +192,7 @@ JSON FORMAT:
         return {};
     }
 }
+
 
 
 
