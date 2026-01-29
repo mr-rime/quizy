@@ -36,7 +36,7 @@ interface WritingGameProps {
     category?: string;
 }
 
-export function WritingGame({ cards, setId, setTitle, playAudioOnProgress = false, category }: WritingGameProps) {
+export function WritingGame({ cards, setId, setTitle, category }: WritingGameProps) {
     const router = useRouter();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [inputValue, setInputValue] = useState("");
@@ -53,11 +53,6 @@ export function WritingGame({ cards, setId, setTitle, playAudioOnProgress = fals
     const nextCard = cards[currentIndex + 1];
     const answer = currentCard?.term || "";
 
-    const { playIfEnabled } = useAutoPlayAudio(playAudioOnProgress, currentCard?.definition || "");
-
-    useEffect(() => {
-        playIfEnabled();
-    }, [currentIndex, playIfEnabled]);
 
     const setInputValueEvent = useEffectEvent(setInputValue);
     const setInputStatusEvent = useEffectEvent(setInputStatus);
