@@ -13,7 +13,9 @@ import { cn } from "@/lib/utils";
 import { OptimizedImage } from "@/components/optimized-image";
 import { useSoundEffects } from "@/shared/hooks/use-sound-effects";
 import { useAutoPlayAudio } from "@/features/practice/hooks/use-auto-play-audio";
+import { useSpeech } from "@/features/practice/hooks/use-speech";
 import { LanguageSelector } from "./language-selector";
+import { Volume2 } from "lucide-react";
 
 const shakeAnimation = { x: [0, -10, 10, -10, 10, 0] };
 
@@ -45,12 +47,17 @@ export function WritingGame({ cards, setId, setTitle, playAudioOnProgress = fals
     const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>();
     const [translatedDefinition, setTranslatedDefinition] = useState<string>("");
     const [isTranslating, setIsTranslating] = useState(false);
+    const { speak } = useSpeech();
 
     const currentCard = cards[currentIndex];
     const nextCard = cards[currentIndex + 1];
     const answer = currentCard?.term || "";
 
-    const { playIfEnabled } = useAutoPlayAudio(playAudioOnProgress, nextCard?.term || "");
+    const { playIfEnabled } = useAutoPlayAudio(playAudioOnProgress, currentCard?.definition || "");
+
+    useEffect(() => {
+        playIfEnabled();
+    }, [currentIndex, playIfEnabled]);
 
     const setInputValueEvent = useEffectEvent(setInputValue);
     const setInputStatusEvent = useEffectEvent(setInputStatus);
@@ -118,7 +125,6 @@ export function WritingGame({ cards, setId, setTitle, playAudioOnProgress = fals
 
         setTimeout(() => {
             if (currentIndex < cards.length - 1) {
-                playIfEnabled();
                 setCurrentIndex(prev => prev + 1);
             } else {
                 toast.success("Set completed!");
@@ -214,22 +220,32 @@ export function WritingGame({ cards, setId, setTitle, playAudioOnProgress = fals
                 <h2 className="text-3xl font-bold bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                     {currentCard.definition || "What's the term?"}
                 </h2>
-                {isTranslating && (
-                    <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>Translating...</span>
-                    </div>
-                )}
-                {!isTranslating && translatedDefinition && (
-                    <div className="text-xl text-muted-foreground italic">
-                        {translatedDefinition}
-                    </div>
-                )}
-                {currentCard.wordType && (
-                    <div className="text-xl font-serif text-muted-foreground italic mt-2">
-                        ({currentCard.wordType})
-                    </div>
-                )}
+                <div className="flex items-center justify-center gap-2">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => speak(currentCard.term || "")}
+                    >
+                        <Volume2 className="h-4 w-4" />
+                    </Button>
+                    {isTranslating && (
+                        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mr-2">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <span>Translating...</span>
+                        </div>
+                    )}
+                    {!isTranslating && translatedDefinition && (
+                        <div className="text-xl text-muted-foreground italic">
+                            {translatedDefinition}
+                        </div>
+                    )}
+                    {currentCard.wordType && (
+                        <div className="text-xl font-serif text-muted-foreground italic">
+                            ({currentCard.wordType})
+                        </div>
+                    )}
+                </div>
 
                 <div className="h-[200px] w-full flex items-center justify-center">
                     {currentCard.imageUrl ? (
