@@ -7,11 +7,9 @@ import { ArrowRight, Check } from "lucide-react"
 export function HeroSection() {
     return (
         <section className="container mx-auto px-4 py-20 md:py-32 relative">
-            {/* Subtle grid background */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#27272a_1px,transparent_1px),linear-gradient(to_bottom,#27272a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] -z-10" />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#27272a_1px,transparent_1px),linear-gradient(to_bottom,#27272a_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] -z-10" />
 
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center max-w-7xl mx-auto">
-                {/* Left: Content */}
                 <div className="space-y-8">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -67,7 +65,6 @@ export function HeroSection() {
                         </Link>
                     </motion.div>
 
-                    {/* Trust indicators */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -85,14 +82,12 @@ export function HeroSection() {
                     </motion.div>
                 </div>
 
-                {/* Right: Product preview */}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.6, delay: 0.3 }}
                     className="relative lg:h-[600px] hidden lg:block"
                 >
-                    {/* Main card */}
                     <div className="absolute top-0 right-0 w-80 bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl">
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
@@ -116,7 +111,6 @@ export function HeroSection() {
                         </div>
                     </div>
 
-                    {/* Stats card */}
                     <div className="absolute top-32 left-0 w-64 bg-zinc-900 border border-zinc-800 rounded-xl p-4 shadow-xl">
                         <div className="text-xs text-zinc-500 mb-2">This week</div>
                         <div className="text-2xl font-bold text-white mb-1">142 cards</div>
@@ -129,19 +123,6 @@ export function HeroSection() {
                                     style={{ height: `${height}%` }}
                                 ></div>
                             ))}
-                        </div>
-                    </div>
-
-                    {/* Achievement badge */}
-                    <div className="absolute bottom-20 right-12 w-48 bg-zinc-900 border border-zinc-800 rounded-xl p-4 shadow-xl">
-                        <div className="flex items-center gap-3">
-                            <div className="size-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-xl">
-                                🔥
-                            </div>
-                            <div>
-                                <div className="text-sm font-semibold text-white">7 day streak!</div>
-                                <div className="text-xs text-zinc-500">Keep it going</div>
-                            </div>
                         </div>
                     </div>
                 </motion.div>
