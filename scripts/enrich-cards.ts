@@ -2,7 +2,7 @@ import { config } from 'dotenv';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { cards } from '../db/schema';
-import { eq, or, isNull, sql } from 'drizzle-orm';
+import { eq, or, isNull, sql, notInArray, and } from 'drizzle-orm';
 
 config({ path: '.env' });
 
@@ -12,8 +12,12 @@ const DRY_RUN = process.argv.includes('--dry-run');
 const LIMIT_ARG = process.argv.find(arg => arg.startsWith('--limit='));
 const LIMIT = LIMIT_ARG ? parseInt(LIMIT_ARG.split('=')[1]) : undefined;
 
+const SKIPPED_SETS: string[] = [
+    "776fec5e-8abe-4e27-92bf-21140bcafa94"
+];
+
 const API_URL = 'https://router.huggingface.co/v1/chat/completions';
-const MODEL_ID = 'Qwen/Qwen2.5-72B-Instruct';
+const MODEL_ID = 'Qwen/Qwen3-Next-80B-A3B-Instruct';
 
 console.log(`🌐 Using Hugging Face API: ${API_URL}`);
 console.log(`🧠 Model: ${MODEL_ID}`);
@@ -94,7 +98,6 @@ async function queryHuggingFace(prompt: string, retries = 5): Promise<string> {
 }
 
 async function enrichCardWithAI(term: string, definition: string | null): Promise<EnrichmentResult> {
-    // Preprocess existing definition to remove duplicates and trim spaces
     if (definition) {
         const uniqueWords = Array.from(new Set(definition.split(',').map(w => w.trim())));
         definition = uniqueWords.join(', ');
@@ -104,7 +107,7 @@ async function enrichCardWithAI(term: string, definition: string | null): Promis
 You are an expert Arabic linguist and translator specializing in educational content.
 
 TASK:
-Analyze the term "${term}"${definition ? ` (Current definition: ${definition})` : ''}.
+Analyze the English term "${term}"${definition ? ` (Current definition: ${definition})` : ''}.
 First, determine if this is a valid English word or phrase.
 
 If it is NOT a valid/meaningless word, return:
@@ -112,28 +115,29 @@ If it is NOT a valid/meaningless word, return:
 
 If it IS a valid word, do the following:
 
-1. Provide exactly two Arabic words as a short text:
-   - First word: standard Modern Standard Arabic (MSA) form commonly used in writing or dictionaries.
-   - Second word: spoken Egyptian Arabic word commonly used in daily conversation.
-   - Separate the two words with a comma, no extra explanation or parenthesis.
+1. Provide exactly TWO Arabic words:
+   - First word: Modern Standard Arabic (MSA) form commonly used in formal writing, dictionaries, and literature.
+   - Second word: spoken Egyptian Arabic form, used naturally in everyday conversation.
+   - Separate the two words with a comma, NO extra explanation, parentheses, or transliteration.
    - Example: "يحب, بيحب"
 
-2. Create 3 bilingual examples:
-   - English sentence using the exact word "${term}".
-   - Arabic sentence in Modern Standard Arabic (MSA).
-   - Egyptian Arabic version of the sentence.
+2. Create 3 bilingual example sentences:
+   - Each example must use the exact English term "${term}".
+   - Provide an MSA version that is grammatically correct and natural.
+   - Provide an Egyptian Arabic version that sounds natural in daily speech.
+   - Do NOT mix MSA and Egyptian forms in the same sentence.
 
-3. Identify the grammatical category (e.g., Noun, Verb, Adjective, Phrasal Verb, Idiom).
+3. Identify the grammatical category: Noun, Verb, Adjective, Phrasal Verb, Idiom, etc.
 
-4. If there is an existing definition provided ("${definition}"):
-   - Append the new Arabic words **only if they are not already included anywhere** in the existing definition.
-   - Ensure that each Arabic word (MSA and Egyptian) appears only once.
-   - The final definition should be: "existing definition + any new words", without any duplicates.
+4. If an existing definition is provided ("${definition}"):
+   - Append the new Arabic words ONLY if they are NOT already included.
+   - Ensure each Arabic word appears once.
+   - Final definition format: "existing definition + MSA word, Egyptian word", no duplicates.
 
 STRICT REQUIREMENTS:
-- Return ONLY valid JSON, no extra text.
-- The definition field must include both the existing definition (if present) and the new Arabic translation, without duplicates.
-- Provide exactly two Arabic words for the translation.
+- Return ONLY valid JSON, nothing else.
+- Include exactly 2 Arabic words.
+- Example sentences must be fully natural for both MSA and Egyptian Arabic.
 
 JSON FORMAT:
 {
@@ -147,6 +151,7 @@ JSON FORMAT:
   ]
 }
 `;
+
 
     try {
         const outputText = await queryHuggingFace(prompt);
@@ -207,6 +212,18 @@ async function enrichCards() {
     if (DRY_RUN) console.log('📋 DRY RUN MODE - No changes will be made to the database\n');
     if (LIMIT) console.log(`📊 Processing limit: ${LIMIT} cards\n`);
 
+    const conditions = [
+        or(
+            isNull(cards.examples),
+            sql`json_array_length(${cards.examples}) = 0`,
+            isNull(cards.wordType)
+        )
+    ];
+
+    if (SKIPPED_SETS.length > 0) {
+        conditions.push(notInArray(cards.setId, SKIPPED_SETS));
+    }
+
     const query = db.select({
         id: cards.id,
         term: cards.term,
@@ -216,11 +233,7 @@ async function enrichCards() {
     })
         .from(cards)
         .where(
-            or(
-                isNull(cards.examples),
-                sql`json_array_length(${cards.examples}) = 0`,
-                isNull(cards.wordType)
-            )
+            and(...conditions)
         );
 
     const allCards = await query;
