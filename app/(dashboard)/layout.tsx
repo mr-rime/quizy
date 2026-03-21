@@ -17,14 +17,7 @@ export default async function Layout({ children }: LayoutProps) {
         redirect("/login");
     }
 
-    const [user, isPrivate] = await Promise.all([
-        getCurrentUser(),
-        isSitePrivate()
-    ]);
-
-    if (isPrivate && user?.role !== "admin") {
-        redirect("/private");
-    }
+    const user = await getCurrentUser();
 
     const folders = getFolders(userId);
     const stats = getUserStats(userId);

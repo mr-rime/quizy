@@ -22,7 +22,10 @@ export default async function ProfilePage({ params }: PageProps) {
 
     const isAdmin = currentUser?.role === "admin";
     
-    if (profile.isPrivate && !isAdmin && currentUser?.id !== userId) {
+    const isProfileRestricted = profile.isPrivate || profile.role === "admin";
+    const isViewerAuthorized = isAdmin || currentUser?.id === userId;
+
+    if (isProfileRestricted && !isViewerAuthorized) {
         notFound();
     }
 

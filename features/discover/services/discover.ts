@@ -2,7 +2,7 @@
 
 import { db } from "@/db/drizzle";
 import { flashcardSets, users, folders } from "@/db/schema";
-import { eq, desc, ilike, or, sql, and } from "drizzle-orm";
+import { eq, desc, ilike, or, sql, and, ne } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
 export const getPublicSets = unstable_cache(
@@ -11,6 +11,7 @@ export const getPublicSets = unstable_cache(
             and(
                 eq(flashcardSets.isPublished, true),
                 eq(flashcardSets.isPublic, true),
+                ne(users.role, "admin"),
                 eq(users.isPrivate, false)
             )
         ];
@@ -64,6 +65,7 @@ export const getPublicFolders = unstable_cache(
             and(
                 eq(folders.isPublished, true),
                 eq(folders.isPublic, true),
+                ne(users.role, "admin"),
                 eq(users.isPrivate, false)
             )
         ];

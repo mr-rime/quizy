@@ -105,6 +105,7 @@ export const getUserProfile = unstable_cache(
                 username: true,
                 image: true,
                 isPrivate: true,
+                role: true,
                 createdAt: true,
             }
         });

@@ -2,7 +2,7 @@
 
 import { db } from "@/db/drizzle";
 import { flashcardSets, folders, folderSets, users } from "@/db/schema";
-import { eq, and, ilike } from "drizzle-orm";
+import { eq, and, ilike, ne } from "drizzle-orm";
 import { getCurrentUser, getUserId } from "@/features/user/services/user";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
@@ -28,7 +28,12 @@ export const getFlashcardSet = unstable_cache(
                                 .where(and(
                                     eq(users.id, flashcardSets.userId),
                                     or(
-                                        eq(users.isPrivate, false),
+                                        // Allow non-admin, non-private content
+                                        and(
+                                            eq(users.isPrivate, false),
+                                            ne(users.role, "admin")
+                                        ),
+                                        // OR allow if viewer is admin
                                         exists(
                                             db.select()
                                                 .from(users)

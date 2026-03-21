@@ -24,6 +24,7 @@ export async function signUp(email: string, password: string, username: string, 
             password: hashedPassword,
             username,
             image: null,
+            isPrivate: false,
         }).returning({ id: users.id });
 
     return user;

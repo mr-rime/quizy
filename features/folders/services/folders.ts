@@ -1,8 +1,8 @@
 "use server"
 
 import { db } from "@/db/drizzle";
-import { folders, folderSets } from "@/db/schema";
-import { eq, and, desc, inArray, or } from "drizzle-orm";
+import { folders, folderSets, users } from "@/db/schema";
+import { eq, and, desc, inArray, or, ne, exists } from "drizzle-orm";
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { createFolderSchema, CreateFolderSchema, UpdateFolderSchema } from "../utils/validations";
@@ -71,7 +71,29 @@ export const getFolder = unstable_cache(
                 eq(folders.id, id),
                 or(
                     eq(folders.userId, userId),
-                    eq(folders.isPublic, true)
+                    and(
+                        eq(folders.isPublic, true),
+                        exists(
+                            db.select()
+                                .from(users)
+                                .where(and(
+                                    eq(users.id, folders.userId),
+                                    or(
+                                        // Allow non-admin content
+                                        ne(users.role, "admin"),
+                                        // OR allow if viewer is admin
+                                        exists(
+                                            db.select()
+                                                .from(users)
+                                                .where(and(
+                                                    eq(users.id, userId),
+                                                    eq(users.role, "admin")
+                                                ))
+                                        )
+                                    )
+                                ))
+                        )
+                    )
                 )
             ),
             with: {
