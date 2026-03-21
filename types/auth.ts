@@ -6,6 +6,7 @@ export type User = {
     image?: string | null;
     role?: string;
     playAudioOnProgress?: boolean;
+    isPrivate: boolean;
     createdAt: Date;
     updatedAt: Date;
 };

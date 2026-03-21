@@ -10,7 +10,8 @@ export const getPublicSets = unstable_cache(
         const whereConditions = [
             and(
                 eq(flashcardSets.isPublished, true),
-                eq(flashcardSets.isPublic, true)
+                eq(flashcardSets.isPublic, true),
+                eq(users.isPrivate, false)
             )
         ];
 
@@ -62,7 +63,8 @@ export const getPublicFolders = unstable_cache(
         const whereConditions = [
             and(
                 eq(folders.isPublished, true),
-                eq(folders.isPublic, true)
+                eq(folders.isPublic, true),
+                eq(users.isPrivate, false)
             )
         ];
 

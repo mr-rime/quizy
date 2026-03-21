@@ -17,7 +17,7 @@ const SKIPPED_SETS: string[] = [
 ];
 
 const API_URL = 'https://router.huggingface.co/v1/chat/completions';
-const MODEL_ID = 'Qwen/Qwen3-Next-80B-A3B-Instruct';
+const MODEL_ID = 'deepseek-ai/DeepSeek-V3';
 
 console.log(`🌐 Using Hugging Face API: ${API_URL}`);
 console.log(`🧠 Model: ${MODEL_ID}`);
@@ -64,13 +64,14 @@ async function queryHuggingFace(prompt: string, retries = 5): Promise<string> {
             method: 'POST',
             headers,
             body: JSON.stringify({
-                model: MODEL_ID, // Use Llama 3.1
+                model: MODEL_ID,
                 messages: messages,
                 max_tokens: 1000,
-                temperature: 0.1, // Very low for strict JSON adherence
+                temperature: 0.1,
                 top_p: 0.9,
+                response_format: { type: "json_object" },
                 stream: false
-            }),
+            })
         });
 
         if (response.status === 503) {
@@ -104,46 +105,76 @@ async function enrichCardWithAI(term: string, definition: string | null): Promis
     }
 
     const prompt = `
-You are an expert Arabic linguist and translator specializing in educational content.
+You are an expert Arabic linguist and translator specializing in educational bilingual dictionaries.
 
 TASK:
-Analyze the English term "${term}"${definition ? ` (Current definition: ${definition})` : ''}.
-First, determine if this is a valid English word or phrase.
+Analyze the English term "${term}"${definition ? ` (Current Arabic definition: ${definition})` : ''}.
 
-If it is NOT a valid/meaningless word, return:
+STEP 1 — VALIDATION
+Determine if "${term}" is a valid English word, phrasal verb, idiom, or phrase.
+
+If it is NOT valid or meaningless, return ONLY:
 { "isValid": false }
 
-If it IS a valid word, do the following:
+STEP 2 — WORD TYPE CHECK
+Determine the grammatical category of "${term}".
 
-1. Provide exactly TWO Arabic words:
-   - First word: Modern Standard Arabic (MSA) form commonly used in formal writing, dictionaries, and literature.
-   - Second word: spoken Egyptian Arabic form, used naturally in everyday conversation.
-   - Separate the two words with a comma, NO extra explanation, parentheses, or transliteration.
-   - Example: "يحب, بيحب"
+Possible types include:
+Noun, Verb, Adjective, Adverb, Phrasal Verb, Idiom, Expression, Interjection, Preposition, Conjunction.
 
-2. Create 3 bilingual example sentences:
-   - Each example must use the exact English term "${term}".
-   - Provide an MSA version that is grammatically correct and natural.
-   - Provide an Egyptian Arabic version that sounds natural in daily speech.
-   - Do NOT mix MSA and Egyptian forms in the same sentence.
+RULES:
+- If a word type is already known in the data, verify it.
+- If it is correct, keep it.
+- If no word type exists, determine the correct one.
+- Return a single clear category only.
 
-3. Identify the grammatical category: Noun, Verb, Adjective, Phrasal Verb, Idiom, etc.
+STEP 3 — ARABIC EQUIVALENTS
+Provide EXACTLY TWO Arabic words:
 
-4. If an existing definition is provided ("${definition}"):
-   - Append the new Arabic words ONLY if they are NOT already included.
-   - Ensure each Arabic word appears once.
-   - Final definition format: "existing definition + MSA word, Egyptian word", no duplicates.
+1. First word → Modern Standard Arabic (MSA) used in dictionaries and formal writing.
+2. Second word → Natural Egyptian Arabic used in daily speech.
 
-STRICT REQUIREMENTS:
-- Return ONLY valid JSON, nothing else.
-- Include exactly 2 Arabic words.
-- Example sentences must be fully natural for both MSA and Egyptian Arabic.
+Rules:
+- Format: "MSA word, Egyptian word"
+- No explanations
+- No parentheses
+- No transliteration
+- Example: "يحب, بيحب"
+
+STEP 4 — EXAMPLE SENTENCES
+Create 3 bilingual examples.
+
+Requirements:
+- Each sentence MUST include the exact English term "${term}".
+- Provide:
+  - English sentence
+  - MSA translation
+  - Egyptian Arabic translation
+- Sentences must sound natural.
+- Do NOT mix MSA and Egyptian forms.
+
+STEP 5 — DEFINITION MERGING
+If an existing definition is provided ("${definition}"):
+
+- Check if the Arabic words already exist.
+- Add ONLY missing Arabic words.
+- Avoid duplicates completely.
+- Final format must be comma-separated Arabic words only.
+
+Example:
+Existing: "يحب"
+New: "يحب, بيحب"
+
+STRICT OUTPUT RULES:
+- Return ONLY valid JSON.
+- No explanations outside JSON.
+- Exactly 2 Arabic words must be produced.
 
 JSON FORMAT:
 {
   "isValid": true,
-  "wordType": "Type (e.g., Verb)",
-  "definition": "existing definition + MSA word, Egyptian word",
+  "wordType": "Noun | Verb | Adjective | etc",
+  "definition": "ArabicWord1, ArabicWord2",
   "examples": [
     { "english": "English sentence 1", "arabic": "MSA sentence 1", "egyptian": "Egyptian sentence 1" },
     { "english": "English sentence 2", "arabic": "MSA sentence 2", "egyptian": "Egyptian sentence 2" },

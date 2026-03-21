@@ -32,6 +32,7 @@ export const users = pgTable("user", {
     image: text("image"),
     role: varchar("role", { length: 20 }).notNull().default("user"),
     playAudioOnProgress: boolean("play_audio_on_progress").notNull().default(false),
+    isPrivate: boolean("is_private").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at")
         .defaultNow()
@@ -442,3 +443,11 @@ export const userAchievementRelations = relations(userAchievements, ({ one }) =>
         references: [achievements.id],
     }),
 }));
+
+export const siteSettings = pgTable("site_setting", {
+    key: varchar("key", { length: 50 }).primaryKey(),
+    value: text("value").notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => new Date()),
+}).enableRLS();

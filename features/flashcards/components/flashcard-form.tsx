@@ -71,6 +71,11 @@ export function FlashcardForm({ setId, initialData, defaultCategory = "other" }:
                         isPublic: data.isPublic ?? false,
                         sourceLanguage: data.sourceLanguage ?? "en",
                         targetLanguage: data.targetLanguage ?? "ar",
+                        flashcards: data.flashcards?.map(card => ({
+                            ...card,
+                            term: card.term.trim(),
+                            definition: card.definition.trim(),
+                        }))
                     };
 
                     const result = setId
