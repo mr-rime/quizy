@@ -1,15 +1,17 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { User, Calendar, Layers, FileText, ArrowLeft } from "lucide-react";
+import { User, Calendar, Layers, FileText, ArrowLeft, Shield } from "lucide-react";
 import { PublicSetCard } from "./public-set-card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface PublicProfileProps {
     profile: {
         id: string;
         username: string;
         image: string | null;
+        isPrivate?: boolean;
         createdAt: Date | null;
         publicSetsCount: number;
         totalCardsCreated: number;
@@ -21,9 +23,10 @@ interface PublicProfileProps {
         createdAt: Date | null;
         cards: Array<{ id: string }>;
     }>;
+    isAdmin?: boolean;
 }
 
-export function PublicProfile({ profile, publicSets }: PublicProfileProps) {
+export function PublicProfile({ profile, publicSets, isAdmin = false }: PublicProfileProps) {
     const joinDate = profile.createdAt
         ? new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
         : 'Unknown';
@@ -39,7 +42,15 @@ export function PublicProfile({ profile, publicSets }: PublicProfileProps) {
                         <User className="h-12 w-12 text-primary" />
                     </div>
                     <div className="flex-1">
-                        <h1 className="text-3xl font-bold mb-2">{profile.username}</h1>
+                        <div className="flex items-center gap-3 mb-2">
+                            <h1 className="text-3xl font-bold">{profile.username}</h1>
+                            {profile.isPrivate && isAdmin && (
+                                <Badge variant="secondary" className="gap-1">
+                                    <Shield className="h-3 w-3" />
+                                    Private Profile
+                                </Badge>
+                            )}
+                        </div>
                         <div className="flex items-center gap-2 text-muted-foreground">
                             <Calendar className="h-4 w-4" />
                             <span className="text-sm">Joined {joinDate}</span>

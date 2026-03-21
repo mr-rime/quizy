@@ -4,6 +4,7 @@ import { getUserStats } from "@/features/gamification/services/stats";
 import { DashboardLayoutClient } from "./layout-client";
 import { getCurrentUser } from "@/features/user/services/user";
 import { redirect } from "next/navigation";
+import { isSitePrivate } from "@/features/user/services/site-settings";
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -16,9 +17,17 @@ export default async function Layout({ children }: LayoutProps) {
         redirect("/login");
     }
 
+    const [user, isPrivate] = await Promise.all([
+        getCurrentUser(),
+        isSitePrivate()
+    ]);
+
+    if (isPrivate && user?.role !== "admin") {
+        redirect("/private");
+    }
+
     const folders = getFolders(userId);
     const stats = getUserStats(userId);
-    const user = await getCurrentUser();
 
     return (
         <DashboardLayoutClient foldersPromise={folders} statsPromise={stats} user={user}>

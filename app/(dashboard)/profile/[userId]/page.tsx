@@ -1,4 +1,5 @@
 import { getUserProfile, getUserPublicSets } from "@/features/share/services/share";
+import { getCurrentUser } from "@/features/user/services/user";
 import { notFound } from "next/navigation";
 import { PublicProfile } from "@/features/profile/components/public-profile";
 
@@ -9,14 +10,21 @@ interface PageProps {
 export default async function ProfilePage({ params }: PageProps) {
     const { userId } = await params;
 
-    const [profile, publicSets] = await Promise.all([
+    const [profile, publicSets, currentUser] = await Promise.all([
         getUserProfile(userId),
-        getUserPublicSets(userId)
+        getUserPublicSets(userId),
+        getCurrentUser()
     ]);
 
     if (!profile) {
         notFound();
     }
 
-    return <PublicProfile profile={profile} publicSets={publicSets} />;
+    const isAdmin = currentUser?.role === "admin";
+    
+    if (profile.isPrivate && !isAdmin && currentUser?.id !== userId) {
+        notFound();
+    }
+
+    return <PublicProfile profile={profile} publicSets={publicSets} isAdmin={isAdmin} />;
 }

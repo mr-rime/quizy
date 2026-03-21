@@ -1,7 +1,7 @@
 "use server"
 
 import { db } from "@/db/drizzle";
-import { flashcardSets, folders, folderSets } from "@/db/schema";
+import { flashcardSets, folders, folderSets, users } from "@/db/schema";
 import { eq, and, ilike } from "drizzle-orm";
 import { getCurrentUser, getUserId } from "@/features/user/services/user";
 import { revalidatePath, revalidateTag } from "next/cache";
@@ -20,15 +20,26 @@ export const getFlashcardSet = unstable_cache(
                 eq(flashcardSets.id, id),
                 or(
                     eq(flashcardSets.userId, userId),
-                    eq(flashcardSets.isPublic, true),
-                    exists(
-                        db.select()
-                            .from(folderSets)
-                            .innerJoin(folders, eq(folders.id, folderSets.folderId))
-                            .where(and(
-                                eq(folderSets.setId, flashcardSets.id),
-                                eq(folders.isPublished, true)
-                            ))
+                    and(
+                        eq(flashcardSets.isPublic, true),
+                        exists(
+                            db.select()
+                                .from(users)
+                                .where(and(
+                                    eq(users.id, flashcardSets.userId),
+                                    or(
+                                        eq(users.isPrivate, false),
+                                        exists(
+                                            db.select()
+                                                .from(users)
+                                                .where(and(
+                                                    eq(users.id, userId),
+                                                    eq(users.role, "admin")
+                                                ))
+                                        )
+                                    )
+                                ))
+                        )
                     )
                 )
             ),

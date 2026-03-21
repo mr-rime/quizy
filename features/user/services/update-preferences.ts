@@ -27,3 +27,25 @@ export async function updateAudioPreference(playAudioOnProgress: boolean) {
         return { success: false, error: "Failed to update preference" };
     }
 }
+
+export async function updatePrivacyPreference(isPrivate: boolean) {
+    try {
+        const userId = await getUserId();
+
+        await db
+            .update(users)
+            .set({
+                isPrivate,
+                updatedAt: new Date()
+            })
+            .where(eq(users.id, userId));
+
+        revalidateTag("user", "max");
+        revalidateTag("current-user", "max");
+
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to update privacy preference:", error);
+        return { success: false, error: "Failed to update preference" };
+    }
+}

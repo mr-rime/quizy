@@ -11,24 +11,32 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { updateUserEmail, updateUsername, updatePassword } from "../services/update-user";
-import { updateAudioPreference } from "../services/update-preferences";
+import { updateAudioPreference, updatePrivacyPreference } from "../services/update-preferences";
+import { updateSitePrivacy } from "../services/site-settings";
 import { updateEmailSchema, updateUsernameSchema, updatePasswordSchema, UpdateEmailSchema, UpdateUsernameSchema, UpdatePasswordSchema } from "../utils/validations";
-import { User, Mail, Lock, Settings } from "lucide-react";
+import { User, Mail, Lock, Settings, Shield, ShieldAlert } from "lucide-react";
 
 interface ProfileFormProps {
     user: {
         email: string;
         username: string;
         playAudioOnProgress?: boolean;
+        isPrivate: boolean;
+        role?: string;
     };
+    isSitePrivate: boolean;
 }
 
-export function ProfileForm({ user }: ProfileFormProps) {
+export function ProfileForm({ user, isSitePrivate }: ProfileFormProps) {
     const [isLoadingEmail, setIsLoadingEmail] = useState(false);
     const [isLoadingUsername, setIsLoadingUsername] = useState(false);
     const [isLoadingPassword, setIsLoadingPassword] = useState(false);
     const [playAudioOnProgress, setPlayAudioOnProgress] = useState(user.playAudioOnProgress ?? false);
+    const [isPrivate, setIsPrivate] = useState(user.isPrivate);
+    const [isSitePrivateState, setIsSitePrivateState] = useState(isSitePrivate);
     const [isLoadingPreference, setIsLoadingPreference] = useState(false);
+    const [isLoadingPrivacy, setIsLoadingPrivacy] = useState(false);
+    const [isLoadingSitePrivacy, setIsLoadingSitePrivacy] = useState(false);
 
     const emailForm = useForm<UpdateEmailSchema>({
         resolver: zodResolver(updateEmailSchema),
@@ -270,6 +278,91 @@ export function ProfileForm({ user }: ProfileFormProps) {
                                     disabled={isLoadingPreference}
                                 />
                             </div>
+
+                            <hr className="border-border" />
+
+                            <div className="flex items-center gap-2 mb-4">
+                                <Lock className="h-5 w-5 text-muted-foreground" />
+                                <h3 className="text-lg font-semibold">Privacy Preferences</h3>
+                            </div>
+
+                            <div className="flex items-center justify-between space-x-4">
+                                <div className="flex-1 space-y-1">
+                                    <Label htmlFor="private-profile" className="text-base font-medium">
+                                        Private Account
+                                    </Label>
+                                    <p className="text-sm text-muted-foreground">
+                                        Hide your profile and public sets from discovery. Only administrators will be able to access them.
+                                    </p>
+                                </div>
+                                <Switch
+                                    id="private-profile"
+                                    checked={isPrivate}
+                                    onCheckedChange={async (checked) => {
+                                        setIsLoadingPrivacy(true);
+                                        try {
+                                            const result = await updatePrivacyPreference(checked);
+                                            if (result.success) {
+                                                setIsPrivate(checked);
+                                                toast.success(checked ? "Account is now private" : "Account is now public");
+                                            } else {
+                                                toast.error("Failed to update privacy");
+                                            }
+                                        } catch (error) {
+                                            console.error(error);
+                                            toast.error("An error occurred");
+                                        } finally {
+                                            setIsLoadingPrivacy(false);
+                                        }
+                                    }}
+                                    disabled={isLoadingPrivacy}
+                                />
+                            </div>
+
+                            {user.role === "admin" && (
+                                <>
+                                    <hr className="border-border" />
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <Shield className="h-5 w-5 text-red-500" />
+                                        <h3 className="text-lg font-semibold">Admin: Site Configuration</h3>
+                                    </div>
+                                    <div className="flex items-center justify-between space-x-4 bg-red-50/50 dark:bg-red-900/10 p-4 rounded-lg border border-red-100 dark:border-red-900/20">
+                                        <div className="flex-1 space-y-1">
+                                            <div className="flex items-center gap-2">
+                                                <Label htmlFor="site-private" className="text-base font-bold text-red-700 dark:text-red-400">
+                                                    Global Private Mode
+                                                </Label>
+                                                <ShieldAlert className="h-4 w-4 text-red-600" />
+                                            </div>
+                                            <p className="text-sm text-red-600/80 dark:text-red-400/80">
+                                                When enabled, ONLY administrators can access any part of the platform. Regular users will be redirected.
+                                            </p>
+                                        </div>
+                                        <Switch
+                                            id="site-private"
+                                            checked={isSitePrivateState}
+                                            onCheckedChange={async (checked) => {
+                                                setIsLoadingSitePrivacy(true);
+                                                try {
+                                                    const result = await updateSitePrivacy(checked);
+                                                    if (result.success) {
+                                                        setIsSitePrivateState(checked);
+                                                        toast.success(checked ? "Global Private Mode enabled" : "Global Private Mode disabled");
+                                                    } else {
+                                                        toast.error("Failed to update site settings");
+                                                    }
+                                                } catch (error) {
+                                                    console.error(error);
+                                                    toast.error("An error occurred");
+                                                } finally {
+                                                    setIsLoadingSitePrivacy(false);
+                                                }
+                                            }}
+                                            disabled={isLoadingSitePrivacy}
+                                        />
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </Card>
                 </TabsContent>
