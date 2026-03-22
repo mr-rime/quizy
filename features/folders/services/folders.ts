@@ -37,86 +37,84 @@ export async function createFolder(data: CreateFolderSchema) {
     return newFolder;
 }
 
-export const getFolders = unstable_cache(
-    async (userId: string) => {
-        if (!userId) return [];
+export async function getFolders(userId: string) {
+    return unstable_cache(
+        async () => {
+            if (!userId) return [];
 
-        const userFolders = await db.query.folders.findMany({
-            where: eq(folders.userId, userId),
-            orderBy: [desc(folders.createdAt)],
-        });
+            const userFolders = await db.query.folders.findMany({
+                where: eq(folders.userId, userId),
+                orderBy: [desc(folders.createdAt)],
+            });
 
-        const folderIds = userFolders.map(f => f.id);
-        const setsInFolders = await db.query.folderSets.findMany({
-            where: inArray(folderSets.folderId, folderIds),
-            with: { set: true },
-        });
+            if (userFolders.length === 0) return [];
 
-        return userFolders.map(folder => ({
-            ...folder,
-            folderSets: setsInFolders.filter(fs => fs.folderId === folder.id),
-        }));
-    },
-    ["folders"],
-    {
-        revalidate: 60,
-        tags: ["folders"]
-    }
-);
+            const folderIds = userFolders.map(f => f.id);
+            const setsInFolders = await db.query.folderSets.findMany({
+                where: inArray(folderSets.folderId, folderIds),
+                with: { set: true },
+            });
 
-export const getFolder = unstable_cache(
-    async (id: string, userId: string) => {
-        const folder = await db.query.folders.findFirst({
-            where: and(
-                eq(folders.id, id),
-                or(
-                    eq(folders.userId, userId),
-                    and(
-                        eq(folders.isPublic, true),
-                        exists(
-                            db.select()
-                                .from(users)
-                                .where(and(
-                                    eq(users.id, folders.userId),
-                                    or(
-                                        // Allow non-admin content
-                                        ne(users.role, "admin"),
-                                        // OR allow if viewer is admin
-                                        exists(
-                                            db.select()
-                                                .from(users)
-                                                .where(and(
-                                                    eq(users.id, userId),
-                                                    eq(users.role, "admin")
-                                                ))
-                                        )
-                                    )
-                                ))
-                        )
-                    )
-                )
-            ),
-            with: {
-                folderSets: {
-                    with: {
-                        set: {
-                            with: {
-                                user: true,
-                                cards: true
+            return userFolders.map(folder => ({
+                ...folder,
+                folderSets: setsInFolders.filter(fs => fs.folderId === folder.id),
+            }));
+        },
+        ["folders", userId],
+        {
+            revalidate: 60,
+            tags: ["folders"]
+        }
+    )();
+}
+
+export async function getFolder(id: string, userId: string) {
+    return unstable_cache(
+        async () => {
+            const folder = await db.query.folders.findFirst({
+                where: eq(folders.id, id),
+                with: {
+                    folderSets: {
+                        with: {
+                            set: {
+                                with: {
+                                    user: true,
+                                    cards: true
+                                }
                             }
                         }
                     }
                 }
+            });
+
+            if (!folder) return undefined;
+
+            // Owner access
+            if (folder.userId === userId) return folder;
+
+            // Public access check
+            if (folder.isPublic) {
+                const owner = await db.query.users.findFirst({
+                    where: eq(users.id, folder.userId),
+                    columns: { role: true }
+                });
+
+                if (owner?.role === "admin") {
+                    const viewerIsAdmin = await isAdmin(userId);
+                    if (!viewerIsAdmin) return undefined;
+                }
+                return folder;
             }
-        });
-        return folder;
-    },
-    ["folder"],
-    {
-        revalidate: 60,
-        tags: ["folder"]
-    }
-);
+
+            return undefined;
+        },
+        ["folder", id, userId],
+        {
+            revalidate: 60,
+            tags: ["folder"]
+        }
+    )();
+}
 
 
 export async function updateFolder(id: string, data: UpdateFolderSchema) {

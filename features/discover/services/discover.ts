@@ -5,106 +5,110 @@ import { flashcardSets, users, folders } from "@/db/schema";
 import { eq, desc, ilike, or, sql, and, ne } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
-export const getPublicSets = unstable_cache(
-    async (searchQuery?: string, limit = 20, offset = 0) => {
-        const whereConditions = [
-            and(
-                eq(flashcardSets.isPublished, true),
-                eq(flashcardSets.isPublic, true),
-                ne(users.role, "admin"),
-                eq(users.isPrivate, false)
-            )
-        ];
+export async function getPublicSets(searchQuery?: string, limit = 20, offset = 0) {
+    return unstable_cache(
+        async () => {
+            const whereConditions = [
+                and(
+                    eq(flashcardSets.isPublished, true),
+                    eq(flashcardSets.isPublic, true),
+                    ne(users.role, "admin"),
+                    eq(users.isPrivate, false)
+                )
+            ];
 
-        if (searchQuery && searchQuery.trim()) {
-            whereConditions.push(
-                or(
-                    ilike(flashcardSets.title, `%${searchQuery}%`),
-                    ilike(flashcardSets.description, `%${searchQuery}%`)
-                )!
-            );
+            if (searchQuery && searchQuery.trim()) {
+                whereConditions.push(
+                    or(
+                        ilike(flashcardSets.title, `%${searchQuery}%`),
+                        ilike(flashcardSets.description, `%${searchQuery}%`)
+                    )!
+                );
+            }
+
+            const sets = await db
+                .select({
+                    id: flashcardSets.id,
+                    title: flashcardSets.title,
+                    description: flashcardSets.description,
+                    createdAt: flashcardSets.createdAt,
+                    userId: flashcardSets.userId,
+                    username: users.username,
+                    userImage: users.image,
+                    likeCount: flashcardSets.likeCount,
+                    cardCount: sql<number>`(select count(*) from card where card.set_id = ${flashcardSets.id})`,
+                    commentCount: sql<number>`(select count(*) from set_comment where set_comment.set_id = ${flashcardSets.id})`,
+                    joinCount: sql<number>`(select sum(join_count) from set_join where set_join.set_id = ${flashcardSets.id})`,
+                })
+                .from(flashcardSets)
+                .leftJoin(users, eq(flashcardSets.userId, users.id))
+                .where(whereConditions.length > 1 ? sql`${whereConditions[0]} and ${whereConditions[1]}` : whereConditions[0])
+                .orderBy(desc(flashcardSets.createdAt))
+                .limit(limit)
+                .offset(offset);
+
+            return sets;
+        },
+        ["discover-sets", searchQuery || "", limit.toString(), offset.toString()],
+        {
+            revalidate: 60,
+            tags: ["discover-sets"],
         }
-
-        const sets = await db
-            .select({
-                id: flashcardSets.id,
-                title: flashcardSets.title,
-                description: flashcardSets.description,
-                createdAt: flashcardSets.createdAt,
-                userId: flashcardSets.userId,
-                username: users.username,
-                userImage: users.image,
-                likeCount: flashcardSets.likeCount,
-                cardCount: sql<number>`(select count(*) from card where card.set_id = ${flashcardSets.id})`,
-                commentCount: sql<number>`(select count(*) from set_comment where set_comment.set_id = ${flashcardSets.id})`,
-                joinCount: sql<number>`(select sum(join_count) from set_join where set_join.set_id = ${flashcardSets.id})`,
-            })
-            .from(flashcardSets)
-            .leftJoin(users, eq(flashcardSets.userId, users.id))
-            .where(whereConditions.length > 1 ? sql`${whereConditions[0]} and ${whereConditions[1]}` : whereConditions[0])
-            .orderBy(desc(flashcardSets.createdAt))
-            .limit(limit)
-            .offset(offset);
-
-        return sets;
-    },
-    ["discover-sets"],
-    {
-        revalidate: 60,
-        tags: ["discover-sets"],
-    }
-);
+    )();
+}
 
 export async function searchPublicSets(query: string) {
     return getPublicSets(query);
 }
 
-export const getPublicFolders = unstable_cache(
-    async (searchQuery?: string, limit = 20, offset = 0) => {
-        const whereConditions = [
-            and(
-                eq(folders.isPublished, true),
-                eq(folders.isPublic, true),
-                ne(users.role, "admin"),
-                eq(users.isPrivate, false)
-            )
-        ];
+export async function getPublicFolders(searchQuery?: string, limit = 20, offset = 0) {
+    return unstable_cache(
+        async () => {
+            const whereConditions = [
+                and(
+                    eq(folders.isPublished, true),
+                    eq(folders.isPublic, true),
+                    ne(users.role, "admin"),
+                    eq(users.isPrivate, false)
+                )
+            ];
 
-        if (searchQuery && searchQuery.trim()) {
-            whereConditions.push(
-                or(
-                    ilike(folders.title, `%${searchQuery}%`),
-                    ilike(folders.description, `%${searchQuery}%`)
-                )!
-            );
+            if (searchQuery && searchQuery.trim()) {
+                whereConditions.push(
+                    or(
+                        ilike(folders.title, `%${searchQuery}%`),
+                        ilike(folders.description, `%${searchQuery}%`)
+                    )!
+                );
+            }
+
+            const publicFolders = await db
+                .select({
+                    id: folders.id,
+                    title: folders.title,
+                    description: folders.description,
+                    createdAt: folders.createdAt,
+                    userId: folders.userId,
+                    username: users.username,
+                    userImage: users.image,
+                    setCount: sql<number>`(select count(*) from folder_set where folder_set.folder_id = ${folders.id})`,
+                })
+                .from(folders)
+                .leftJoin(users, eq(folders.userId, users.id))
+                .where(whereConditions.length > 1 ? sql`${whereConditions[0]} and ${whereConditions[1]}` : whereConditions[0])
+                .orderBy(desc(folders.createdAt))
+                .limit(limit)
+                .offset(offset);
+
+            return publicFolders;
+        },
+        ["discover-folders", searchQuery || "", limit.toString(), offset.toString()],
+        {
+            revalidate: 60,
+            tags: ["discover-folders"],
         }
-
-        const publicFolders = await db
-            .select({
-                id: folders.id,
-                title: folders.title,
-                description: folders.description,
-                createdAt: folders.createdAt,
-                userId: folders.userId,
-                username: users.username,
-                userImage: users.image,
-                setCount: sql<number>`(select count(*) from folder_set where folder_set.folder_id = ${folders.id})`,
-            })
-            .from(folders)
-            .leftJoin(users, eq(folders.userId, users.id))
-            .where(whereConditions.length > 1 ? sql`${whereConditions[0]} and ${whereConditions[1]}` : whereConditions[0])
-            .orderBy(desc(folders.createdAt))
-            .limit(limit)
-            .offset(offset);
-
-        return publicFolders;
-    },
-    ["discover-folders"],
-    {
-        revalidate: 60,
-        tags: ["discover-folders"],
-    }
-);
+    )();
+}
 
 export async function searchPublicFolders(query: string) {
     return getPublicFolders(query);
