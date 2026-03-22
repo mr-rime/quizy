@@ -98,7 +98,7 @@ async function queryHuggingFace(prompt: string, retries = 5): Promise<string> {
     }
 }
 
-async function enrichCardWithAI(term: string, definition: string | null): Promise<EnrichmentResult> {
+async function enrichCardWithAI(term: string, definition: string | null, wordType: string | null): Promise<EnrichmentResult> {
     if (definition) {
         const uniqueWords = Array.from(new Set(definition.split(',').map(w => w.trim())));
         definition = uniqueWords.join(', ');
@@ -117,7 +117,7 @@ If it is NOT valid or meaningless, return ONLY:
 { "isValid": false }
 
 STEP 2 — WORD TYPE CHECK
-Determine the grammatical category of "${term}".
+Determine the grammatical category of "${wordType}".
 
 Possible types include:
 Noun, Verb, Adjective, Adverb, Phrasal Verb, Idiom, Expression, Interjection, Preposition, Conjunction.
@@ -308,7 +308,7 @@ async function enrichCards() {
             const MAX_RETRIES = 2;
 
             while (retry <= MAX_RETRIES) {
-                enrichment = await enrichCardWithAI(card.term, card.definition);
+                enrichment = await enrichCardWithAI(card.term, card.definition, card.wordType);
 
                 if (enrichment.isValid === false) {
                     break;
