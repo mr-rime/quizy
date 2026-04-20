@@ -25,7 +25,11 @@ export function LibraryFolders({ folders }: LibraryFoldersProps) {
             createdAt: folder.createdAt ? new Date(folder.createdAt) : new Date(),
             type: 'folder' as const
         }))
-        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        .sort((a, b) => {
+            const folderA = folders.find(f => f.id === a.id);
+            const folderB = folders.find(f => f.id === b.id);
+            return (folderA?.order ?? 0) - (folderB?.order ?? 0);
+        });
 
     const recentItems = sortedItems.filter(item => {
         const oneHourAgo = new Date(date - 60 * 60 * 1000);

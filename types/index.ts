@@ -38,6 +38,7 @@ export interface Folder {
     isPublished?: boolean;
     createdAt: Date | null;
     updatedAt: Date | null;
+    order: number;
     folderSets?: FolderSet[];
     user?: User;
 }
@@ -45,6 +46,7 @@ export interface Folder {
 export interface FolderSet {
     folderId: string;
     setId: string;
+    order: number;
     folder?: Folder;
     set?: FlashcardSet;
 }

@@ -6,6 +6,24 @@ import { usePathname } from "next/navigation";
 import { FolderDialog } from "@/features/folders/components/create-folder-button";
 import { Folder as FolderType } from "@/types";
 import { Button } from "../ui/button";
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragEndEvent,
+} from '@dnd-kit/core';
+import {
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    arrayMove
+} from '@dnd-kit/sortable';
+import { SortableSidebarFolder } from "./sortable-sidebar-folder";
+import { updateFoldersOrder } from "@/features/folders/services/folders";
+import { useEffect } from "react";
 
 type LinkComponentProps = Parameters<typeof Link>[0];
 
@@ -31,9 +49,44 @@ interface SidebarProps {
 }
 
 export function Sidebar({ foldersPromise, isMobileMenuOpen, onCloseMobileMenu }: SidebarProps) {
-    const folders = use(foldersPromise);
+    const initialFolders = use(foldersPromise);
     const pathname = usePathname();
     const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
+    const [localFolders, setLocalFolders] = useState<FolderType[]>(initialFolders);
+
+    useEffect(() => {
+        setLocalFolders(initialFolders);
+    }, [initialFolders]);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8,
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    const handleDragEnd = async (event: DragEndEvent) => {
+        const { active, over } = event;
+
+        if (over && active.id !== over.id) {
+            const oldIndex = localFolders.findIndex((f) => f.id === active.id);
+            const newIndex = localFolders.findIndex((f) => f.id === over.id);
+
+            const newOrder = arrayMove(localFolders, oldIndex, newIndex);
+            setLocalFolders(newOrder);
+
+            try {
+                await updateFoldersOrder(newOrder.map(f => f.id));
+            } catch (err) {
+                console.error(err);
+                setLocalFolders(localFolders);
+            }
+        }
+    };
 
     const handleLinkClick = () => {
         onCloseMobileMenu();
@@ -65,7 +118,10 @@ export function Sidebar({ foldersPromise, isMobileMenuOpen, onCloseMobileMenu }:
                                             ${isActive ? "bg-zinc-200 dark:bg-zinc-700 font-semibold" : "hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white"}
                                         `}
                                     >
-                                        {link.icon} <span className="text-sm sm:text-base">{link.name}</span>
+                                        <div className="shrink-0 w-5 h-5 flex items-center justify-center">
+                                            {link.icon}
+                                        </div>
+                                        <span className="text-sm sm:text-base">{link.name}</span>
                                     </Link>
                                 </li>
                             );
@@ -79,36 +135,40 @@ export function Sidebar({ foldersPromise, isMobileMenuOpen, onCloseMobileMenu }:
                             Your folders
                         </h3>
                     </div>
-                    <ul className="flex flex-col gap-1">
-                        {folders.map((folder) => {
-                            const isActive = pathname === `/folders/${folder.id}`;
-                            return (
-                                <li key={folder.id}>
-                                    <Link
-                                        href={`/folders/${folder.id}`}
-                                        onClick={handleLinkClick}
-                                        className={`flex items-center gap-3 p-3 rounded-lg text-zinc-700 dark:text-zinc-300 transition-all duration-200
-                                            ${isActive ? "bg-zinc-200 dark:bg-zinc-700 font-semibold" : "hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white"}
-                                        `}
-                                        prefetch
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext
+                            items={localFolders.map(f => f.id)}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            <ul className="flex flex-col gap-1">
+                                {localFolders.map((folder) => {
+                                    const isActive = pathname === `/folders/${folder.id}`;
+                                    return (
+                                        <SortableSidebarFolder
+                                            key={folder.id}
+                                            folder={folder}
+                                            isActive={isActive}
+                                            onClick={handleLinkClick}
+                                        />
+                                    );
+                                })}
+                                <li>
+                                    <Button
+                                        onClick={() => setIsCreateFolderOpen(true)}
+                                        variant={"ghost"}
+                                        className="flex items-center gap-3 p-3 w-full rounded-lg text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all duration-200"
                                     >
-                                        <Folder size={20} />
-                                        <span className="truncate text-sm sm:text-base">{folder.title}</span>
-                                    </Link>
+                                        <Plus size={20} className="shrink-0" />
+                                        <span className="text-sm sm:text-base text-left flex-1">Create folder</span>
+                                    </Button>
                                 </li>
-                            );
-                        })}
-                        <li>
-                            <Button
-                                onClick={() => setIsCreateFolderOpen(true)}
-                                variant={"ghost"}
-                                className="flex items-center gap-3 p-3 w-full rounded-lg text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all duration-200"
-                            >
-                                <Plus size={20} />
-                                <span className="text-sm sm:text-base">Create folder</span>
-                            </Button>
-                        </li>
-                    </ul>
+                            </ul>
+                        </SortableContext>
+                    </DndContext>
                 </div>
 
                 <FolderDialog open={isCreateFolderOpen} onOpenChange={setIsCreateFolderOpen} />

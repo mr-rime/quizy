@@ -2,7 +2,7 @@
 
 import { db } from "@/db/drizzle";
 import { folders, folderSets, users } from "@/db/schema";
-import { eq, and, desc, inArray, or, ne, exists } from "drizzle-orm";
+import { eq, and, desc, inArray, or, ne, exists, asc } from "drizzle-orm";
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { createFolderSchema, CreateFolderSchema, UpdateFolderSchema } from "../utils/validations";
@@ -44,7 +44,7 @@ export async function getFolders(userId: string) {
 
             const userFolders = await db.query.folders.findMany({
                 where: eq(folders.userId, userId),
-                orderBy: [desc(folders.createdAt)],
+                orderBy: [asc(folders.order), desc(folders.createdAt)],
             });
 
             if (userFolders.length === 0) return [];
@@ -57,7 +57,9 @@ export async function getFolders(userId: string) {
 
             return userFolders.map(folder => ({
                 ...folder,
-                folderSets: setsInFolders.filter(fs => fs.folderId === folder.id),
+                folderSets: setsInFolders
+                    .filter(fs => fs.folderId === folder.id)
+                    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
             }));
         },
         ["folders", userId],
@@ -82,7 +84,8 @@ export async function getFolder(id: string, userId: string) {
                                     cards: true
                                 }
                             }
-                        }
+                        },
+                        orderBy: [asc(folderSets.order)]
                     }
                 }
             });
@@ -173,3 +176,39 @@ export async function removeSetFromFolder(folderId: string, setId: string) {
     revalidateTag("folders", "max");
     revalidateTag("discover-folders", "max");
 }
+
+export async function updateFolderSetsOrder(folderId: string, setIds: string[]) {
+    const userId = await getUserId();
+    const folder = await db.query.folders.findFirst({
+        where: and(eq(folders.id, folderId), eq(folders.userId, userId)),
+    });
+    if (!folder) throw new Error("Folder not found or unauthorized");
+
+    await db.transaction(async (tx) => {
+        for (let i = 0; i < setIds.length; i++) {
+            await tx.update(folderSets)
+                .set({ order: i })
+                .where(and(eq(folderSets.folderId, folderId), eq(folderSets.setId, setIds[i])));
+        }
+    });
+
+    revalidatePath(`/folders/${folderId}`);
+    revalidateTag("folder", "max");
+}
+
+export async function updateFoldersOrder(folderIds: string[]) {
+    const userId = await getUserId();
+
+    await db.transaction(async (tx) => {
+        for (let i = 0; i < folderIds.length; i++) {
+            await tx.update(folders)
+                .set({ order: i })
+                .where(and(eq(folders.id, folderIds[i]), eq(folders.userId, userId)));
+        }
+    });
+
+    revalidatePath("/library");
+    revalidatePath("/folders");
+    revalidateTag("folders", "max");
+}
+

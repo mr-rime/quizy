@@ -4,9 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Folder, MoreHorizontal, Plus, Trash2, Edit2, Globe } from "lucide-react";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
-import { deleteFolder } from "../services/folders";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AddStudyMaterialsModal } from "./add-study-materials-modal";
@@ -25,6 +24,23 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragEndEvent,
+} from '@dnd-kit/core';
+import {
+    SortableContext,
+    sortableKeyboardCoordinates,
+    rectSortingStrategy,
+    arrayMove
+} from '@dnd-kit/sortable';
+import { SortableSetCard } from "./sortable-set-card";
+import { updateFolderSetsOrder, deleteFolder } from "../services/folders";
 
 
 interface FolderViewProps {
@@ -40,6 +56,45 @@ export function FolderView({ folder, currentUserId }: FolderViewProps) {
     const [isPublishing, startPublishing] = useTransition();
 
     const isOwner = currentUserId === folder.userId;
+
+    const [localFolderSets, setLocalFolderSets] = useState(folder.folderSets || []);
+
+    useEffect(() => {
+        setLocalFolderSets(folder.folderSets || []);
+    }, [folder.folderSets]);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8,
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    const handleDragEnd = async (event: DragEndEvent) => {
+        const { active, over } = event;
+
+        if (over && active.id !== over.id) {
+            const oldIndex = localFolderSets.findIndex((fs) => fs.setId === active.id);
+            const newIndex = localFolderSets.findIndex((fs) => fs.setId === over.id);
+
+            const newOrder = arrayMove(localFolderSets, oldIndex, newIndex);
+            setLocalFolderSets(newOrder);
+
+            try {
+                await updateFolderSetsOrder(folder.id, newOrder.map(fs => fs.setId));
+                toast.success("Order updated");
+            } catch (err) {
+                console.error(err);
+                toast.error("Failed to update order");
+                setLocalFolderSets(localFolderSets);
+            }
+        }
+    };
+
 
     const handleDelete = async () => {
         try {
@@ -170,43 +225,40 @@ export function FolderView({ folder, currentUserId }: FolderViewProps) {
                     )}
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="space-y-4">
                     {isOwner && (
-                        <div className="col-span-full flex justify-start">
+                        <div className="flex justify-start">
                             <Button onClick={() => setIsAddMaterialsOpen(true)} variant="outline" className="gap-2">
                                 <Plus className="h-4 w-4" />
                                 Add set
                             </Button>
                         </div>
                     )}
-                    {folder.folderSets?.map(({ set }) => {
-                        if (!set) return null;
-                        return (
-                            <Link key={set.id} href={`/practice/${set.id}`}>
-                                <Card className="hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors cursor-pointer h-full">
-                                    <CardHeader>
-                                        <CardTitle className="flex items-start justify-between gap-2">
-                                            <span className="line-clamp-2">{set.title}</span>
-                                        </CardTitle>
-                                        <p className="text-sm text-muted-foreground">{set.cards?.length || 0} terms</p>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                            <div className="h-6 w-6 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center overflow-hidden">
-                                                {set.user?.image ? (
-                                                    <Image src={set.user.image} alt={set.user.username} className="h-full w-full object-cover" unoptimized />
-                                                ) : (
-                                                    <span className="text-xs">{set.user?.username?.[0]?.toUpperCase()}</span>
-                                                )}
-                                            </div>
-                                            <span>{set.user?.username}</span>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </Link>
-                        );
-                    })}
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext
+                            items={localFolderSets.map(fs => fs.setId)}
+                            strategy={rectSortingStrategy}
+                        >
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {localFolderSets.map(({ set }) => {
+                                    if (!set) return null;
+                                    return (
+                                        <SortableSetCard
+                                            key={set.id}
+                                            set={set}
+                                            isOwner={isOwner}
+                                        />
+                                    );
+                                })}
+                            </div>
+                        </SortableContext>
+                    </DndContext>
                 </div>
+
             )}
 
             <AddStudyMaterialsModal

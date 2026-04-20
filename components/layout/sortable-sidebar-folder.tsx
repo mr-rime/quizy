@@ -1,0 +1,57 @@
+"use client"
+
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import Link from "next/link";
+import { Folder as FolderIcon, GripVertical } from "lucide-react";
+import { Folder as FolderType } from "@/types";
+
+interface SortableSidebarFolderProps {
+    folder: FolderType;
+    isActive: boolean;
+    onClick: () => void;
+}
+
+export function SortableSidebarFolder({ folder, isActive, onClick }: SortableSidebarFolderProps) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: folder.id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 10 : 0,
+        opacity: isDragging ? 0.5 : 1,
+    };
+
+    return (
+        <li ref={setNodeRef} style={style} className="group relative">
+            <Link
+                href={`/folders/${folder.id}`}
+                onClick={onClick}
+                className={`flex items-center gap-3 p-3 rounded-lg text-zinc-700 dark:text-zinc-300 transition-all duration-200
+                    ${isActive ? "bg-zinc-200 dark:bg-zinc-700 font-semibold" : "hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white"}
+                `}
+                prefetch
+            >
+                <div className="shrink-0 w-5 h-5 flex items-center justify-center">
+                    <FolderIcon size={20} />
+                </div>
+                <span className="truncate text-sm sm:text-base flex-1">{folder.title}</span>
+                <div
+                    {...attributes}
+                    {...listeners}
+                    className="shrink-0 p-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded cursor-grab active:cursor-grabbing opacity-40 group-hover:opacity-100 transition-opacity"
+                    onClick={(e) => e.preventDefault()}
+                >
+                    <GripVertical size={16} className="text-zinc-500" />
+                </div>
+            </Link>
+        </li>
+    );
+}

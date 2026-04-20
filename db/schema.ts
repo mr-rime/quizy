@@ -122,6 +122,7 @@ export const folders = pgTable("folder", {
     updatedAt: timestamp("updated_at")
         .defaultNow()
         .$onUpdate(() => new Date()),
+    order: integer("order").notNull().default(0),
 }, (table) => ({
     userIdIdx: index("folder_user_id_idx").on(table.userId),
     isPublicIdx: index("folder_is_public_idx").on(table.isPublic),
@@ -135,6 +136,7 @@ export const folderSets = pgTable("folder_set", {
     setId: uuid("set_id")
         .notNull()
         .references(() => flashcardSets.id, { onDelete: "cascade" }),
+    order: integer("order").notNull().default(0),
 }, (t) => ({
     pk: primaryKey({ columns: [t.folderId, t.setId] }),
     folderIdIdx: index("folder_set_folder_id_idx").on(t.folderId),
