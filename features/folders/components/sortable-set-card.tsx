@@ -31,22 +31,21 @@ export function SortableSetCard({ set, isOwner }: SortableSetCardProps) {
     };
 
     return (
-        <div ref={setNodeRef} style={style} className="relative group">
-            <Link href={`/practice/${set.id}`}>
+        <div ref={setNodeRef} style={style} className="relative group h-full">
+            {isOwner && (
+                <div
+                    {...attributes}
+                    {...listeners}
+                    className="absolute top-4 right-4 z-20 p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-md cursor-grab active:cursor-grabbing opacity-40 group-hover:opacity-100 transition-opacity bg-white/5 dark:bg-black/5 backdrop-blur-sm"
+                >
+                    <GripVertical className="h-4 w-4 text-muted-foreground" />
+                </div>
+            )}
+            <Link href={`/practice/${set.id}`} className="block h-full">
                 <Card className="hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors cursor-pointer h-full">
                     <CardHeader>
-                        <CardTitle className="flex items-start justify-between gap-2">
+                        <CardTitle className="pr-8">
                             <span className="line-clamp-2">{set.title}</span>
-                            {isOwner && (
-                                <div
-                                    {...attributes}
-                                    {...listeners}
-                                    className="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded cursor-grab active:cursor-grabbing opacity-40 group-hover:opacity-100 transition-opacity"
-                                    onClick={(e) => e.preventDefault()}
-                                >
-                                    <GripVertical className="h-4 w-4 text-muted-foreground" />
-                                </div>
-                            )}
                         </CardTitle>
                         <p className="text-sm text-muted-foreground">{set.cards?.length || 0} terms</p>
                     </CardHeader>

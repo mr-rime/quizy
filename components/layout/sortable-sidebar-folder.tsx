@@ -30,28 +30,25 @@ export function SortableSidebarFolder({ folder, isActive, onClick }: SortableSid
     };
 
     return (
-        <li ref={setNodeRef} style={style} className="group relative">
+        <li ref={setNodeRef} style={style} className={`group relative flex items-center rounded-lg transition-all duration-200 ${isActive ? "bg-zinc-200 dark:bg-zinc-700 font-semibold" : "hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white"}`}>
             <Link
                 href={`/folders/${folder.id}`}
                 onClick={onClick}
-                className={`flex items-center gap-3 p-3 rounded-lg text-zinc-700 dark:text-zinc-300 transition-all duration-200
-                    ${isActive ? "bg-zinc-200 dark:bg-zinc-700 font-semibold" : "hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white"}
-                `}
+                className="flex-1 flex items-center gap-3 p-3 text-zinc-700 dark:text-zinc-300"
                 prefetch
             >
                 <div className="shrink-0 w-5 h-5 flex items-center justify-center">
                     <FolderIcon size={20} />
                 </div>
                 <span className="truncate text-sm sm:text-base flex-1">{folder.title}</span>
-                <div
-                    {...attributes}
-                    {...listeners}
-                    className="shrink-0 p-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded cursor-grab active:cursor-grabbing opacity-40 group-hover:opacity-100 transition-opacity"
-                    onClick={(e) => e.preventDefault()}
-                >
-                    <GripVertical size={16} className="text-zinc-500" />
-                </div>
             </Link>
+            <div
+                {...attributes}
+                {...listeners}
+                className="shrink-0 p-3 cursor-grab active:cursor-grabbing opacity-40 group-hover:opacity-100 transition-opacity"
+            >
+                <GripVertical size={16} className="text-zinc-500" />
+            </div>
         </li>
     );
 }
