@@ -34,13 +34,13 @@ export function SortableSidebarFolder({ folder, isActive, onClick }: SortableSid
             <Link
                 href={`/folders/${folder.id}`}
                 onClick={onClick}
-                className="flex-1 flex items-center gap-3 p-3 text-zinc-700 dark:text-zinc-300"
+                className="flex-1 flex items-center gap-3 p-3 text-zinc-700 dark:text-zinc-300 min-w-0"
                 prefetch
             >
                 <div className="shrink-0 w-5 h-5 flex items-center justify-center">
                     <FolderIcon size={20} />
                 </div>
-                <span className="truncate text-sm sm:text-base flex-1">{folder.title}</span>
+                <span className="truncate text-sm sm:text-base flex-1 min-w-0">{folder.title}</span>
             </Link>
             <div
                 {...attributes}
