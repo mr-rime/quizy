@@ -5,4 +5,5 @@ export interface Flashcard {
     imageUrl: string | null;
     examples?: { english: string; arabic: string;[key: string]: string }[] | null;
     wordType?: string | null;
+    englishVariant?: string | null;
 }

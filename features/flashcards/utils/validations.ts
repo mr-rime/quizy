@@ -20,6 +20,7 @@ export const createFlashcardSetSchema = z.object({
             .max(1000, "Definition must be 1000 characters or less"),
         image: z.string().optional(),
         wordType: z.string().optional(),
+        englishVariant: z.string().optional(),
         examples: z.array(z.object({
             english: z.string(),
             arabic: z.string()

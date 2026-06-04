@@ -124,7 +124,7 @@ function FlashCardItemComponent({ id, index, remove, itemsCount }: FlashCardItem
                         </div>
 
                         {category === "english" && (
-                            <div className="w-full md:w-1/4 space-y-2">
+                            <div className="w-full md:w-1/5 space-y-2">
                                 <Label htmlFor={`wordType-${index}`}>Type <span className="text-muted-foreground font-normal">(Optional)</span></Label>
                                 <select
                                     id={`wordType-${index}`}
@@ -148,6 +148,25 @@ function FlashCardItemComponent({ id, index, remove, itemsCount }: FlashCardItem
                                 </p>
                             </div>
                         )}
+
+                        {category === "english" && (
+                            <div className="w-full md:w-1/5 space-y-2">
+                                <Label htmlFor={`englishVariant-${index}`}>Variant <span className="text-muted-foreground font-normal">(Optional)</span></Label>
+                                <select
+                                    id={`englishVariant-${index}`}
+                                    className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+                                    {...register(`flashcards.${index}.englishVariant`)}
+                                >
+                                    <option value="" className="bg-popover text-popover-foreground">Select Variant</option>
+                                    <option value="American" className="bg-popover text-popover-foreground">American</option>
+                                    <option value="British" className="bg-popover text-popover-foreground">British</option>
+                                </select>
+                                <p className={`transition-all ${errors.flashcards?.[index]?.englishVariant ? "h-4" : "h-0 overflow-hidden"}`}>
+                                    {errors.flashcards?.[index]?.englishVariant && <span className="text-sm text-red-500">{errors.flashcards[index]?.englishVariant?.message}</span>}
+                                </p>
+                            </div>
+                        )}
+
 
                         <div className="w-full md:w-1/6 flex flex-col items-start gap-2 pt-1">
                             {imageUrl ? (
@@ -239,7 +258,7 @@ function FlashCardItemComponent({ id, index, remove, itemsCount }: FlashCardItem
                                         className="absolute right-2 top-2 h-6 w-6 text-muted-foreground hover:text-red-500 opacity-0 group-hover/example:opacity-100 transition-opacity z-10"
                                         onClick={() => {
                                             const currentExamples = watch(`flashcards.${index}.examples`) || [];
-                                            const newExamples = currentExamples.filter((_: any, i: number) => i !== exIndex);
+                                            const newExamples = currentExamples.filter((_, i: number) => i !== exIndex);
                                             setValue(`flashcards.${index}.examples`, newExamples, { shouldValidate: true });
                                         }}
                                     >

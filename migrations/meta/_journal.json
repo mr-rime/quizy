@@ -225,6 +225,13 @@
       "when": 1776644586472,
       "tag": "0031_famous_radioactive_man",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1780530857350,
+      "tag": "0032_broken_mandrill",
+      "breakpoints": true
     }
   ]
 }

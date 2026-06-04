@@ -27,6 +27,7 @@ interface Flashcard {
     imageUrl: string | null;
     examples?: { english: string; arabic: string }[] | null;
     wordType?: string | null;
+    englishVariant?: string | null;
 }
 
 interface QuizGameProps {
@@ -305,6 +306,11 @@ export function QuizGame({ cards, setId, userId, playAudioOnProgress = false, ca
                         <div className="text-lg sm:text-xl font-serif text-muted-foreground italic mt-2">
                             ({currentQuestion.card.wordType})
                         </div>
+                    )}
+                    {currentQuestion.card.englishVariant && (
+                        <span className="text-sm sm:text-base text-muted-foreground px-2 py-0.5 rounded-full bg-accent/50 font-medium">
+                            {currentQuestion.card.englishVariant === "American" ? "🇺🇸 American" : "🇬🇧 British"}
+                        </span>
                     )}
                     {currentQuestion.card.imageUrl && (
                         <div className="relative w-full max-w-md max-h-32 sm:max-h-40 lg:max-h-48 flex items-center justify-center mt-2">

@@ -26,6 +26,7 @@ interface Flashcard {
     imageUrl: string | null;
     examples?: { english: string; arabic: string }[] | null;
     wordType?: string | null;
+    englishVariant?: string | null;
 }
 
 interface WritingGameProps {
@@ -239,6 +240,11 @@ export function WritingGame({ cards, setId, setTitle, category }: WritingGamePro
                         <div className="text-xl font-serif text-muted-foreground italic">
                             ({currentCard.wordType})
                         </div>
+                    )}
+                    {currentCard.englishVariant && (
+                        <span className="text-base text-muted-foreground px-2 py-0.5 rounded-full bg-accent/50 font-medium">
+                            {currentCard.englishVariant === "American" ? "🇺🇸 American" : "🇬🇧 British"}
+                        </span>
                     )}
                 </div>
 

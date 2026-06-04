@@ -1,0 +1,1 @@
+ALTER TABLE "card" ADD COLUMN "english_variant" varchar(50);

@@ -57,6 +57,7 @@ export async function updateFlashcardSet(data: UpdateFlashcardSetInput) {
                         imageUrl: card.image,
                         examples: card.examples,
                         wordType: card.wordType,
+                        englishVariant: card.englishVariant,
                     }))
                 );
             }

@@ -100,6 +100,7 @@ export const cards = pgTable("card", {
     imageUrl: varchar("image_url", { length: 500 }),
     examples: json("examples"),
     wordType: varchar("word_type", { length: 50 }),
+    englishVariant: varchar("english_variant", { length: 50 }),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at")
         .defaultNow()

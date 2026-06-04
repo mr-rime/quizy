@@ -170,6 +170,11 @@ export function FlashcardDisplay({
                                 ({card.wordType})
                             </span>
                         )}
+                        {card.englishVariant && (
+                            <span className="text-sm sm:text-base text-muted-foreground mt-1 px-2 py-0.5 rounded-full bg-accent/50 font-medium">
+                                {card.englishVariant === "American" ? "🇺🇸 American" : "🇬🇧 British"}
+                            </span>
+                        )}
                     </Card>
 
                     <Card

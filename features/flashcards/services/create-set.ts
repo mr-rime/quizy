@@ -40,6 +40,7 @@ export async function createFlashcardSet(data: CreateFlashcardSetInput) {
                         imageUrl: card.image,
                         examples: card.examples,
                         wordType: card.wordType,
+                        englishVariant: card.englishVariant,
                     }))
                 );
             }

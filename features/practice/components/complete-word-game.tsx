@@ -23,6 +23,7 @@ interface Flashcard {
     imageUrl: string | null;
     examples?: { english: string; arabic: string }[] | null;
     wordType?: string | null;
+    englishVariant?: string | null;
 }
 
 interface CompleteWordGameProps {
@@ -422,6 +423,11 @@ const ActiveGameCard = memo(({
                 {card.wordType && (
                     <div className="text-xl font-serif text-muted-foreground italic mb-4">
                         ({card.wordType})
+                    </div>
+                )}
+                {card.englishVariant && (
+                    <div className="text-xl text-muted-foreground px-3 py-1 rounded-full bg-accent/50 font-medium mb-4">
+                        {card.englishVariant === "American" ? "🇺🇸 American" : "🇬🇧 British"}
                     </div>
                 )}
 

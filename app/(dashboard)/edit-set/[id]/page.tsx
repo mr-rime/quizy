@@ -27,6 +27,7 @@ export default async function EditSetPage({ params }: PageProps) {
             definition: card.definition || "",
             image: card.imageUrl || "",
             wordType: card.wordType || "",
+            englishVariant: card.englishVariant || "",
             examples: (card.examples as { english: string; arabic: string;[key: string]: string }[]) || [],
         })),
     };
