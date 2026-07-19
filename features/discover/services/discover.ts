@@ -12,8 +12,8 @@ export async function getPublicSets(searchQuery?: string, limit = 20, offset = 0
                 and(
                     eq(flashcardSets.isPublished, true),
                     eq(flashcardSets.isPublic, true),
-                    ne(users.role, "admin"),
-                    eq(users.isPrivate, false)
+                    // ne(users.role, "admin"),
+                    // eq(users.isPrivate, false)
                 )
             ];
 
@@ -68,8 +68,8 @@ export async function getPublicFolders(searchQuery?: string, limit = 20, offset 
                 and(
                     eq(folders.isPublished, true),
                     eq(folders.isPublic, true),
-                    ne(users.role, "admin"),
-                    eq(users.isPrivate, false)
+                    // ne(users.role, "admin"),
+                    // eq(users.isPrivate, false)
                 )
             ];
 

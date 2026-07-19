@@ -1,7 +1,7 @@
-import { getPublicSets, getPublicFolders } from "@/features/discover/services/discover";
 import { DiscoverClient } from "@/features/discover/components/discover-client";
 import { Compass } from "lucide-react";
 import { getCurrentUser } from "@/features/user/services/user";
+import { getPublicFolders, getPublicSets } from "@/features/discover/services/discover";
 
 
 
