@@ -14,7 +14,7 @@ interface PageProps {
 export default async function FolderPage({ params }: PageProps) {
     const { id } = await params;
     const userId = await getOptionalUserId()
-    const folder = await getFolder(id, userId || "");
+    const folder = await getFolder(id);
 
     if (!folder) {
         notFound();

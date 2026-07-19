@@ -1,8 +1,8 @@
 "use server"
 
 import { db } from "@/db/drizzle";
-import { folders, folderSets, users } from "@/db/schema";
-import { eq, and, desc, inArray, or, ne, exists, asc } from "drizzle-orm";
+import { folders, folderSets } from "@/db/schema";
+import { eq, and, desc, inArray, asc } from "drizzle-orm";
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { createFolderSchema, CreateFolderSchema, UpdateFolderSchema } from "../utils/validations";
@@ -70,10 +70,10 @@ export async function getFolders(userId: string) {
     )();
 }
 
-export async function getFolder(id: string, userId: string) {
+export async function getFolder(id: string) {
     return unstable_cache(
         async () => {
-            const folder = await db.query.folders.findFirst({
+            return db.query.folders.findFirst({
                 where: eq(folders.id, id),
                 with: {
                     folderSets: {
@@ -81,40 +81,19 @@ export async function getFolder(id: string, userId: string) {
                             set: {
                                 with: {
                                     user: true,
-                                    cards: true
-                                }
-                            }
+                                    cards: true,
+                                },
+                            },
                         },
-                        orderBy: [asc(folderSets.order)]
-                    }
-                }
+                        orderBy: [asc(folderSets.order)],
+                    },
+                },
             });
-
-            if (!folder) return undefined;
-
-            // Owner access
-            if (folder.userId === userId) return folder;
-
-            // Public access check
-            if (folder.isPublic) {
-                const owner = await db.query.users.findFirst({
-                    where: eq(users.id, folder.userId),
-                    columns: { role: true }
-                });
-
-                if (owner?.role === "admin") {
-                    const viewerIsAdmin = await isAdmin(userId);
-                    if (!viewerIsAdmin) return undefined;
-                }
-                return folder;
-            }
-
-            return undefined;
         },
-        ["folder", id, userId],
+        ["folder", id],
         {
             revalidate: 60,
-            tags: ["folder"]
+            tags: ["folder"],
         }
     )();
 }
