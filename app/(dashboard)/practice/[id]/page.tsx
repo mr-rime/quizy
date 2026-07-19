@@ -15,7 +15,7 @@ export default async function PracticePage({ params }: PageProps) {
     const user = await getCurrentUser();
     const userId = user?.id || "";
 
-    const setPromise = getFlashcardSet(id, userId);
+    const setPromise = getFlashcardSet(id);
 
     if (!setPromise) {
         notFound();

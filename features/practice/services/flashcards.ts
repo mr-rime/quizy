@@ -1,7 +1,7 @@
 "use server"
 
 import { db } from "@/db/drizzle";
-import { flashcardSets, folders, folderSets, users } from "@/db/schema";
+import { flashcardSets, users } from "@/db/schema";
 import { eq, and, ilike, ne } from "drizzle-orm";
 import { getCurrentUser, getUserId } from "@/features/user/services/user";
 import { revalidatePath, revalidateTag } from "next/cache";
@@ -9,45 +9,11 @@ import { redirect } from "next/navigation";
 import { unstable_cache } from "next/cache";
 
 export const getFlashcardSet = unstable_cache(
-    async (id: string, userId: string) => {
-        if (!id) {
-            console.error("ID is undefined or null");
-            return null;
-        }
+    async (id: string) => {
+        if (!id) return null;
 
-        const set = await db.query.flashcardSets.findFirst({
-            where: (flashcardSets, { eq, and, or, exists }) => and(
-                eq(flashcardSets.id, id),
-                or(
-                    eq(flashcardSets.userId, userId),
-                    and(
-                        eq(flashcardSets.isPublic, true),
-                        exists(
-                            db.select()
-                                .from(users)
-                                .where(and(
-                                    eq(users.id, flashcardSets.userId),
-                                    or(
-                                        // Allow non-admin, non-private content
-                                        and(
-                                            eq(users.isPrivate, false),
-                                            ne(users.role, "admin")
-                                        ),
-                                        // OR allow if viewer is admin
-                                        exists(
-                                            db.select()
-                                                .from(users)
-                                                .where(and(
-                                                    eq(users.id, userId),
-                                                    eq(users.role, "admin")
-                                                ))
-                                        )
-                                    )
-                                ))
-                        )
-                    )
-                )
-            ),
+        return db.query.flashcardSets.findFirst({
+            where: eq(flashcardSets.id, id),
             with: {
                 cards: true,
                 user: {
@@ -55,51 +21,44 @@ export const getFlashcardSet = unstable_cache(
                         id: true,
                         username: true,
                         image: true,
-                    }
+                    },
                 },
                 folderSets: {
                     with: {
-                        folder: true
-                    }
-                }
+                        folder: true,
+                    },
+                },
             },
         });
-
-        return set;
     },
     ["flashcard-set"],
     {
         revalidate: 60,
-        tags: ["flashcard-set"]
+        tags: ["flashcard-set"],
     }
 );
 
 export const getFlashcardSets = unstable_cache(
-    async (userId: string, limit: number = 20, offset: number = 0) => {
-        if (!userId) return [];
-
-        const sets = await db.query.flashcardSets.findMany({
-            where: eq(flashcardSets.userId, userId),
+    async (limit: number = 20, offset: number = 0) => {
+        return db.query.flashcardSets.findMany({
             with: {
                 cards: true,
                 user: true,
             },
             orderBy: (sets, { desc }) => [desc(sets.createdAt)],
-            limit: limit,
-            offset: offset,
+            limit,
+            offset,
         });
-        return sets;
     },
     ["flashcard-sets"],
     {
         revalidate: 3600,
-        tags: ["flashcard-sets"]
+        tags: ["flashcard-sets"],
     }
 );
 
 export async function getFlashcardSetsClient() {
-    const userId = await getUserId();
-    return getFlashcardSets(userId);
+    return getFlashcardSets();
 }
 
 export async function deleteFlashcardSet(id: string) {
