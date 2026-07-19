@@ -2,7 +2,6 @@ import { CompleteWordGame } from "@/features/practice/components/complete-word-g
 import { notFound } from "next/navigation";
 import { getFlashcardSet } from "@/features/practice/services/flashcards";
 import { cache } from "react";
-import { getCurrentUser } from "@/features/user/services/user";
 import { Flashcard } from "@/features/practice/types";
 
 interface PageProps {
@@ -11,15 +10,13 @@ interface PageProps {
     }>;
 }
 
-const getData = cache(async (id: string, userId: string) => {
-    return await getFlashcardSet(id, userId);
+const getData = cache(async (id: string) => {
+    return await getFlashcardSet(id);
 });
 
 export default async function CompleteWordPage({ params }: PageProps) {
     const { id } = await params;
-    const user = await getCurrentUser();
-    const userId = user?.id || "";
-    const set = await getData(id, userId);
+    const set = await getData(id);
 
     if (!set) {
         notFound();

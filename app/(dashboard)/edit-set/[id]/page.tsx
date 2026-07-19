@@ -1,6 +1,5 @@
 import { FlashcardForm } from "@/features/flashcards/components/flashcard-form";
 import { getFlashcardSet } from "@/features/practice/services/flashcards";
-import { getUserId } from "@/features/user/services/user";
 import { notFound } from "next/navigation";
 
 interface PageProps {
@@ -9,9 +8,8 @@ interface PageProps {
 
 export default async function EditSetPage({ params }: PageProps) {
     const { id } = await params;
-    const userId = await getUserId();
 
-    const set = await getFlashcardSet(id, userId);
+    const set = await getFlashcardSet(id);
 
     if (!set) {
         notFound();

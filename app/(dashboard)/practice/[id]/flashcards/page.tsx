@@ -20,13 +20,13 @@ const getFlashcardsData = cache(async (id: string) => {
     const userId = user?.id || "";
 
     if (!userId) {
-        const set = await getFlashcardSet(id, "");
+        const set = await getFlashcardSet(id);
         return { set, favoriteIds: [], userId: "" };
     }
 
     const [favorites, set] = await Promise.all([
         getFavorites(userId),
-        getFlashcardSet(id, userId)
+        getFlashcardSet(id)
     ]);
     const favoriteIds = favorites.map(f => f.id);
     return { set, favoriteIds, userId };

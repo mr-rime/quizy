@@ -14,15 +14,15 @@ interface PageProps {
     }>;
 }
 
-const getData = cache(async (id: string, userId: string) => {
-    return await getFlashcardSet(id, userId);
+const getData = cache(async (id: string) => {
+    return await getFlashcardSet(id);
 });
 
 export default async function QuizzesPage({ params }: PageProps) {
     const { id } = await params;
     const user = await getCurrentUser();
     const userId = user?.id || "";
-    const set = await getData(id, userId);
+    const set = await getData(id);
 
     if (!set) {
         notFound();
