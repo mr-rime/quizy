@@ -9,7 +9,7 @@ export const revalidate = 3600;
 const getLibraryData = cache(async () => {
     const userId = await getUserId();
     const [sets, folders] = await Promise.all([
-        getFlashcardSets(userId),
+        getFlashcardSets(),
         getFolders(userId)
     ]);
     return { sets, folders };
